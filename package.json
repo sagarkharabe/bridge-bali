@@ -1,0 +1,28 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "[![Built at SchoolOfAcceleratedLearning](https://img.shields.io/badge/Built%20at-SchoolOfAcceleratedLearning-red.svg?style=round-square)](https://schoolofacceleratedlearning.com/)",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sagarkharbe/new_mario_phaserjs.git"
+  },
+  "author": "Sagar Kharabe",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sagarkharbe/new_mario_phaserjs/issues"
+  },
+  "homepage": "https://github.com/sagarkharbe/new_mario_phaserjs#readme",
+  "devDependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "express-session": "^1.15.6",
+    "mongoose": "^5.4.16",
+    "nodemon": "^1.18.10",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0"
+  }
+}
