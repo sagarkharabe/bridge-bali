@@ -15,9 +15,9 @@ const sendDocIfOwnerOrAdmin = (doc, user, res) => {
 
 //exported function
 
-export const createDoc = (ModelStr, tieToUse = false) => (req, res, next) => {
+export const createDoc = (ModelStr, tieToUser = false) => (req, res, next) => {
   const Model = mongoose.model(ModelStr);
-  if (tieToUser) req.body.user = req.user._id;
+  if (tieToUser) req.body[tieToUser] = req.user._id;
 
   Model.create(req.body)
     .then(document => res.status(201).json(document))
