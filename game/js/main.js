@@ -13,9 +13,9 @@ var config = {
   // }
 };
 var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, "gameContainer");
-
-game.state.add("boot", STATE_BOOT);
-game.state.add("load", STATE_LOAD);
-game.state.add("game", STATE_GAME);
+console.log(game);
+game.state.add("boot", initBootState());
+game.state.add("load", initLoadState());
+game.state.add("game", initGameState());
 
 game.state.start("boot");

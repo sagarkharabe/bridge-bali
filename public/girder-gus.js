@@ -1,15 +1,35 @@
+var FULLSCREEN = false;
+var WIDTH = FULLSCREEN ? window.innerWidth * window.devicePixelRatio : 800,
+  HEIGHT = FULLSCREEN ? window.innerHeight * window.devicePixelRatio : 600;
+
+// initialize the game
+var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, "gameContainer");
+
+// add states
+game.state.add("boot", initBootState());
+game.state.add("load", initLoadState());
+game.state.add("game", initGameState());
+
+game.state.start("boot");
+var COLORS = {
+  BACKGROUND_SKY: "#4428BC"
+};
+
+var EPSILON = 0.0001;
 function Gus(x, y) {
   this.speed = 250;
+
   this.sprite = game.add.sprite(x, y, "Gus");
   this.sprite.anchor.setTo(0.5, 0.5);
 
   game.physics.enable(this.sprite, Phaser.Physics.ARCADE);
 
   this.sprite.body.gravity.y = 500;
-  this.sprite.body.maxVelocity = 1000;
+  this.sprite.body.maxVelocity.y = 1000;
 
-  this.sprite.animation.add("stand", [0], 10, true);
-  this.sprite.animation.add("walk", [1, 2], 10, true);
+  this.sprite.animations.add("stand", [0], 10, true);
+  this.sprite.animations.add("walk", [1, 2], 10, true);
+
   this.facing = "right";
   this.rotation = 0;
   this.prevRotation = 0;
@@ -18,19 +38,20 @@ function Gus(x, y) {
   this.canRotate = true;
   this.targetRotation = 0;
 }
+
 Gus.prototype.isTouching = function(side) {
   if (side === "left") {
     if (this.rotation === 0) return this.sprite.body.touching.left;
-    if (this.rotation === Math.PI / 2) return this.sprite.body.touching.down;
+    if (this.rotation === Math.PI / 2) return this.sprite.body.touching.up;
     if (this.rotation === Math.PI) return this.sprite.body.touching.right;
     if (this.rotation === (3 * Math.PI) / 2)
-      return this.sprite.body.touching.up;
+      return this.sprite.body.touching.down;
   } else {
     if (this.rotation === 0) return this.sprite.body.touching.right;
-    if (this.rotation === Math.PI / 2) return this.sprite.body.touching.up;
+    if (this.rotation === Math.PI / 2) return this.sprite.body.touching.down;
     if (this.rotation === Math.PI) return this.sprite.body.touching.left;
     if (this.rotation === (3 * Math.PI) / 2)
-      return this.sprite.body.touching.down;
+      return this.sprite.body.touching.up;
   }
 
   console.error(
@@ -141,3 +162,88 @@ Gus.prototype.update = function() {
     }
   }
 };
+function initBootState() {
+  var state = {};
+
+  state.create = function() {
+    // start game physics
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+
+    game.state.start("load");
+  };
+
+  return state;
+}
+
+function initGameState() {
+  var state = {};
+  var gus, blocks;
+
+  state.preload = function() {};
+
+  state.create = function() {
+    game.add.plugin(Phaser.Plugin.Debug);
+    game.world.setBounds(-400, -300, 800, 600);
+
+    gus = new Gus(0, 0);
+
+    blocks = game.add.group();
+    blocks.enableBody = true;
+
+    for (var i = 0; i < 10; ++i) {
+      var newBlock = blocks.create(-128 + 32 * i, 128, "BrickRed");
+      newBlock.body.immovable = true;
+    }
+
+    for (var i = 0; i < 10; ++i) {
+      var newBlock = blocks.create(-160, 128 - 32 * i, "BrickRed");
+      newBlock.body.immovable = true;
+    }
+
+    for (var i = 0; i < 10; ++i) {
+      var newBlock = blocks.create(-256, 128 - 32 * i, "BrickRed");
+      newBlock.body.immovable = true;
+    }
+
+    cursors = game.input.keyboard.createCursorKeys();
+
+    game.camera.follow(gus.sprite, game.camera.FOLLOW_PLATFORMER);
+  };
+
+  state.update = function() {
+    game.physics.arcade.collide(gus.sprite, blocks);
+
+    gus.update();
+
+    game.camera.displayObject.pivot.x = gus.sprite.position.x;
+    game.camera.displayObject.pivot.y = gus.sprite.position.y;
+    //game.camera.displayObject.rotation = (Math.PI * 2) - gus.sprite.rotation;
+    //game.world.rotation = (Math.PI * 2) - gus.rotation;
+    //game.physics.arcade.collide( gus.sprite, blocks );
+  };
+
+  return state;
+}
+
+function initLoadState() {
+  var state = {};
+
+  state.preload = function() {
+    game.load.image("BrickBlack", "game/images/brick_black.png");
+    game.load.image("BrickBreak", "game/images/brick_break.png");
+    game.load.image("BrickRed", "game/images/brick_red.png");
+    game.load.image("Girder", "game/images/girder.png");
+    game.load.image("Tool", "game/images/tool.png");
+    game.load.spritesheet("Gus", "game/images/gus.png", 32, 32);
+  };
+
+  state.create = function() {
+    // set background color
+    game.stage.setBackgroundColor(COLORS.BACKGROUND_SKY);
+
+    // start game state
+    game.state.start("game");
+  };
+
+  return state;
+}
