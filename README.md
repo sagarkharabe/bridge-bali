@@ -6,4 +6,4 @@ New Mario is an in-browser HTML5 game and level editing community. Build bridges
 
 # Technologies
 
-PhaserJS
+- [PhaserJS](http://phaser.io/)

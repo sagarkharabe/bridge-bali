@@ -24,5 +24,9 @@
     "nodemon": "^1.18.10",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0"
+  },
+  "dependencies": {
+    "phaser": "^3.16.2",
+    "phaser-debug": "^1.1.8"
   }
 }
