@@ -15,20 +15,21 @@ const sendDocIfOwnerOrAdmin = (doc, user, res) => {
 
 //exported function
 
-export const createDoc = (ModelStr, tieToUser = false) => (req, res, next) => {
-  const Model = mongoose.model(ModelStr);
-  if (tieToUser) req.body[tieToUser] = req.user._id;
-
-  Model.create(req.body)
-    .then(document => res.status(201).json(document))
-    .then(null, next);
+const createDoc = (ModelStr, tieToUser = false) => {
+  return (req, res, next) => {
+    const Model = mongoose.model(ModelStr);
+    if (tieToUser) req.body[tieToUser] = req.user._id;
+    Model.create(req.body)
+      .then(document => res.status(201).json(document))
+      .then(null, next);
+  };
 };
 
-export const getDocsAndSend = (
-  ModelStr,
-  refPropName = false,
-  populateParams = []
-) => (req, res, next) => {
+const getDocsAndSend = (ModelStr, refPropName = false, populateParams = []) => (
+  req,
+  res,
+  next
+) => {
   const Model = mongoose.model(ModelStr);
   const query = {};
   if (refPropName) query[refPropName] = req.params.id;
@@ -39,11 +40,7 @@ export const getDocsAndSend = (
     .then(null, next);
 };
 
-export const getDocAndSend = (ModelStr, populateParams = []) => (
-  req,
-  res,
-  next
-) => {
+const getDocAndSend = (ModelStr, populateParams = []) => (req, res, next) => {
   const id = req.params.id;
   const Model = mongoose.model(ModelStr);
 
@@ -53,7 +50,7 @@ export const getDocAndSend = (ModelStr, populateParams = []) => (
     .then(null, next);
 };
 
-export const getDocAndUpdate = ModelStr => (req, res, next) => {
+const getDocAndUpdate = ModelStr => (req, res, next) => {
   const id = req.params.id;
   const Model = mongoose.model(ModelStr);
 
@@ -64,7 +61,7 @@ export const getDocAndUpdate = ModelStr => (req, res, next) => {
     .then(null, next);
 };
 
-export const getDocAndDelete = ModelStr => (req, res, next) => {
+const getDocAndDelete = ModelStr => (req, res, next) => {
   const id = req.params.id;
   const Model = mongoose.model(ModelStr);
 
@@ -76,7 +73,7 @@ export const getDocAndDelete = ModelStr => (req, res, next) => {
     .then(null, next);
 };
 
-export const getDocAndSendIfOwnerOrAdmin = (ModelStr, populateParams = []) => (
+const getDocAndSendIfOwnerOrAdmin = (ModelStr, populateParams = []) => (
   req,
   res,
   next
@@ -92,7 +89,7 @@ export const getDocAndSendIfOwnerOrAdmin = (ModelStr, populateParams = []) => (
     })
     .then(null, next);
 };
-export const getDocAndUpdateIfOwnerOrAdmin = ModelStr => (req, res, next) => {
+const getDocAndUpdateIfOwnerOrAdmin = ModelStr => (req, res, next) => {
   const id = req.params.id;
   const Model = mongoose.model(ModelStr);
 
@@ -109,7 +106,7 @@ export const getDocAndUpdateIfOwnerOrAdmin = ModelStr => (req, res, next) => {
     .then(null, next);
 };
 
-export const getDocs = (ModelStr, refPropName = false) => (req, res, next) => {
+const getDocs = (ModelStr, refPropName = false) => (req, res, next) => {
   const Model = mongoose.model(ModelStr);
   let query = {};
   if (refPropName) {
@@ -122,7 +119,7 @@ export const getDocs = (ModelStr, refPropName = false) => (req, res, next) => {
 };
 
 // returns middleware
-export const getDocAndDeleteIfOwnerOrAdmin = ModelStr => (req, res, next) => {
+const getDocAndDeleteIfOwnerOrAdmin = ModelStr => (req, res, next) => {
   const id = req.params.id;
   const Model = mongoose.model(ModelStr);
 
@@ -135,4 +132,16 @@ export const getDocAndDeleteIfOwnerOrAdmin = ModelStr => (req, res, next) => {
     })
     .then(document => res.json(document))
     .then(null, next);
+};
+
+module.exports = {
+  getDocs,
+  createDoc,
+  getDocAndSend,
+  getDocsAndSend,
+  getDocAndUpdate,
+  getDocAndDelete,
+  getDocAndSendIfOwnerOrAdmin,
+  getDocAndUpdateIfOwnerOrAdmin,
+  getDocAndDeleteIfOwnerOrAdmin
 };

@@ -1,12 +1,12 @@
 const router = require("express").Router();
-import {
+const {
   createDoc,
   getDocAndSend,
   getDocsAndSend,
   getDocAndUpdateIfOwnerOrAdmin,
   getDocAndDeleteIfOwnerOrAdmin
-} from "./helpers/crud";
-import { mustBeLoggedIn } from "./helpers/permissions";
+} = require("./helpers/crud");
+const { mustBeLoggedIn } = require("./helpers/permissions");
 
 // guest can see all levels
 router.get("/", getDocsAndSend("Level"));

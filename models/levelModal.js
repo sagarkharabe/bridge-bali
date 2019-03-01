@@ -6,6 +6,7 @@ const schema = new mongoose.Schema({
     ref: "Users"
   },
   map: {
+    type: String,
     required: true
   },
   dateCreated: {
