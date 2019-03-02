@@ -1,6 +1,7 @@
 var Gus = require("../objects/gus");
 var GirderMarker = require("../objects/girderMarker");
 var RedBrickBlock = require("../objects/redbrick");
+var BlackBrickBlock = require("../objects/blackbrick");
 function initGameState() {
   var state = {};
   var gus, blocks, marker;
@@ -21,11 +22,11 @@ function initGameState() {
 
     console.log("Creating blocks...");
 
-    for (var i = 0; i < 10; ++i) {
+    for (let i = 0; i < 10; ++i) {
       blocks.push(new RedBrickBlock(-128 + 32 * i, 128));
     }
-    for (var i = 0; i < 10; ++i) {
-      var block = new BlackBrickBlock(64, 96 - 32 * i);
+    for (let i = 0; i < 10; ++i) {
+      blocks.push(new BlackBrickBlock(64, 96 - 32 * i));
     }
     console.log("Binding to keys...");
 

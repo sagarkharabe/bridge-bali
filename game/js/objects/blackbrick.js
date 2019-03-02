@@ -1,4 +1,7 @@
+var COLLISION_GROUPS = require("../consts/collisionGroups");
+
 function BlackBrickBlock(x, y) {
+  var game = window.game;
   x = Math.floor(x / 32) * 32;
   y = Math.floor(y / 32) * 32;
 
@@ -11,3 +14,4 @@ function BlackBrickBlock(x, y) {
   this.sprite.body.collides([COLLISION_GROUPS.PLAYER_SOLID]);
   this.sprite.body.static = true;
 }
+module.exports = BlackBrickBlock;
