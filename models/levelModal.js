@@ -24,7 +24,8 @@ schema.pre("save", function(next) {
 
 // add level to creator's createdLevels if level is new
 schema.post("save", function(doc, next) {
-  if (doc.isNew) {
+  if (doc.wasNew) {
+    console.log("this doc is new");
     User.findById(doc.creator)
       .then(function(user) {
         return user.addLevel(doc._id);
@@ -37,12 +38,17 @@ schema.post("save", function(doc, next) {
   }
 });
 schema.post("save", function(doc, next) {
+  console.log("hitting post save");
   User.findById(doc.creator)
     .populate("createdLevels", "starCount")
     .then(function(user) {
       return user.setStars();
     })
     .then(function(user) {
+      next();
+    })
+    .then(null, function(error) {
+      console.error(error);
       next();
     });
 });
