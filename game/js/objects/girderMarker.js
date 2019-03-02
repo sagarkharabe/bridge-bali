@@ -1,4 +1,8 @@
+var game = window.game;
+
+var EPSILON = require("../consts").EPSILON;
 function GirderMarker() {
+  if (game === undefined) game = window.game;
   this.sprite = game.add.sprite(0, 0, "Girder");
   this.sprite.anchor = new Phaser.Point(0.5, 0.5);
   this.master = null;
@@ -15,9 +19,8 @@ GirderMarker.prototype.setMaster = function(newMaster) {
 GirderMarker.prototype.masterRight = function() {
   var masterPos = this.master.sprite.position;
   var cosine = Math.cos(this.master.rotation);
-  //if ( cosine < 0 ) cosine *= 2;
+
   var sine = Math.sin(this.master.rotation);
-  //if ( sine < 0 ) sine *= 2;
 
   masterPos.top = function() {
     if (Math.abs(cosine) > 1 - EPSILON)
@@ -51,9 +54,8 @@ GirderMarker.prototype.masterRight = function() {
 GirderMarker.prototype.masterLeft = function() {
   var masterPos = this.master.sprite.position;
   var cosine = Math.cos(this.master.rotation);
-  //if ( cosine < 0 ) cosine *= 2;
+
   var sine = Math.sin(this.master.rotation);
-  //if ( sine < 0 ) sine *= 2;
 
   masterPos.top = function() {
     if (Math.abs(cosine) > 1 - EPSILON)
@@ -85,8 +87,9 @@ GirderMarker.prototype.masterLeft = function() {
 };
 
 GirderMarker.prototype.getTargetPos = function() {
-  if (this.master.facingRight) var posFactory = this.masterRight();
-  else var posFactory = this.masterLeft();
+  var posFactory = null;
+  if (this.master.facingRight) posFactory = this.masterRight();
+  else posFactory = this.masterLeft();
 
   var bottom = posFactory.bottom();
 
@@ -139,3 +142,5 @@ GirderMarker.prototype.update = function() {
     }
   }
 };
+
+module.exports = GirderMarker;

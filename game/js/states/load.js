@@ -1,4 +1,5 @@
 //const { COLOR } = require("../const/colors");
+var game = window.game;
 function initLoadState() {
   var state = {};
 
@@ -35,3 +36,4 @@ function initLoadState() {
 
   return state;
 }
+module.exports = initLoadState;

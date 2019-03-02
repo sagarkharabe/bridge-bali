@@ -1,7 +1,10 @@
+var Gus = require("../objects/gus");
+var GirderMarker = require("../objects/girderMarker");
+var RedBrickBlock = require("../objects/redbrick");
 function initGameState() {
   var state = {};
   var gus, blocks, marker;
-
+  var game = window.game;
   state.preload = function() {};
 
   state.create = function() {
@@ -19,14 +22,14 @@ function initGameState() {
     console.log("Creating blocks...");
 
     for (var i = 0; i < 10; ++i) {
-      var block = new RedBrickBlock(-128 + 32 * i, 128);
+      blocks.push(new RedBrickBlock(-128 + 32 * i, 128));
     }
     for (var i = 0; i < 10; ++i) {
       var block = new BlackBrickBlock(64, 96 - 32 * i);
     }
     console.log("Binding to keys...");
 
-    window.cursors = game.input.keyboard.createCursorKeys();
+    game.cursors = game.input.keyboard.createCursorKeys();
     marker.setPlaceGirderButton(
       game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
     );
@@ -47,3 +50,4 @@ function initGameState() {
 
   return state;
 }
+module.exports = initGameState;

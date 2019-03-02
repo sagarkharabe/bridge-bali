@@ -1,6 +1,8 @@
+var COLLISION_GROUPS = require("../consts/collisionGroups");
+
 function initBootState() {
   var state = {};
-
+  var game = window.game;
   state.create = function() {
     // start game physics
     console.log("Initializing physics...");
@@ -19,3 +21,4 @@ function initBootState() {
 
   return state;
 }
+module.exports = initBootState;
