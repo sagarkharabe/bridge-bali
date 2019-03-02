@@ -1,7 +1,8 @@
 var Gus = require("../objects/gus");
 var GirderMarker = require("../objects/girderMarker");
-var RedBrickBlock = require("../objects/redbrick");
+var RedBrickBlock = require("../objects/blocks").RedBrickBlock;
 var BlackBrickBlock = require("../objects/blackbrick");
+var BlackBrickBlock = require("../objects/blocks").BlackBrickBlock;
 function initGameState() {
   var state = {};
   var blocks = [];

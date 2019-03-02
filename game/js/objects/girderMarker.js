@@ -1,5 +1,5 @@
 var game = window.game;
-var Girder = require("./girder");
+var Girder = require("./blocks").Girder;
 
 var COLLISION_GROUPS = require("../consts/collisionGroups");
 var EPSILON = require("../consts").EPSILON;
