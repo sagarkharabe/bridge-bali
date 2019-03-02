@@ -1,7 +1,9 @@
-//const { COLOR } = require("../const/colors");
+var LevelGenerator = require("../generator");
 var game = window.game;
 function initLoadState() {
   var state = {};
+  var game = window.game;
+  var generator;
 
   state.preload = function() {
     console.log("Loading assets...");
@@ -15,23 +17,32 @@ function initLoadState() {
     game.load.image("Girder", "public/assets/images/girder.png");
     game.load.image("Tool", "public/assets/images/tool.png");
     game.load.spritesheet("Gus", "public/assets/images/gus.png", 32, 32);
+    console.log("Loading level data...");
 
+    var level = {};
+
+    generator = new LevelGenerator(level);
     console.log("Done loading");
   };
 
   state.create = function() {
     game.world.setBounds(-400, -300, 800, 600);
+    game.stage.setBackgroundColor(generator.getSkyColor());
+
+    // generate the rest of the fucking level
+    generator.parseObjects();
+    game.state.start("game");
     // set background color
-    game.stage.setBackgroundColor("#4428BC");
-    game.map = game.add.tilemap(null, 32, 32, 60, 60);
-    game.map.addTilesetImage("BrickRed", "BrickRed");
-    game.map.layer1 = game.map.create("Blocks", 60, 60, 32, 32);
-    game.map.layer1.debug = true;
-    game.map.random(0, 0, 60, 60, game.map.layer1);
+    // game.stage.setBackgroundColor("#4428BC");
+    // game.map = game.add.tilemap(null, 32, 32, 60, 60);
+    // game.map.addTilesetImage("BrickRed", "BrickRed");
+    // game.map.layer1 = game.map.create("Blocks", 60, 60, 32, 32);
+    // game.map.layer1.debug = true;
+    // game.map.random(0, 0, 60, 60, game.map.layer1);
+
     //game.map.layer1.resizeWorld();
 
     // start game state
-    game.state.start("game");
   };
 
   return state;
