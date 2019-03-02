@@ -25,7 +25,7 @@ function Gus(x, y) {
   this.sprite = game.add.sprite(x, y, "Gus");
 
   // attach our sprite to the physics engine
-  game.physics.p2.enable(this.sprite, false);
+  game.physics.p2.enable(this.sprite, true);
   this.sprite.body.fixedRotation = true;
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.PLAYER_SOLID);
   this.sprite.body.collides([
@@ -34,10 +34,7 @@ function Gus(x, y) {
   ]);
 
   // create gus's rotation sensor
-  this.rotationSensor = this.sprite.body.addRectangle(
-    this.sprite.width + 2,
-    20
-  );
+  this.rotationSensor = this.sprite.body.addRectangle(this.sprite.width, 20);
   this.sprite.body.setCollisionGroup(
     COLLISION_GROUPS.PLAYER_SENSOR,
     this.rotationSensor
