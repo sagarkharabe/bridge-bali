@@ -19,12 +19,14 @@ function initGameState() {
     console.log("Creating blocks...");
 
     for (var i = 0; i < 10; ++i) {
-      new RedBrickBlock(-128 + 32 * i, 128);
+      var block = new RedBrickBlock(-128 + 32 * i, 128);
     }
-
+    for (var i = 0; i < 10; ++i) {
+      var block = new BlackBrickBlock(64, 96 - 32 * i);
+    }
     console.log("Binding to keys...");
 
-    cursors = game.input.keyboard.createCursorKeys();
+    window.cursors = game.input.keyboard.createCursorKeys();
     marker.setPlaceGirderButton(
       game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
     );

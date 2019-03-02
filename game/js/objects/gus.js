@@ -254,6 +254,10 @@ Gus.prototype.update = function() {
 
     if (this.rotationSensor.needsCollisionData) {
       this.sprite.body.setCollisionGroup(COLLISION_GROUPS.PLAYER_SOLID);
+      this.sprite.body.setCollisionGroup(
+        COLLISION_GROUPS.PLAYER_SENSOR,
+        this.rotationSensor
+      );
       this.sprite.body.collides([
         COLLISION_GROUPS.BLOCK_SOLID,
         COLLISION_GROUPS.BLOCK_ROTATE
