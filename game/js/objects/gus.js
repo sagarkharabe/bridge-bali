@@ -1,7 +1,7 @@
 function Gus(x, y) {
   this.speed = 250; // walk speed
   this.gravity = 1000; // gravity speed
-  this.hopStrength = 100; // strength of gus's walk cycle hops
+  this.hopStrength = 60; // strength of gus's walk cycle hops
 
   this.rotation = 0; // internal rotation counter
   this.prevRotation = 0; // previous rotation
@@ -14,8 +14,31 @@ function Gus(x, y) {
   this.sprite = game.add.sprite(x, y, "Gus");
 
   // attach our sprite to the physics engine
-  game.physics.p2.enable(this.sprite, false);
+  game.physics.p2.enable(this.sprite, true);
   this.sprite.body.fixedRotation = true;
+  this.sprite.body.setCollisionGroup(COLLISION_GROUPS.PLAYER_SOLID);
+  this.sprite.body.collides([
+    COLLISION_GROUPS.BLOCK_SOLID,
+    COLLISION_GROUPS.BLOCK_ROTATE
+  ]);
+
+  // create gus's rotation sensor
+  this.rotationSensor = this.sprite.body.addRectangle(
+    this.sprite.width + 2,
+    24
+  );
+  this.sprite.body.setCollisionGroup(
+    COLLISION_GROUPS.PLAYER_SENSOR,
+    this.rotationSensor
+  );
+  this.sprite.body.collides(
+    [COLLISION_GROUPS.BLOCK_ROTATE],
+    Gus.prototype.touchesWall,
+    this,
+    this.rotationSensor
+  );
+  this.sprite.body.onBeginContact.add(Gus.prototype.touchesWall, this);
+  //this.sprite.body.collides( [ COLLISION_GROUPS.BLOCK_ROTATE ], Gus.prototype.touchesWall, this );
 
   // add animations
   this.sprite.animations.add("stand", [0], 10, true);
@@ -31,6 +54,36 @@ function saneVec(vec) {
 function dot(vec1, vec2) {
   return vec1[0] * vec2[0] + vec1[1] * vec2[1];
 }
+
+function clampAngleToTau(ang) {
+  ang = ang % TAU;
+  if (ang < 0) ang = TAU - ang;
+  return ang;
+}
+
+function angWithin(ang, min, max) {
+  ang = clampAngleToTau(ang);
+  min = clampAngleToTau(min);
+  max = clampAngleToTau(max);
+
+  if (min > max) return ang >= min || ang <= max;
+  else return ang >= min && ang <= max;
+}
+
+Gus.prototype.touchesWall = function(gus, other, sensor, shape, contact) {
+  if (!this.canRotate) return;
+  if (sensor !== this.rotationSensor) return;
+
+  var leftVec = p2.vec2.fromValues(
+    -Math.cos(this.rotation),
+    -Math.sin(this.rotation)
+  );
+  var d = dot(saneVec(leftVec), saneVec(contact[0].normalA));
+  if (contact[0].bodyB === gus.data) d *= -1;
+
+  if (d > 1 - EPSILON) this.rotate("left");
+  else if (d < -1 + EPSILON) this.rotate("right");
+};
 
 Gus.prototype.isTouching = function(side) {
   // get the vector to check
@@ -118,6 +171,7 @@ Gus.prototype.finishRotation = function() {
 
   // change rotation
   this.sprite.rotation = this.rotation;
+  this.sprite.body.rotation = this.rotation;
 
   // reset state after rotation
   this.sprite.body.enabled = true;
@@ -197,10 +251,10 @@ Gus.prototype.update = function() {
 
     // check for input
     if (cursors.left.isDown) {
-      if (this.canRotate) this.checkForRotation("left");
+      //if ( this.canRotate ) this.checkForRotation( "left" );
       this.walk("left");
     } else if (cursors.right.isDown) {
-      if (this.canRotate) this.checkForRotation("right");
+      //if ( this.canRotate ) this.checkForRotation( "right" );
       this.walk("right");
     } else {
       this.stop();

@@ -1,18 +1,27 @@
 //const { COLOR } = require("../const/colors");
 function initLoadState() {
   var state = {};
+
   state.preload = function() {
-    game.load.image("BrickBlack", "game/images/brick_black.png");
-    game.load.image("BrickBreak", "game/images/brick_break.png");
-    game.load.image("BrickRed", "game/images/brick_red.png");
-    game.load.image("Girder", "game/images/girder.png");
-    game.load.image("Tool", "game/images/tool.png");
-    game.load.spritesheet("Gus", "game/images/gus.png", 32, 32);
+    console.log("Loading assets...");
+
+    game.load.image("BrickBlack", "public/assets/images/brick_black.png");
+    game.load.image("BrickBreak", "public/assets/images/brick_break.png");
+    game.load.image("BrickRed", "public/assets/images/brick_red.png");
+    game.load.image("Girder", "public/assets/images/girder.png");
+    game.load.image("Tool", "public/assets/images/tool.png");
+    game.load.spritesheet("Gus", "public/assets/images/gus.png", 32, 32);
+
+    console.log("Done loading");
   };
 
   state.create = function() {
-    game.stage.setBackgroundColor(COLOR.BACKGROUND_SKY);
+    // set background color
+    game.stage.setBackgroundColor("#4428BC");
+
+    // start game state
     game.state.start("game");
   };
+
   return state;
 }

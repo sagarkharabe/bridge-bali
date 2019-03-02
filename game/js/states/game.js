@@ -5,17 +5,18 @@ function initGameState() {
   state.preload = function() {};
 
   state.create = function() {
+    console.log("Starting world...");
+
     game.add.plugin(Phaser.Plugin.Debug);
     game.world.setBounds(-400, -300, 800, 600);
     game.physics.p2.setBoundsToWorld();
     //game.physics.arcade.setBounds( -10000, -10000, 20000, 20000 );
 
-    var gusCollisionGroup = game.physics.p2.createCollisionGroup();
-    var blocksCollisionGroup = game.physics.p2.createCollisionGroup();
+    console.log("Creating Gus...");
 
     gus = new Gus(0, 0);
-    gus.sprite.body.setCollisionGroup(gusCollisionGroup);
-    gus.sprite.body.collides([blocksCollisionGroup]);
+
+    console.log("Creating blocks...");
 
     blocks = game.add.group();
     blocks.enableBody = true;
@@ -27,38 +28,50 @@ function initGameState() {
 
       //game.physics.p2.enable( newBlock, true );
       newBlock.body.setRectangle(32, 32);
-      newBlock.body.setCollisionGroup(blocksCollisionGroup);
-      newBlock.body.collides([gusCollisionGroup]);
+      newBlock.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_ROTATE);
+      newBlock.body.collides([
+        COLLISION_GROUPS.PLAYER_SOLID,
+        COLLISION_GROUPS.PLAYER_SENSOR
+      ]);
       newBlock.body.static = true;
     }
 
     for (var i = 0; i < 10; ++i) {
       var newBlock = blocks.create(-160, 128 - 32 * i, "BrickRed");
       newBlock.body.setRectangle(32, 32);
-      newBlock.body.setCollisionGroup(blocksCollisionGroup);
-      newBlock.body.collides([gusCollisionGroup]);
+      newBlock.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_ROTATE);
+      newBlock.body.collides([
+        COLLISION_GROUPS.PLAYER_SOLID,
+        COLLISION_GROUPS.PLAYER_SENSOR
+      ]);
       newBlock.body.static = true;
     }
 
     for (var i = 0; i < 10; ++i) {
       var newBlock = blocks.create(192, 128 - 32 * i, "BrickRed");
       newBlock.body.setRectangle(32, 32);
-      newBlock.body.setCollisionGroup(blocksCollisionGroup);
-      newBlock.body.collides([gusCollisionGroup]);
+      newBlock.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_ROTATE);
+      newBlock.body.collides([
+        COLLISION_GROUPS.PLAYER_SOLID,
+        COLLISION_GROUPS.PLAYER_SENSOR
+      ]);
       newBlock.body.static = true;
     }
 
     for (var i = 0; i < 10; ++i) {
       var newBlock = blocks.create(-256, 128 - 32 * i, "BrickRed");
       newBlock.body.setRectangle(32, 32);
-      newBlock.body.setCollisionGroup(blocksCollisionGroup);
-      newBlock.body.collides([gusCollisionGroup]);
+      newBlock.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_ROTATE);
+      newBlock.body.collides([
+        COLLISION_GROUPS.PLAYER_SOLID,
+        COLLISION_GROUPS.PLAYER_SENSOR
+      ]);
       newBlock.body.static = true;
     }
 
-    cursors = game.input.keyboard.createCursorKeys();
+    console.log("Binding to keys...");
 
-    game.camera.follow(gus.sprite, game.camera.FOLLOW_PLATFORMER);
+    cursors = game.input.keyboard.createCursorKeys();
   };
 
   state.update = function() {
