@@ -12,7 +12,7 @@ var config = {
   //   create: create
   // }
 };
-var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, parent);
+var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, "gameContainer");
 
 game.state.add("boot", initBootState());
 game.state.add("load", initLoadState());

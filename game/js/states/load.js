@@ -5,7 +5,10 @@ function initLoadState() {
   state.preload = function() {
     console.log("Loading assets...");
 
-    game.load.image("BrickBlack", "public/assets/images/brick_black.png");
+    game.load.image(
+      "BrickBlack",
+      "/Users/mac/Desktop/capstone/public/assests/images/brick_black.png"
+    );
     game.load.image("BrickBreak", "public/assets/images/brick_break.png");
     game.load.image("BrickRed", "public/assets/images/brick_red.png");
     game.load.image("Girder", "public/assets/images/girder.png");

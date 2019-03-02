@@ -4,7 +4,7 @@ var WIDTH = FULLSCREEN ? window.innerWidth * window.devicePixelRatio : 800,
 
 // initialize the game
 var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, "gameContainer");
-
+console.log(game);
 // add states
 game.state.add("boot", initBootState());
 game.state.add("load", initLoadState());
@@ -319,7 +319,7 @@ function initGameState() {
   state.create = function() {
     console.log("Starting world...");
 
-    game.add.plugin(Phaser.Plugin.Debug);
+    // game.add.plugin(Phaser.Plugin.Debug);
     game.world.setBounds(-400, -300, 800, 600);
     game.physics.p2.setBoundsToWorld();
     //game.physics.arcade.setBounds( -10000, -10000, 20000, 20000 );
@@ -407,12 +407,12 @@ function initLoadState() {
   state.preload = function() {
     console.log("Loading assets...");
 
-    game.load.image("BrickBlack", "public/assets/images/brick_black.png");
-    game.load.image("BrickBreak", "public/assets/images/brick_break.png");
-    game.load.image("BrickRed", "public/assets/images/brick_red.png");
-    game.load.image("Girder", "public/assets/images/girder.png");
-    game.load.image("Tool", "public/assets/images/tool.png");
-    game.load.spritesheet("Gus", "public/assets/images/gus.png", 32, 32);
+    game.load.image("BrickBlack", "/public/assets/images/brick_black.png");
+    game.load.image("BrickBreak", "/public/assets/images/brick_break.png");
+    game.load.image("BrickRed", "/public/assets/images/brick_red.png");
+    game.load.image("Girder", "/public/assets/images/girder.png");
+    game.load.image("Tool", "/public/assets/images/tool.png");
+    game.load.spritesheet("Gus", "/public/assets/images/gus.png", 32, 32);
 
     console.log("Done loading");
   };
