@@ -33,9 +33,12 @@ const schema = new mongoose.Schema({
 });
 // sets user's totalStars based on sum of stars for user's createdLevels
 schema.methods.setStars = function() {
+  var that = this;
   var Level = mongoose.model("Level");
-  Level.find({ _id: { $in: this.createdLevels } }).then(function(usersLevels) {
-    this.totalStars = usersLevels.reduce(function(prev, level) {
+  return Level.find({ _id: { $in: that.createdLevels } }).then(function(
+    usersLevels
+  ) {
+    that.totalStars = usersLevels.reduce(function(prev, level) {
       return prev + level.starCount;
     }, 0);
     console.log("did a reduce");

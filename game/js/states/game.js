@@ -4,7 +4,8 @@ var RedBrickBlock = require("../objects/redbrick");
 var BlackBrickBlock = require("../objects/blackbrick");
 function initGameState() {
   var state = {};
-  var gus, blocks, marker;
+  var blocks = [];
+  var gus, marker;
   var game = window.game;
   state.preload = function() {};
 
