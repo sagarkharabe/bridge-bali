@@ -4,13 +4,13 @@ var WIDTH = FULLSCREEN ? window.innerWidth * window.devicePixelRatio : 800,
 
 // initialize the game
 var game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, "gameContainer");
-
+console.log(game);
 // add states
-game.state.add("boot", initBootState());
-game.state.add("load", initLoadState());
-game.state.add("game", initGameState());
+game.scene.add("boot", initBootState());
+game.scene.add("load", initLoadState());
+game.scene.add("game", initGameState());
 
-game.state.start("boot");
+game.scene.start("boot");
 var COLORS = {
   BACKGROUND_SKY: "#4428BC"
 };
@@ -167,9 +167,10 @@ function initBootState() {
 
   state.create = function() {
     // start game physics
+    console.log(game);
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    game.state.start("load");
+    game.scene.start("load");
   };
 
   return state;

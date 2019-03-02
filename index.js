@@ -6,6 +6,7 @@ const path = require("path");
 const chalk = require("chalk");
 require("./models");
 const app = express();
+require("./config/app-variables")(app);
 MONGOURI = "mongodb://sagar:sagar5544@ds259820.mlab.com:59820/new-mario-db";
 mongoose.Promise = global.Promise;
 mongoose
@@ -20,7 +21,9 @@ mongoose
   });
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.get("/*", (req, res) => {
+  res.sendFile(app.get("indexHTMLPath"));
+});
 app.use("/api", require("./routes"));
 
 const port = 5000;
