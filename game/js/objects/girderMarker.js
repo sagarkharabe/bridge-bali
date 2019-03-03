@@ -8,7 +8,7 @@ function GirderMarker() {
   this.sprite = game.add.sprite(0, 0, "Girder");
   this.sprite.anchor = new Phaser.Point(0.5, 0.5);
   this.master = null;
-
+  this.girdersPlaced = [];
   this.placeable = false;
   this.sprite.alpha = 0.5;
   this.sprite.visible = false;
@@ -133,6 +133,7 @@ GirderMarker.prototype.placeGirder = function() {
   if (this.placeable) {
     var newGirder = new Girder(this.sprite.position.x, this.sprite.position.y);
     newGirder.sprite.rotation = this.master.sprite.rotation;
+    this.girdersPlaced.push(newGirder);
     this.master.canRotate = false;
   }
 };

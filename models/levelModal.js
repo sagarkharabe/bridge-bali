@@ -1,15 +1,47 @@
 const mongoose = require("mongoose");
+const { TILE_MAP } = require("../misc/constants");
+const numTiles = Object.keys(TILE_MAP).length;
 const User = mongoose.model("User");
+
+// part of level schema
+const map = {
+  startGirders: {
+    type: Number,
+    default: 0
+  },
+  checksum: {
+    type: String,
+    default: function() {
+      return this.objects.reduce((prev, next) => prev + next, "");
+    }
+  },
+  objects: [
+    {
+      tile: {
+        type: Number,
+        max: numTiles
+      },
+      x: {
+        type: Number
+      },
+      y: {
+        type: Number
+      }
+    }
+  ],
+  skyColor: {
+    type: String,
+    default: "#4428BC"
+  }
+};
+
 const schema = new mongoose.Schema({
   title: { type: String, required: true },
   creator: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Users"
+    ref: "User"
   },
-  map: {
-    type: String,
-    required: true
-  },
+  map: map,
   dateCreated: {
     type: Date,
     default: Date.now()

@@ -11,40 +11,29 @@ function Gus(x, y) {
   this.gravity = 1000; // gravity speed
   this.hopStrength = 0; // strength of gus's walk cycle hops
   this.dancingTime = 20000; // how long gus has to hold still to start dancing
+  this.killTime = 1000; // how long gus has to fall before the game counts him as dead
 
   this.rotation = 0; // internal rotation counter
   this.prevRotation = 0; // previous rotation
   this.idleTime = 0; // how long gus has been holding still
+  this.fallTime = 0;
 
+  this.isDead = false;
   this.facingRight = true; // is gus facing right?
   this.rotating = false; // is gus rotating?
-  this.canRotate = true; // can gus rotate?
+  this.canRotate = false; // can gus rotate?
   this.targetRotation = 0; // target rotation of this flip
 
   // create a sprite object and set its anchor
   this.sprite = game.add.sprite(x, y, "Gus");
 
   // attach our sprite to the physics engine
-  game.physics.p2.enable(this.sprite, true);
+  game.physics.p2.enable(this.sprite, false);
   this.sprite.body.fixedRotation = true;
-  this.sprite.body.setCollisionGroup(COLLISION_GROUPS.PLAYER_SOLID);
-  this.sprite.body.collides([
-    COLLISION_GROUPS.BLOCK_SOLID,
-    COLLISION_GROUPS.BLOCK_ROTATE
-  ]);
 
   // create gus's rotation sensor
   this.rotationSensor = this.sprite.body.addRectangle(this.sprite.width, 20);
-  this.sprite.body.setCollisionGroup(
-    COLLISION_GROUPS.PLAYER_SENSOR,
-    this.rotationSensor
-  );
-  this.sprite.body.collides(
-    [COLLISION_GROUPS.BLOCK_ROTATE],
-    Gus.prototype.touchesWall,
-    this,
-    this.rotationSensor
-  );
+  this.setCollision();
   this.sprite.body.onBeginContact.add(Gus.prototype.touchesWall, this);
 
   // add animations
@@ -62,6 +51,56 @@ function saneVec(vec) {
 function dot(vec1, vec2) {
   return vec1[0] * vec2[0] + vec1[1] * vec2[1];
 }
+
+Gus.prototype.setCollision = function() {
+  this.sprite.body.setCollisionGroup(COLLISION_GROUPS.PLAYER_SOLID);
+  this.sprite.body.setCollisionGroup(
+    COLLISION_GROUPS.PLAYER_SENSOR,
+    this.rotationSensor
+  );
+  this.sprite.body.collides([
+    COLLISION_GROUPS.BLOCK_SOLID,
+    COLLISION_GROUPS.BLOCK_ROTATE,
+    COLLISION_GROUPS.ITEM
+  ]);
+};
+
+Gus.prototype.respawn = function() {
+  this.rotation = 0;
+  this.prevRotation = 0;
+  this.targetRotation = 0;
+  this.rotating = false;
+  this.canRotate = false;
+  this.idleTime = 0;
+  this.fallTime = 0;
+  this.isDead = false;
+
+  this.sprite.rotation = 0;
+  this.sprite.body.rotation = 0;
+  this.sprite.body.fixedRotation = true;
+  this.setCollision();
+
+  this.sprite.reset(game.gusStartPos.x, game.gusStartPos.y);
+};
+
+Gus.prototype.doom = function() {
+  this.sprite.body.clearCollision();
+  this.sprite.body.fixedRotation = false;
+
+  this.sprite.body.velocity.x = Math.sin(this.rotation) * 250;
+  this.sprite.body.velocity.y = Math.cos(this.rotation) * -250;
+
+  this.sprite.body.angularVelocity = 60;
+  //this.sprite.body.rotateRight( 360 );
+};
+
+Gus.prototype.kill = function() {
+  this.sprite.visible = false;
+  this.isDead = true;
+
+  this.sprite.body.velocity.x = 0;
+  this.sprite.body.velocity.y = 0;
+};
 
 Gus.prototype.touchesWall = function(gus, other, sensor, shape, contact) {
   if (!this.canRotate) return;
@@ -177,10 +216,10 @@ Gus.prototype.finishRotation = function() {
 Gus.prototype.applyGravity = function() {
   if (!this.isTouching("down")) {
     this.sprite.body.velocity.x += Math.floor(
-      Math.sin(this.rotation) * (-this.gravity * 0.016)
+      Math.sin(this.rotation) * (-this.gravity * game.time.physicsElapsed)
     );
     this.sprite.body.velocity.y += Math.floor(
-      Math.cos(this.rotation) * (this.gravity * 0.016)
+      Math.cos(this.rotation) * (this.gravity * game.time.physicsElapsed)
     );
   }
 };
@@ -255,16 +294,12 @@ Gus.prototype.update = function() {
           this.finishRotation();
         }, this);
     }
-  } else {
+  } else if (!this.isDead) {
     // do gravity
     this.applyGravity();
 
     if (this.rotationSensor.needsCollisionData) {
-      this.sprite.body.setCollisionGroup(COLLISION_GROUPS.PLAYER_SOLID);
-      this.sprite.body.collides([
-        COLLISION_GROUPS.BLOCK_SOLID,
-        COLLISION_GROUPS.BLOCK_ROTATE
-      ]);
+      this.setCollision();
       this.rotationSensor.needsCollisionData = false;
     }
 
@@ -275,6 +310,16 @@ Gus.prototype.update = function() {
       this.walk("right");
     } else {
       this.stop();
+    }
+
+    if (!this.isTouching("down")) {
+      this.fallTime += game.time.physicsElapsedMS;
+
+      if (this.fallTime > this.killTime) {
+        this.kill();
+      }
+    } else {
+      this.fallTime = 0;
     }
   }
 };

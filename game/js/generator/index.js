@@ -2,23 +2,25 @@ var blockIds = require("./blockIds");
 var defaultSkyColor = require("../consts/colors").DEFAULT_SKY;
 
 function LevelGenerator(levelData) {
+  if (blockIds === undefined) console.error("blockIds are undefined (wtf!!)");
   this.blockIds = blockIds;
   this.levelData = levelData;
 }
 
 LevelGenerator.prototype.getSkyColor = function() {
-  return this.levelData.skyColor || defaultSkyColor;
+  return this.levelData.sky || defaultSkyColor;
 };
 
 LevelGenerator.prototype.parseObjects = function() {
   var levelObjects = [];
-  var objDefList = levelData.objects;
+  var objDefList = this.levelData.objs;
+  var blocks = this.blockIds;
 
   objDefList.forEach(function(objDef) {
     // find the object definition function for this id
     var createFunction = undefined;
-    if (objDef.tile !== undefined && this.blockIds[objDef.tile] !== undefined) {
-      createFunction = this.blockIds[objDef.tile].onLoad;
+    if (objDef.t !== undefined && blocks[objDef.t] !== undefined) {
+      createFunction = blocks[objDef.t].onLoad;
     }
 
     if (typeof createFunction !== "function") {

@@ -11,6 +11,7 @@ function Block(x, y, sprite) {
 
   this.sprite.body.setRectangle(32, 32);
   this.sprite.body.static = true;
+  this.sprite.body.fixedRotation = true;
 }
 
 function RedBrickBlock(x, y) {
