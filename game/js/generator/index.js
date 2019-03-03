@@ -8,7 +8,7 @@ function LevelGenerator(levelData) {
 }
 
 LevelGenerator.prototype.getSkyColor = function() {
-  return this.levelData.sky || defaultSkyColor;
+  return this.levelData.skyColor || defaultSkyColor;
 };
 
 LevelGenerator.prototype.parseObjects = function() {

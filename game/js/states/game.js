@@ -38,7 +38,7 @@ function initGameState() {
       ]
     };
 
-    generator = new LevelGenerator(level);
+    const generator = new LevelGenerator(level);
 
     // set background color
     game.stage.setBackgroundColor(generator.getSkyColor());
