@@ -21,10 +21,11 @@ mongoose
   });
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.get("/*", (req, res) => {
+app.get("/", (req, res) => {
   res.sendFile(app.get("indexHTMLPath"));
 });
-app.use("/api", require("./routes"));
+app.use("/users", require("./routes/users"));
+app.use("/levels", require("./routes/levels"));
 
 const port = 5000;
 app.listen(port, () => {

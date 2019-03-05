@@ -10,6 +10,8 @@ const { mustBeLoggedIn } = require("./helpers/permissions");
 
 // guest can see all levels
 router.get("/", getDocsAndSend("Level"));
+// guest can see all levels with creators
+router.get("/users", getDocsAndSend("Level", null, ["creator"]));
 
 // user can create level
 router.post("/", mustBeLoggedIn, createDoc("Level", "creator"));
