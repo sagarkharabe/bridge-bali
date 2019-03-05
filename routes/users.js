@@ -17,6 +17,9 @@ router.post("/", createDoc("User"));
 // guest can see user
 router.get("/:id", getDocAndSend("User"));
 
+// guest can see all users with associated created levels
+router.get("/levels", getDocsAndSend("User", null, ["createdLevels"]));
+
 // user can update own profile
 router.put("/:id", mustBeLoggedIn, getDocAndUpdateIfOwnerOrAdmin("User"));
 
