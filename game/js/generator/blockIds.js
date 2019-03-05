@@ -1,5 +1,7 @@
 var blocks = require("../objects/blocks");
+var tilemap = require("../consts/tilemap");
 var Tool = require("../objects/tool");
+var objects = require("../objects");
 var blockIds = {};
 
 function addBlockId(id, loadFunction) {
