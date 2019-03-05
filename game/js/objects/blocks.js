@@ -23,7 +23,7 @@ function RedBrickBlock(x, y) {
     COLLISION_GROUPS.PLAYER_SENSOR
   ]);
 }
-
+RedBrickBlock.prototype = Block;
 function Girder(x, y) {
   Block.call(this, x, y, "Girder");
 
@@ -33,6 +33,7 @@ function Girder(x, y) {
     COLLISION_GROUPS.PLAYER_SENSOR
   ]);
 }
+Girder.prototype = Block;
 
 function BlackBrickBlock(x, y) {
   Block.call(this, x, y, "BrickBlack");
@@ -40,7 +41,7 @@ function BlackBrickBlock(x, y) {
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_SOLID);
   this.sprite.body.collides([COLLISION_GROUPS.PLAYER_SOLID]);
 }
-
+BlackBrickBlock.prototype = Block;
 module.exports = Block;
 module.exports.RedBrickBlock = RedBrickBlock;
 module.exports.BlackBrickBlock = BlackBrickBlock;
