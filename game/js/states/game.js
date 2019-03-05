@@ -54,6 +54,7 @@ function initGameState() {
       game.toolsRemaining = game.toolsToCollect.length;
     } else {
       game.toolsRemaining = 1;
+      game.toolsToCollect = []; // needs to be added
       console.error("No tools were included in this level");
     }
     //---------------------------

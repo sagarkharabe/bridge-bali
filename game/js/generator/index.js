@@ -21,6 +21,8 @@ LevelGenerator.prototype.parseObjects = function() {
     var createFunction = undefined;
     if (objDef.t !== undefined && blocks[objDef.t] !== undefined) {
       createFunction = blocks[objDef.t].onLoad;
+    } else {
+      console.log("[LVGN] No tile found for", objDef.t);
     }
 
     if (typeof createFunction !== "function") {
