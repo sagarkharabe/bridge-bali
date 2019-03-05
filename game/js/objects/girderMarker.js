@@ -134,5 +134,5 @@ GirderMarker.prototype.update = function() {
     }
   }
 };
-// sokme commetn
+
 module.exports = GirderMarker;
