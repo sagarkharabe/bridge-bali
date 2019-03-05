@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { TILE_MAP } = require("../misc/constants");
+const TILE_MAP = require("../game/js/const/tilemap");
 const numTiles = Object.keys(TILE_MAP).length;
 const User = mongoose.model("User");
 
