@@ -18,71 +18,48 @@ GirderMarker.prototype.setMaster = function(newMaster) {
   this.master = newMaster;
 };
 
-GirderMarker.prototype.masterRight = function() {
+GirderMarker.prototype.masterPos = function() {
   var masterPos = this.master.sprite.position;
   var cosine = Math.cos(this.master.rotation);
 
   var sine = Math.sin(this.master.rotation);
 
+  masterPos.right = function() {
+    if (Math.abs(cosine) > 1 - EPSILON) {
+      masterPos.x += cosine * 20;
+      return masterPos;
+    } else {
+      masterPos.y += sine * 20;
+      return masterPos;
+    }
+  };
+
+  masterPos.left = function() {
+    if (Math.abs(cosine) > 1 - EPSILON) {
+      masterPos.x -= cosine * 20;
+      return masterPos;
+    } else {
+      masterPos.y -= sine * 20;
+      return masterPos;
+    }
+  };
+
   masterPos.top = function() {
     if (Math.abs(cosine) > 1 - EPSILON)
-      return new Phaser.Point(
-        masterPos.x + cosine * 32,
-        masterPos.y - cosine * 32
-      );
-    else
-      return new Phaser.Point(masterPos.x + sine * 32, masterPos.y + sine * 32);
+      return new Phaser.Point(masterPos.x + cosine, masterPos.y - cosine * 32);
+    else return new Phaser.Point(masterPos.x + sine * 32, masterPos.y + sine);
   };
 
   masterPos.front = function() {
     if (Math.abs(cosine) > 1 - EPSILON)
-      return new Phaser.Point(masterPos.x + cosine * 32, masterPos.y);
-    else return new Phaser.Point(masterPos.x, masterPos.y + sine * 32);
+      return new Phaser.Point(masterPos.x + cosine, masterPos.y);
+    else return new Phaser.Point(masterPos.x, masterPos.y + sine);
   };
 
   masterPos.bottom = function() {
     if (Math.abs(cosine) > 1 - EPSILON)
-      return new Phaser.Point(
-        masterPos.x + cosine * 32,
-        masterPos.y + cosine * 32
-      );
-    else
-      return new Phaser.Point(masterPos.x - sine * 32, masterPos.y + sine * 32);
-  };
-
-  return masterPos;
-};
-
-GirderMarker.prototype.masterLeft = function() {
-  var masterPos = this.master.sprite.position;
-  var cosine = Math.cos(this.master.rotation);
-
-  var sine = Math.sin(this.master.rotation);
-
-  masterPos.top = function() {
-    if (Math.abs(cosine) > 1 - EPSILON)
-      return new Phaser.Point(
-        masterPos.x - cosine * 32,
-        masterPos.y - cosine * 32
-      );
-    else
-      return new Phaser.Point(masterPos.x + sine * 32, masterPos.y - sine * 32);
-  };
-
-  masterPos.front = function() {
-    if (Math.abs(cosine) > 1 - EPSILON)
-      return new Phaser.Point(masterPos.x - cosine * 32, masterPos.y);
-    else return new Phaser.Point(masterPos.x, masterPos.y - sine * 32);
-  };
-
-  masterPos.bottom = function() {
-    if (Math.abs(cosine) > 1 - EPSILON)
-      return new Phaser.Point(
-        masterPos.x - cosine * 32,
-        masterPos.y + cosine * 32
-      );
-    else
-      return new Phaser.Point(masterPos.x - sine * 32, masterPos.y - sine * 32);
+      return new Phaser.Point(masterPos.x + cosine, masterPos.y + cosine * 32);
+    else return new Phaser.Point(masterPos.x - sine * 32, masterPos.y + sine);
   };
 
   return masterPos;
@@ -90,8 +67,8 @@ GirderMarker.prototype.masterLeft = function() {
 
 GirderMarker.prototype.getTargetPos = function() {
   var posFactory = null;
-  if (this.master.facingRight) posFactory = this.masterRight();
-  else posFactory = this.masterLeft();
+  if (this.master.facingRight) posFactory = this.masterPos().right();
+  else posFactory = this.masterPos().left();
 
   var bottom = posFactory.bottom();
 
@@ -133,7 +110,9 @@ GirderMarker.prototype.placeGirder = function() {
   if (this.placeable) {
     var newGirder = new Girder(this.sprite.position.x, this.sprite.position.y);
     newGirder.sprite.rotation = this.master.sprite.rotation;
+
     this.girdersPlaced.push(newGirder);
+
     this.master.canRotate = false;
   }
 };
