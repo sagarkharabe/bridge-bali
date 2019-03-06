@@ -78,5 +78,21 @@ schema.methods.removeLevel = function(levelId) {
   return this.save();
 };
 
+schema.virtual("totalFollowers").get(function() {
+  return this.followers.length;
+});
+
+schema.virtual("totalFollowed").get(function() {
+  return this.following.length;
+});
+
+schema.virtual("totalCreatedLevels").get(function() {
+  return this.createdLevels.length;
+});
+
+schema.virtual("totalLikedLevels").get(function() {
+  return this.likedLevels.length;
+});
+
 var User = mongoose.model("User", schema);
 module.exports = User;
