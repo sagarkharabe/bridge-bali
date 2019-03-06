@@ -143,7 +143,15 @@ var WIDTH = FULLSCREEN ? window.innerWidth * window.devicePixelRatio : 800,
 
 function startGame(Phaser) {
   // initialize the game
-  window.game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, "game-container");
+  window.game = new Phaser.Game(
+    WIDTH,
+    HEIGHT,
+    Phaser.AUTO,
+    "game-container",
+    undefined,
+    undefined,
+    false
+  );
 
   // add states
   game.state.add("boot", bootState());
@@ -654,12 +662,7 @@ Gus.prototype.update = function() {
     if (this.rotateTween === undefined) {
       this.rotateTween = game.add
         .tween(this.sprite)
-        .to(
-          { rotation: this.targetRotation },
-          1000,
-          Phaser.Easing.Default,
-          true
-        )
+        .to({ rotation: this.targetRotation }, 800, Phaser.Easing.Default, true)
         .onComplete.add(function() {
           this.rotation = this.targetRotation % TAU; // keep angle within 0-2pi
           this.finishRotation();
