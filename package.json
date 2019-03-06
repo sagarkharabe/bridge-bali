@@ -4,7 +4,8 @@
   "description": "[![Built at SchoolOfAcceleratedLearning](https://img.shields.io/badge/Built%20at-SchoolOfAcceleratedLearning-red.svg?style=round-square)](https://schoolofacceleratedlearning.com/)",
   "main": "index.js",
   "scripts": {
-    "server": "nodemon index.js"
+    "server": "nodemon index.js",
+    "watch": "watchify game/js/main.js -o game/js/bundle.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,7 @@
     "body-parser": "^1.18.3",
     "bootstrap": "^4.3.1",
     "browserify": "^16.2.3",
+    "bulk-require": "^1.0.1",
     "chalk": "^2.4.2",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
@@ -33,6 +35,7 @@
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "phaser": "^2.5.0",
-    "phaser-debug": "^1.1.8"
+    "phaser-debug": "^1.1.8",
+    "watchify": "^3.11.1"
   }
 }

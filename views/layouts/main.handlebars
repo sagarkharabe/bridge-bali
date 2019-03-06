@@ -9,16 +9,17 @@
 
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
-  {{{ inlineScript '/phaser.js' }}}
-  {{{ inlineScript '/girder-gus-test.js' }}}
+
 </head>
 
 <body>
 
   <div id="main" class="container">
     {{{body}}}
-
+    <div class="gameContainer"></div>
   </div>
+  {{{ inlineScript '/phaser.js' }}}
+  {{{ inlineScript '/bundle.js' }}}
 </body>
 
 </html>

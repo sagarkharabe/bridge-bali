@@ -40,14 +40,10 @@ app.set("view engine", "handlebars");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-var script = [
-  { script: "/game/js/phaser.js" },
-  { script: "/public/girder-gus-test.js" }
-];
 app.use(express.static("public"));
 app.use(express.static("game/js"));
 app.get("/", (req, res) => {
-  res.render("home", { script: script });
+  res.render("home");
 });
 
 app.use("/users", require("./routes/users"));
