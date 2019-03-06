@@ -78,7 +78,7 @@ for (var index in tilemap) {
 
 module.exports = blockIds;
 
-},{"../const/tilemap":4,"../objects":11}],6:[function(require,module,exports){
+},{"../const/tilemap":4,"../objects":12}],6:[function(require,module,exports){
 var blockIds = require("./blockIds");
 var defaultSkyColor = require("../const/colors").DEFAULT_SKY;
 
@@ -172,7 +172,7 @@ function startGame(Phaser) {
   }
 })(window.Phaser);
 
-},{"./states/boot":13,"./states/game":14,"./states/load":15,"phaser":16}],8:[function(require,module,exports){
+},{"./states/boot":14,"./states/game":15,"./states/load":16,"phaser":17}],8:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
 
 function Block(x, y, sprite) {
@@ -224,6 +224,68 @@ module.exports.BlackBrickBlock = BlackBrickBlock;
 module.exports.Girder = Girder;
 
 },{"../const/collisionGroup":1}],9:[function(require,module,exports){
+var TAU = require("../const").TAU;
+
+function Dolly(camera) {
+  this.movementFactor = 2;
+  this.rotationFactor = 4;
+
+  this.camera = camera;
+  this.position = camera.displayObject.position;
+  this.rotation = camera.displayObject.rotation;
+  this.scale = camera.scale;
+
+  this.lockTarget = null;
+  this.targetPos = null;
+  this.targetAng = null;
+  this.targetScale = null;
+}
+
+function midpoint(p1, p2) {
+  var x = p1.x + (p2.x - p1.x) * game.time.physicsElapsed;
+  var y = p1.y + (p2.y - p1.y) * game.time.physicsElapsed;
+
+  return new Phaser.Point(x, y);
+}
+
+Dolly.prototype.update = function() {
+  if (this.lockTarget) {
+    this.targetPos = this.lockTarget.position;
+    this.targetAng = this.lockTarget.rotation;
+  }
+
+  if (this.targetPos !== null) {
+    this.position = midpoint(this.position, this.targetPos);
+  }
+
+  console.log(this.position, this.lockTarget.position);
+
+  if (this.targetAng !== null) {
+    while (this.targetAng - this.rotation > Math.PI) this.rotation += TAU;
+    while (this.rotation - this.targetAng > Math.PI) this.rotation -= TAU;
+
+    this.rotation +=
+      (this.targetAng - this.rotation) *
+      game.time.physicsElapsed *
+      this.rotationFactor;
+  }
+
+  this.camera.displayObject.pivot.x = this.position.x;
+  this.camera.displayObject.pivot.y = this.position.y;
+  this.camera.displayObject.rotation = TAU - this.rotation;
+};
+
+Dolly.prototype.lockTo = function(dispObj) {
+  this.lockTarget = dispObj;
+};
+
+Dolly.prototype.unlock = function() {
+  this.lockTarget = null;
+};
+
+module.exports = Dolly;
+
+},{"../const":3}],10:[function(require,module,exports){
 var game = window.game;
 var Girder = require("./blocks").Girder;
 
@@ -367,7 +429,7 @@ GirderMarker.prototype.update = function() {
 
 module.exports = GirderMarker;
 
-},{"../const":3,"../const/collisionGroup":1,"./blocks":8}],10:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1,"./blocks":8}],11:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var EPSILON = require("../const").EPSILON;
 var TAU = require("../const").TAU;
@@ -700,7 +762,7 @@ Gus.prototype.update = function() {
 
 module.exports = Gus;
 
-},{"../const":3,"../const/collisionGroup":1}],11:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1}],12:[function(require,module,exports){
 module.exports = {
   RedBrickBlock: require("./blocks").RedBrickBlock,
   BlackBrickBlock: require("./blocks").BlackBrickBlock,
@@ -710,7 +772,7 @@ module.exports = {
   Tool: require("./tools")
 };
 
-},{"./blocks":8,"./girderMarker":9,"./gus":10,"./tools":12}],12:[function(require,module,exports){
+},{"./blocks":8,"./girderMarker":10,"./gus":11,"./tools":13}],13:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var TAU = require("../const").TAU;
 
@@ -763,7 +825,7 @@ Tool.prototype.update = function() {
 
 module.exports = Tool;
 
-},{"../const":3,"../const/collisionGroup":1}],13:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1}],14:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
 
 function initBootState() {
@@ -789,8 +851,9 @@ function initBootState() {
 }
 module.exports = initBootState;
 
-},{"../const/collisionGroup":1}],14:[function(require,module,exports){
+},{"../const/collisionGroup":1}],15:[function(require,module,exports){
 var Gus = require("../objects/gus");
+var Dolly = require("../objects/dolly");
 var GirderMarker = require("../objects/girderMarker");
 var LevelGenerator = require("../generator");
 function screenToWorldSpace(point) {
@@ -952,6 +1015,9 @@ function initGameState() {
     marker = new GirderMarker();
     marker.setMaster(gus);
 
+    game.dolly = new Dolly(game.camera);
+    game.dolly.lockTo(gus.sprite);
+
     console.log("Binding to keys...");
 
     game.cursors = game.input.keyboard.createCursorKeys();
@@ -1027,10 +1093,10 @@ function initGameState() {
     // ----------------
 
     // lock camera to player
-    game.camera.displayObject.pivot.x = gus.sprite.position.x;
-    game.camera.displayObject.pivot.y = gus.sprite.position.y;
-    game.camera.displayObject.rotation = Math.PI * 2 - gus.sprite.rotation;
-
+    // game.camera.displayObject.pivot.x = gus.sprite.position.x;
+    // game.camera.displayObject.pivot.y = gus.sprite.position.y;
+    // game.camera.displayObject.rotation = Math.PI * 2 - gus.sprite.rotation;
+    game.dolly.update();
     // render HUD
     hudCounters.forEach(function(counter) {
       counter.icon.position = screenToWorldSpace(counter.icon.initPos);
@@ -1067,7 +1133,7 @@ function initGameState() {
 
 module.exports = initGameState;
 
-},{"../generator":6,"../objects/girderMarker":9,"../objects/gus":10}],15:[function(require,module,exports){
+},{"../generator":6,"../objects/dolly":9,"../objects/girderMarker":10,"../objects/gus":11}],16:[function(require,module,exports){
 function initLoadState() {
   var state = {};
   var game = window.game;
@@ -1099,7 +1165,7 @@ function initLoadState() {
 
 module.exports = initLoadState;
 
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 (function (process,global){
 /**
 * @author       Richard Davey <rich@photonstorm.com>
@@ -102839,7 +102905,7 @@ PIXI.TextureSilentFail = true;
 */
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":17}],17:[function(require,module,exports){
+},{"_process":18}],18:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
