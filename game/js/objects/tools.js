@@ -25,7 +25,7 @@ Tool.prototype.setCollisions = function() {
   this.sprite.body.fixedRotation = true;
 };
 
-Tool.prototype.collect = function(tool, other, shape, otherShape, contact) {
+Tool.prototype.collect = function() {
   console.log("tool collected!");
   this.sprite.visible = false;
   this.sprite.body.clearCollision();

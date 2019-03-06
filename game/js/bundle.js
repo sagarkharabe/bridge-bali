@@ -29,10 +29,9 @@ module.exports = {
 };
 
 },{}],5:[function(require,module,exports){
-var blocks = require("../objects/blocks");
 var tilemap = require("../const/tilemap");
-var Tool = require("../objects/tools");
 var objects = require("../objects");
+
 var blockIds = {};
 
 function addBlockId(id, loadFunction) {
@@ -47,11 +46,20 @@ function addBlockId(id, loadFunction) {
   blockIds[id] = blockIdObject;
 }
 
+function generateBlockIdForConstructor(id, constructor) {
+  addBlockId(id, function(defObj) {
+    return new constructor(defObj.x, defObj.y);
+  });
+}
+
+function placeGus(defObj) {
+  window.game.gusStartPos = { x: defObj.x, y: defObj.y };
+}
+
+// dynamically generate our block ids
 for (var index in tilemap) {
   if (tilemap[index] === "Gus") {
-    addBlockId(index, function(defObj) {
-      window.game.gusStartPos = { x: defObj.x, y: defObj.y };
-    });
+    addBlockId(index, placeGus);
   } else {
     var foundConstructor = undefined;
     for (var objKey in objects) {
@@ -59,11 +67,7 @@ for (var index in tilemap) {
     }
 
     if (foundConstructor !== undefined) {
-      (function(constructor) {
-        addBlockId(index, function(defObj) {
-          return new constructor(defObj.x, defObj.y);
-        });
-      })(foundConstructor);
+      generateBlockIdForConstructor(index, foundConstructor);
     } else {
       console.log(
         "[LVGN]!! Failed to look up constructor for " + tilemap[index]
@@ -71,9 +75,10 @@ for (var index in tilemap) {
     }
   }
 }
+
 module.exports = blockIds;
 
-},{"../const/tilemap":4,"../objects":11,"../objects/blocks":8,"../objects/tools":12}],6:[function(require,module,exports){
+},{"../const/tilemap":4,"../objects":11}],6:[function(require,module,exports){
 var blockIds = require("./blockIds");
 var defaultSkyColor = require("../const/colors").DEFAULT_SKY;
 
@@ -700,7 +705,7 @@ Tool.prototype.setCollisions = function() {
   this.sprite.body.fixedRotation = true;
 };
 
-Tool.prototype.collect = function(tool, other, shape, otherShape, contact) {
+Tool.prototype.collect = function() {
   console.log("tool collected!");
   this.sprite.visible = false;
   this.sprite.body.clearCollision();
@@ -752,13 +757,12 @@ module.exports = initBootState;
 },{"../const/collisionGroup":1}],14:[function(require,module,exports){
 var Gus = require("../objects/gus");
 var GirderMarker = require("../objects/girderMarker");
-var RedBrickBlock = require("../objects/blocks").RedBrickBlock;
-var BlackBrickBlock = require("../objects/blocks").BlackBrickBlock;
+
 var LevelGenerator = require("../generator");
 
 function initGameState() {
   var state = {};
-  var blocks = [];
+
   var gus, marker, generator, restartTimeout;
   var game = window.game;
 
@@ -893,15 +897,6 @@ function initGameState() {
     marker = new GirderMarker();
     marker.setMaster(gus);
 
-    // var i;
-    // for ( i = 0; i < 10; ++i ) {
-    //   blocks.push( new RedBrickBlock( -128 + (32 * i), 128 ) );
-    // }
-
-    // for ( i = 0; i < 10; ++i ) {
-    //   blocks.push( new BlackBrickBlock( 64, 96 - ( 32 * i ) ) );
-    // }
-
     console.log("Binding to keys...");
 
     game.cursors = game.input.keyboard.createCursorKeys();
@@ -972,7 +967,7 @@ function initGameState() {
 
 module.exports = initGameState;
 
-},{"../generator":6,"../objects/blocks":8,"../objects/girderMarker":9,"../objects/gus":10}],15:[function(require,module,exports){
+},{"../generator":6,"../objects/girderMarker":9,"../objects/gus":10}],15:[function(require,module,exports){
 function initLoadState() {
   var state = {};
   var game = window.game;

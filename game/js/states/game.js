@@ -1,12 +1,11 @@
 var Gus = require("../objects/gus");
 var GirderMarker = require("../objects/girderMarker");
-var RedBrickBlock = require("../objects/blocks").RedBrickBlock;
-var BlackBrickBlock = require("../objects/blocks").BlackBrickBlock;
+
 var LevelGenerator = require("../generator");
 
 function initGameState() {
   var state = {};
-  var blocks = [];
+
   var gus, marker, generator, restartTimeout;
   var game = window.game;
 
@@ -140,15 +139,6 @@ function initGameState() {
     gus = new Gus(game.gusStartPos.x, game.gusStartPos.y);
     marker = new GirderMarker();
     marker.setMaster(gus);
-
-    // var i;
-    // for ( i = 0; i < 10; ++i ) {
-    //   blocks.push( new RedBrickBlock( -128 + (32 * i), 128 ) );
-    // }
-
-    // for ( i = 0; i < 10; ++i ) {
-    //   blocks.push( new BlackBrickBlock( 64, 96 - ( 32 * i ) ) );
-    // }
 
     console.log("Binding to keys...");
 
