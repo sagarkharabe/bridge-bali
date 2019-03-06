@@ -6,6 +6,7 @@ function Block(x, y, sprite) {
   y = Math.floor(y / 32) * 32;
 
   this.sprite = game.add.sprite(x, y, sprite);
+  this.sprite.smoothed = false;
 
   game.physics.p2.enable(this.sprite, false);
 

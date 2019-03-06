@@ -5,6 +5,8 @@ function Tool(x, y) {
   var game = window.game;
 
   this.sprite = game.add.sprite(x, y, "Tool");
+  this.sprite.smoothed = false;
+
   this.sprite.initialRotation = Math.random() * TAU;
 
   game.physics.p2.enable(this.sprite, false);

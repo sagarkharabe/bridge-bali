@@ -1,12 +1,12 @@
 var Gus = require("../objects/gus");
 var GirderMarker = require("../objects/girderMarker");
-
+var EPSILON = require("../const").EPSILON;
 var LevelGenerator = require("../generator");
 
 function initGameState() {
   var state = {};
 
-  var gus, marker, generator, restartTimeout;
+  var gus, marker, generator, restartTimeout, hudCounter;
   var game = window.game;
 
   state.preload = function() {
@@ -154,6 +154,36 @@ function initGameState() {
       this,
       0
     );
+    // make hud icons
+    hudCounters = [
+      {
+        icon: game.add.sprite(41, 41, "Tool"),
+        value: function() {
+          return game.toolsToCollect.length;
+        }
+      },
+      {
+        icon: game.add.sprite(141, 41, "Girder"),
+        value: function() {
+          return 10;
+        }
+      }
+    ];
+
+    hudCounters.map(function(counter) {
+      counter.icon.initPos = {
+        x: counter.icon.position.x,
+        y: counter.icon.position.y
+      };
+      counter.icon.anchor = new Phaser.Point(0.5, 0.5);
+      counter.text = game.add.text(
+        counter.icon.position.x,
+        counter.icon.position.y,
+        "",
+        {}
+      );
+      return counter;
+    });
   };
 
   //---------------------------
@@ -187,7 +217,39 @@ function initGameState() {
     game.camera.displayObject.pivot.x = gus.sprite.position.x;
     game.camera.displayObject.pivot.y = gus.sprite.position.y;
     game.camera.displayObject.rotation = Math.PI * 2 - gus.sprite.rotation;
+
+    // render HUD
+    hudCounters.forEach(function(counter) {
+      counter.icon.position = screenToWorldSpace(counter.icon.initPos);
+      counter.icon.rotation = gus.sprite.rotation;
+
+      var textpos = { x: counter.icon.initPos.x, y: counter.icon.initPos.y };
+      textpos.x += 32;
+      counter.text.position = screenToWorldSpace(textpos);
+      counter.text.text = counter.value();
+      counter.text.rotation = gus.sprite.rotation;
+    });
   };
+
+  function screenToWorldSpace(point) {
+    var cosine = Math.cos(game.camera.displayObject.rotation),
+      sine = Math.sin(game.camera.displayObject.rotation);
+    var topleft = {
+      x:
+        game.camera.displayObject.pivot.x -
+        (cosine * game.camera.width) / 2 -
+        (sine * game.camera.height) / 2,
+      y:
+        game.camera.displayObject.pivot.y -
+        (cosine * game.camera.height) / 2 +
+        (sine * game.camera.width) / 2
+    };
+
+    return new Phaser.Point(
+      point.x * cosine + point.y * sine + topleft.x,
+      point.y * cosine - point.x * sine + topleft.y
+    );
+  }
   // needs to be added
   state.restartLevel = function() {
     game.toolsToCollect.forEach(function(tool) {

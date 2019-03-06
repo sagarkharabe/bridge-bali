@@ -6,6 +6,7 @@ var EPSILON = require("../const").EPSILON;
 function GirderMarker() {
   if (game === undefined) game = window.game;
   this.sprite = game.add.sprite(0, 0, "Girder");
+  this.sprite.smoothed = false;
   this.sprite.anchor = new Phaser.Point(0.5, 0.5);
   this.master = null;
   this.girdersPlaced = [];
