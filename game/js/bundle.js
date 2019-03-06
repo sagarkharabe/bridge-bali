@@ -91,6 +91,9 @@ function LevelGenerator(levelData) {
 LevelGenerator.prototype.getSkyColor = function() {
   return this.levelData.sky || defaultSkyColor;
 };
+LevelGenerator.prototype.getStartingGirders = function() {
+  return this.levelData.girders || 10;
+};
 
 LevelGenerator.prototype.parseObjects = function() {
   var levelObjects = [];
@@ -323,18 +326,21 @@ GirderMarker.prototype.setPlaceGirderButton = function(key) {
 };
 
 GirderMarker.prototype.placeGirder = function() {
+  if (this.master.girders === 0) return;
   if (this.placeable) {
     var newGirder = new Girder(this.sprite.position.x, this.sprite.position.y);
     newGirder.sprite.rotation = this.master.sprite.rotation;
 
     this.girdersPlaced.push(newGirder);
 
+    this.master.girders--;
+
     this.master.canRotate = false;
   }
 };
 
 GirderMarker.prototype.update = function() {
-  if (this.master) {
+  if (this.master && this.master.girders > 0) {
     var targetPos = this.getTargetPos();
 
     if (targetPos && this.master.isTouching("down")) {
@@ -373,7 +379,7 @@ function Gus(x, y) {
   this.prevRotation = 0; // previous rotation
   this.idleTime = 0; // how long gus has been holding still
   this.fallTime = 0;
-
+  this.girders = 0;
   this.isDead = false;
   this.facingRight = true; // is gus facing right?
   this.rotating = false; // is gus rotating?
@@ -650,7 +656,7 @@ Gus.prototype.update = function() {
         .tween(this.sprite)
         .to(
           { rotation: this.targetRotation },
-          3000,
+          1000,
           Phaser.Easing.Default,
           true
         )
@@ -797,6 +803,7 @@ function initGameState() {
 
     var level = {
       sky: "#4499FF",
+      girder: 6,
       objs: [
         { t: "4", x: -288, y: -160 },
         { t: "3", x: -288, y: -128 },
@@ -920,6 +927,7 @@ function initGameState() {
     }
 
     gus = new Gus(game.gusStartPos.x, game.gusStartPos.y);
+    gus.girders = generator.getStartingGirders();
     marker = new GirderMarker();
     marker.setMaster(gus);
 
@@ -942,13 +950,13 @@ function initGameState() {
       {
         icon: game.add.sprite(41, 41, "Tool"),
         value: function() {
-          return game.toolsToCollect.length;
+          return game.toolsRemaining;
         }
       },
       {
         icon: game.add.sprite(141, 41, "Girder"),
         value: function() {
-          return 10;
+          return gus.girders;
         }
       }
     ];
@@ -963,8 +971,9 @@ function initGameState() {
         counter.icon.position.x,
         counter.icon.position.y,
         "",
-        {}
+        { font: "bold 28pt mono" }
       );
+      counter.text.anchor = new Phaser.Point(0, 0.5);
       return counter;
     });
   };

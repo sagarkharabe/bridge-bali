@@ -8,7 +8,6 @@ const exphbs = require("express-handlebars");
 require("./models");
 const app = express();
 //require("./config/app-variables")(app);
-const inlineScript = require("express-handlebars-inline-script");
 
 MONGOURI = "mongodb://sagar:sagar5544@ds259820.mlab.com:59820/new-mario-db";
 mongoose.Promise = global.Promise;
@@ -26,12 +25,7 @@ mongoose
 app.engine(
   "handlebars",
   exphbs({
-    helpers: {
-      inlineScript:
-        process.env.NODE_ENV === "production"
-          ? inlineScript.inline
-          : inlineScript.noinline
-    },
+    helpers: {},
     defaultLayout: "main"
   })
 );

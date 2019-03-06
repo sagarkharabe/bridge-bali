@@ -14,6 +14,7 @@ function initGameState() {
 
     var level = {
       sky: "#4499FF",
+      girder: 6,
       objs: [
         { t: "4", x: -288, y: -160 },
         { t: "3", x: -288, y: -128 },
@@ -137,6 +138,7 @@ function initGameState() {
     }
 
     gus = new Gus(game.gusStartPos.x, game.gusStartPos.y);
+    gus.girders = generator.getStartingGirders();
     marker = new GirderMarker();
     marker.setMaster(gus);
 
@@ -159,13 +161,13 @@ function initGameState() {
       {
         icon: game.add.sprite(41, 41, "Tool"),
         value: function() {
-          return game.toolsToCollect.length;
+          return game.toolsRemaining;
         }
       },
       {
         icon: game.add.sprite(141, 41, "Girder"),
         value: function() {
-          return 10;
+          return gus.girders;
         }
       }
     ];
@@ -180,8 +182,9 @@ function initGameState() {
         counter.icon.position.x,
         counter.icon.position.y,
         "",
-        {}
+        { font: "bold 28pt mono" }
       );
+      counter.text.anchor = new Phaser.Point(0, 0.5);
       return counter;
     });
   };

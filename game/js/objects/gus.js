@@ -17,7 +17,7 @@ function Gus(x, y) {
   this.prevRotation = 0; // previous rotation
   this.idleTime = 0; // how long gus has been holding still
   this.fallTime = 0;
-
+  this.girders = 0;
   this.isDead = false;
   this.facingRight = true; // is gus facing right?
   this.rotating = false; // is gus rotating?
@@ -294,7 +294,7 @@ Gus.prototype.update = function() {
         .tween(this.sprite)
         .to(
           { rotation: this.targetRotation },
-          3000,
+          1000,
           Phaser.Easing.Default,
           true
         )
