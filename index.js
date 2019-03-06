@@ -39,6 +39,9 @@ app.use(express.static("game/js"));
 app.get("/", (req, res) => {
   res.render("home");
 });
+app.get("/createLevel", function(req, res) {
+  res.render("levelCreator/levelCreator");
+});
 
 app.use("/users", require("./routes/users"));
 app.use("/levels", require("./routes/levels"));
