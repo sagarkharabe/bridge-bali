@@ -12,12 +12,25 @@ var FULLSCREEN = false;
 var WIDTH = FULLSCREEN ? window.innerWidth * window.devicePixelRatio : 800,
   HEIGHT = FULLSCREEN ? window.innerHeight * window.devicePixelRatio : 600;
 
-// initialize the game
-window.game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, "game-container");
+function startGame(Phaser) {
+  // initialize the game
+  window.game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, "game-container");
 
-// add states
-game.state.add("boot", bootState());
-game.state.add("load", loadState());
-game.state.add("game", gameState());
+  // add states
+  game.state.add("boot", bootState());
+  game.state.add("load", loadState());
+  game.state.add("game", gameState());
 
-game.state.start("boot");
+  game.state.start("boot");
+}
+
+(function checkPhaserExists(phaser) {
+  if (phaser) {
+    console.log("Phaser runtime initialized, starting...");
+    startGame(phaser);
+  } else {
+    setTimeout(function() {
+      checkPhaserExists(window.Phaser);
+    }, 100);
+  }
+})(window.Phaser);

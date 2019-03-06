@@ -138,15 +138,28 @@ var FULLSCREEN = false;
 var WIDTH = FULLSCREEN ? window.innerWidth * window.devicePixelRatio : 800,
   HEIGHT = FULLSCREEN ? window.innerHeight * window.devicePixelRatio : 600;
 
-// initialize the game
-window.game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, "game-container");
+function startGame(Phaser) {
+  // initialize the game
+  window.game = new Phaser.Game(WIDTH, HEIGHT, Phaser.AUTO, "game-container");
 
-// add states
-game.state.add("boot", bootState());
-game.state.add("load", loadState());
-game.state.add("game", gameState());
+  // add states
+  game.state.add("boot", bootState());
+  game.state.add("load", loadState());
+  game.state.add("game", gameState());
 
-game.state.start("boot");
+  game.state.start("boot");
+}
+
+(function checkPhaserExists(phaser) {
+  if (phaser) {
+    console.log("Phaser runtime initialized, starting...");
+    startGame(phaser);
+  } else {
+    setTimeout(function() {
+      checkPhaserExists(window.Phaser);
+    }, 100);
+  }
+})(window.Phaser);
 
 },{"./states/boot":13,"./states/game":14,"./states/load":15,"phaser":16}],8:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
@@ -520,9 +533,11 @@ Gus.prototype.rotate = function(dir) {
   var rot = 0;
   if (dir === "left") {
     rot = -Math.PI / 2;
-    this.sprite.rotation -= TAU;
+    if (this.targetRotation - rot < this.rotation) this.sprite.rotation -= TAU;
   } else if (dir === "right") {
     rot = Math.PI / 2;
+    if (this.targetRotation - rot < this.rotation - TAU)
+      this.sprite.rotation -= TAU;
   }
 
   // change values
@@ -534,8 +549,9 @@ Gus.prototype.rotate = function(dir) {
 
 Gus.prototype.finishRotation = function() {
   // keep our rotation between tau and 0
-  if (this.rotation < 0) this.rotation = TAU + this.rotation;
-
+  if (this.rotation < 0) this.rotation += TAU;
+  if (this.targetRotation < 0) this.targetRotation += TAU;
+  else if (this.targetRotation >= TAU) this.targetRotation %= TAU;
   // set gravity relative to our new axis
   this.sprite.body.gravity.y = Math.floor(
     Math.cos(this.rotation) * this.gravity
@@ -629,7 +645,12 @@ Gus.prototype.update = function() {
     if (this.rotateTween === undefined) {
       this.rotateTween = game.add
         .tween(this.sprite)
-        .to({ rotation: this.targetRotation }, 300, Phaser.Easing.Default, true)
+        .to(
+          { rotation: this.targetRotation },
+          3000,
+          Phaser.Easing.Default,
+          true
+        )
         .onComplete.add(function() {
           this.rotation = this.targetRotation % TAU; // keep angle within 0-2pi
           this.finishRotation();
@@ -772,7 +793,7 @@ function initGameState() {
     var level = {
       sky: "#4499FF",
       objs: [
-        { t: "3", x: -288, y: -160 },
+        { t: "4", x: -288, y: -160 },
         { t: "3", x: -288, y: -128 },
         { t: "3", x: -288, y: -96 },
         { t: "3", x: -288, y: -64 },
