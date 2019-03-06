@@ -211,13 +211,10 @@ function initGameState() {
     });
   };
 
-  //---------------------------
   state.update = function() {
     // update actors
     gus.update();
     marker.update();
-
-    // needs to be added
     game.toolsToCollect.forEach(function(tool) {
       tool.update();
     });
@@ -226,17 +223,25 @@ function initGameState() {
       if (restartTimeout === undefined)
         restartTimeout = setTimeout(function() {
           state.restartLevel();
-        }, 10000);
+        }, 15000);
 
-      game.camera.scale.x *= 1 + game.time.physicsElapsed;
-      game.camera.scale.y *= 1 + game.time.physicsElapsed;
-      gus.sprite.rotation += game.time.physicsElapsed * 60;
+      gus.isDead = true;
+
+      gus.rotationSpeed = gus.rotationSpeed || 0;
+      gus.rotationSpeed += game.time.physicsElapsed;
+      gus.sprite.rotation += gus.rotationSpeed * game.time.physicsElapsed;
+
+      game.camera.scale.x *= 1 + game.time.physicsElapsed / 5;
+      game.camera.scale.y *= 1 + game.time.physicsElapsed / 5;
+      game.dolly.rotation = Math.PI * 2 - gus.sprite.rotation;
+      game.dolly.unlock();
     } else if (gus.isDead && restartTimeout === undefined) {
+      game.dolly.unlock();
+
       restartTimeout = setTimeout(function() {
         state.restartLevel();
       }, 5000);
     }
-    // ----------------
 
     // lock camera to player
     game.dolly.update();
@@ -264,6 +269,7 @@ function initGameState() {
     });
 
     gus.respawn();
+    gus.rotationSpeed = 0;
     gus.girders = generator.getStartingGirders();
 
     game.camera.scale.x = 1;
