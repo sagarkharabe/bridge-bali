@@ -4,6 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const chalk = require("chalk");
+const exphbs = require("express-handlebars");
 require("./models");
 const app = express();
 require("./config/app-variables")(app);
@@ -14,10 +15,10 @@ mongoose
     useNewUrlParser: true
   })
   .then(() => {
-    console.log(chalk.yellow("Connected to Mlab.."));
+    console.log(chalk.green("Connected to Mlab.."));
   })
   .catch(err => {
-    // console.log("Mlab connection error -- ", err);
+    console.log(chalk.red("Mlab connection error -- "), err);
   });
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
