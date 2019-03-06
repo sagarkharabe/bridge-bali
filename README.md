@@ -1,4 +1,4 @@
-# Girder Gus
+# Bridge Bali
 
 [![Built at SchoolOfAcceleratedLearning](https://img.shields.io/badge/Built%20at-SchoolOfAcceleratedLearning-red.svg?style=round-square)](https://schoolofacceleratedlearning.com/)
 
