@@ -283,6 +283,25 @@ Dolly.prototype.unlock = function() {
   this.lockTarget = null;
 };
 
+Dolly.prototype.screenspaceToWorldspace = function(point) {
+  var cosine = Math.cos(TAU - this.rotation),
+    sine = Math.sin(TAU - this.rotation);
+  var topleft = {
+    x:
+      this.position.x -
+      (cosine * game.camera.width) / 2 -
+      (sine * game.camera.height) / 2,
+    y:
+      this.position.y -
+      (cosine * game.camera.height) / 2 +
+      (sine * game.camera.width) / 2
+  };
+
+  return new Phaser.Point(
+    point.x * cosine + point.y * sine + topleft.x,
+    point.y * cosine - point.x * sine + topleft.y
+  );
+};
 module.exports = Dolly;
 
 },{"../const":3}],10:[function(require,module,exports){
@@ -524,7 +543,7 @@ Gus.prototype.doom = function() {
   this.sprite.body.velocity.y = Math.cos(this.rotation) * -250;
 
   this.sprite.body.angularVelocity = 60;
-  //this.sprite.body.rotateRight( 360 );
+  game.dolly.unlock();
 };
 
 Gus.prototype.kill = function() {
@@ -784,7 +803,7 @@ function Tool(x, y) {
 
   this.sprite.initialRotation = Math.random() * TAU;
 
-  game.physics.p2.enable(this.sprite, false);
+  game.physics.p2.enable(this.sprite, true);
 
   this.setCollisions();
 
@@ -805,7 +824,7 @@ Tool.prototype.setCollisions = function() {
 Tool.prototype.collect = function() {
   console.log("tool collected!");
   this.sprite.visible = false;
-  this.sprite.body.clearCollision();
+  this.sprite.body.clearShapes();
   game.toolsRemaining--;
 };
 

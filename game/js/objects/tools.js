@@ -9,7 +9,7 @@ function Tool(x, y) {
 
   this.sprite.initialRotation = Math.random() * TAU;
 
-  game.physics.p2.enable(this.sprite, false);
+  game.physics.p2.enable(this.sprite, true);
 
   this.setCollisions();
 
@@ -30,7 +30,7 @@ Tool.prototype.setCollisions = function() {
 Tool.prototype.collect = function() {
   console.log("tool collected!");
   this.sprite.visible = false;
-  this.sprite.body.clearCollision();
+  this.sprite.body.clearShapes();
   game.toolsRemaining--;
 };
 

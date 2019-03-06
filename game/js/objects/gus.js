@@ -92,7 +92,7 @@ Gus.prototype.doom = function() {
   this.sprite.body.velocity.y = Math.cos(this.rotation) * -250;
 
   this.sprite.body.angularVelocity = 60;
-  //this.sprite.body.rotateRight( 360 );
+  game.dolly.unlock();
 };
 
 Gus.prototype.kill = function() {
