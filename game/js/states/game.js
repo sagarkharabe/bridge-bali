@@ -1,7 +1,25 @@
 var Gus = require("../objects/gus");
 var GirderMarker = require("../objects/girderMarker");
-var EPSILON = require("../const").EPSILON;
 var LevelGenerator = require("../generator");
+function screenToWorldSpace(point) {
+  var cosine = Math.cos(game.camera.displayObject.rotation),
+    sine = Math.sin(game.camera.displayObject.rotation);
+  var topleft = {
+    x:
+      game.camera.displayObject.pivot.x -
+      (cosine * game.camera.width) / 2 -
+      (sine * game.camera.height) / 2,
+    y:
+      game.camera.displayObject.pivot.y -
+      (cosine * game.camera.height) / 2 +
+      (sine * game.camera.width) / 2
+  };
+
+  return new Phaser.Point(
+    point.x * cosine + point.y * sine + topleft.x,
+    point.y * cosine - point.x * sine + topleft.y
+  );
+}
 
 function initGameState() {
   var state = {};
@@ -234,25 +252,6 @@ function initGameState() {
     });
   };
 
-  function screenToWorldSpace(point) {
-    var cosine = Math.cos(game.camera.displayObject.rotation),
-      sine = Math.sin(game.camera.displayObject.rotation);
-    var topleft = {
-      x:
-        game.camera.displayObject.pivot.x -
-        (cosine * game.camera.width) / 2 -
-        (sine * game.camera.height) / 2,
-      y:
-        game.camera.displayObject.pivot.y -
-        (cosine * game.camera.height) / 2 +
-        (sine * game.camera.width) / 2
-    };
-
-    return new Phaser.Point(
-      point.x * cosine + point.y * sine + topleft.x,
-      point.y * cosine - point.x * sine + topleft.y
-    );
-  }
   // needs to be added
   state.restartLevel = function() {
     game.toolsToCollect.forEach(function(tool) {

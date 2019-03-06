@@ -9,7 +9,14 @@ const {
 const { mustBeLoggedIn } = require("./helpers/permissions");
 
 // guest can see all users
-router.get("/", getDocsAndSend("User"));
+router.get(
+  "/",
+  getDocsAndSend(
+    "User",
+    ["name", "followers", "createdLevels", "totalStars", "profilePic"],
+    [{ path: "createdLevels", select: "title dateCreat starCount" }]
+  )
+);
 
 // guest can create user
 router.post("/", createDoc("User"));

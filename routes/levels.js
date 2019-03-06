@@ -9,7 +9,14 @@ const {
 const { mustBeLoggedIn } = require("./helpers/permissions");
 
 // guest can see all levels
-router.get("/", getDocsAndSend("Level"));
+router.get(
+  "/",
+  getDocsAndSend(
+    "Level",
+    ["title", "creator", "dateCreate", "starCount"],
+    [{ path: "creator", select: "name" }]
+  )
+);
 // guest can see all levels with creators
 router.get("/users", getDocsAndSend("Level", null, ["creator"]));
 
