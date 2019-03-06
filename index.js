@@ -20,14 +20,19 @@ mongoose
   .catch(err => {
     console.log(chalk.red("Mlab connection error -- "), err);
   });
+app.engine("handlebars", exphbs({ defaultLayout: "main" }));
+app.set("view engine", "handlebars");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/", (req, res) => {
-  res.sendFile(app.get("indexHTMLPath"));
+  res.render("index");
 });
+
 app.use("/users", require("./routes/users"));
 app.use("/levels", require("./routes/levels"));
-
+app.get("/*", (req, res) => {
+  res.redirect("/");
+});
 const port = 5000;
 app.listen(port, () => {
   //console.log(process.env.MONGOURI);
