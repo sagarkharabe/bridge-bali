@@ -1,5 +1,5 @@
 var blockIds = require("./blockIds");
-var defaultSkyColor = require("../consts/colors").DEFAULT_SKY;
+var defaultSkyColor = require("../const/colors").DEFAULT_SKY;
 
 function LevelGenerator(levelData) {
   if (blockIds === undefined) console.error("blockIds are undefined (wtf!!)");

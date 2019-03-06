@@ -1,5 +1,5 @@
-var COLLISION_GROUPS = require("../consts/collisionGroups");
-var TAU = require("../consts").TAU;
+var COLLISION_GROUPS = require("../const/collisionGroup");
+var TAU = require("../const").TAU;
 
 function Tool(x, y) {
   var game = window.game;

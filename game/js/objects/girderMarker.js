@@ -1,8 +1,8 @@
 var game = window.game;
 var Girder = require("./blocks").Girder;
 
-var COLLISION_GROUPS = require("../consts/collisionGroups");
-var EPSILON = require("../consts").EPSILON;
+var COLLISION_GROUPS = require("../const/collisionGroup");
+var EPSILON = require("../const").EPSILON;
 function GirderMarker() {
   if (game === undefined) game = window.game;
   this.sprite = game.add.sprite(0, 0, "Girder");

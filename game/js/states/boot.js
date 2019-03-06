@@ -1,4 +1,4 @@
-var COLLISION_GROUPS = require("../consts/collisionGroups");
+var COLLISION_GROUPS = require("../const/collisionGroup");
 
 function initBootState() {
   var state = {};

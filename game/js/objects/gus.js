@@ -1,6 +1,6 @@
-var COLLISION_GROUPS = require("../consts/collisionGroups");
-var EPSILON = require("../consts").EPSILON;
-var TAU = require("../consts").TAU;
+var COLLISION_GROUPS = require("../const/collisionGroup");
+var EPSILON = require("../const").EPSILON;
+var TAU = require("../const").TAU;
 
 var game = window.game;
 
