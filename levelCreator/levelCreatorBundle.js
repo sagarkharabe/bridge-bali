@@ -6,6 +6,12 @@ module.exports = COLORS;
 
 },{}],2:[function(require,module,exports){
 module.exports = {
+  EPSILON: 0.000001,
+  TAU: Math.PI * 2
+};
+
+},{}],3:[function(require,module,exports){
+module.exports = {
   1: "Gus",
   2: "Tool",
   3: "RedBrickBlock",
@@ -14,7 +20,88 @@ module.exports = {
   6: "Spike"
 };
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
+var TAU = require("../const").TAU;
+
+function Dolly(camera) {
+  this.movementFactor = 2;
+  this.rotationFactor = 4;
+
+  this.camera = camera;
+  this.position = camera.displayObject.position;
+  this.rotation = camera.displayObject.rotation;
+  this.scale = camera.scale;
+
+  this.lockTarget = null;
+  this.targetPos = null;
+  this.targetAng = null;
+  this.targetScale = null;
+}
+
+function midpoint(p1, p2) {
+  var x = p1.x + (p2.x - p1.x) * game.time.physicsElapsed;
+  var y = p1.y + (p2.y - p1.y) * game.time.physicsElapsed;
+
+  return new Phaser.Point(x, y);
+}
+
+Dolly.prototype.update = function() {
+  if (this.lockTarget) {
+    this.targetPos = this.lockTarget.position;
+    this.targetAng = this.lockTarget.rotation;
+  }
+
+  if (this.targetPos !== null) {
+    this.position = midpoint(this.position, this.targetPos);
+  }
+
+  console.log(this.position, this.lockTarget.position);
+
+  if (this.targetAng !== null) {
+    while (this.targetAng - this.rotation > Math.PI) this.rotation += TAU;
+    while (this.rotation - this.targetAng > Math.PI) this.rotation -= TAU;
+
+    this.rotation +=
+      (this.targetAng - this.rotation) *
+      game.time.physicsElapsed *
+      this.rotationFactor;
+  }
+
+  this.camera.displayObject.pivot.x = this.position.x;
+  this.camera.displayObject.pivot.y = this.position.y;
+  this.camera.displayObject.rotation = TAU - this.rotation;
+};
+
+Dolly.prototype.lockTo = function(dispObj) {
+  this.lockTarget = dispObj;
+};
+
+Dolly.prototype.unlock = function() {
+  this.lockTarget = null;
+};
+
+Dolly.prototype.screenspaceToWorldspace = function(point) {
+  var cosine = Math.cos(TAU - this.rotation),
+    sine = Math.sin(TAU - this.rotation);
+  var topleft = {
+    x:
+      this.position.x -
+      (cosine * game.camera.width) / 2 -
+      (sine * game.camera.height) / 2,
+    y:
+      this.position.y -
+      (cosine * game.camera.height) / 2 +
+      (sine * game.camera.width) / 2
+  };
+
+  return new Phaser.Point(
+    point.x * cosine + point.y * sine + topleft.x,
+    point.y * cosine - point.x * sine + topleft.y
+  );
+};
+module.exports = Dolly;
+
+},{"../const":2}],5:[function(require,module,exports){
 var loadState = require("./states/load");
 var createState = require("./states/create");
 
@@ -54,10 +141,11 @@ function startGame(phaser) {
   }
 })(window.Phaser);
 
-},{"./states/create":4,"./states/load":5}],4:[function(require,module,exports){
+},{"./states/create":6,"./states/load":7}],6:[function(require,module,exports){
 const COLORS = require("../../game/js/const/colors");
 const NUM_TO_TILES = require("../../game/js/const/tilemap");
 let gusSpawn;
+const Dolly = require("../../game/js/objects/dolly");
 function tileToNum(tile) {
   for (let n in NUM_TO_TILES) if (NUM_TO_TILES[n] === tile) return +n;
 
@@ -84,6 +172,9 @@ function initCreateState() {
     const game = window.game;
     gusSpawn = game.add.sprite(0, 0, "Gus");
     game.stage.setBackgroundColor(COLORS.DEFAULT_SKY);
+
+    game.dolly = new Dolly(game.camera);
+    game.dolly.targetPos = new Phaser.Point(0, 0);
 
     eventEmitter.on("change active tool", tool => {
       game.activeTool = tool;
@@ -128,8 +219,13 @@ function initCreateState() {
     }
 
     if (game.input.activePointer.isDown) {
-      const x = parseCoordinate(game.input.mousePointer.x) - 400;
-      const y = parseCoordinate(game.input.mousePointer.y) - 300;
+      const clickPoint = new Phaser.Point(
+        game.input.mousePointer.x,
+        game.input.mousePointer.y
+      );
+      const targetPoint = game.dolly.screenspaceToWorldspace(clickPoint);
+      const x = parseCoordinate(targetPoint.x);
+      const y = parseCoordinate(targetPoint.y);
       let placedTool;
       if (game.activeTool) placedTool = game.add.sprite(x, y, game.activeTool);
       if (game.activeTool === "Gus") {
@@ -152,6 +248,15 @@ function initCreateState() {
       };
       console.dir(unparsedTileMap);
     }
+    if (game.input.activePointer.rightButton.isDown) {
+      const clickPoint = new Phaser.Point(
+        game.input.mousePointer.x,
+        game.input.mousePointer.y
+      );
+      game.dolly.targetPos = game.dolly.screenspaceToWorldspace(clickPoint);
+    }
+
+    game.dolly.update();
   };
 
   return state;
@@ -159,7 +264,7 @@ function initCreateState() {
 
 module.exports = initCreateState;
 
-},{"../../game/js/const/colors":1,"../../game/js/const/tilemap":2}],5:[function(require,module,exports){
+},{"../../game/js/const/colors":1,"../../game/js/const/tilemap":3,"../../game/js/objects/dolly":4}],7:[function(require,module,exports){
 function initLoadState() {
   var state = {};
   var game = window.game;
@@ -192,4 +297,4 @@ function initLoadState() {
 
 module.exports = initLoadState;
 
-},{}]},{},[3]);
+},{}]},{},[5]);

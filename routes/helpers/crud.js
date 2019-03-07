@@ -119,6 +119,10 @@ const getDocsAndSend = (ModelStr, selectParams = [], populateParams = []) => (
         return query;
       });
   } else {
+    queryPromise = Promise.resolve(query);
+  }
+
+  queryPromise.then(query => {
     Model.find(query)
       .skip(page * limit)
       .limit(limit)
@@ -126,7 +130,7 @@ const getDocsAndSend = (ModelStr, selectParams = [], populateParams = []) => (
       .select(selectParams.join(" "))
       .populate(populateParams)
       .then(function(documents) {
-        let count = Model.count(query);
+        let count = Model.countDocuments(query);
         return Promise.all([documents, count]);
       })
       .then(function(results) {
@@ -136,7 +140,7 @@ const getDocsAndSend = (ModelStr, selectParams = [], populateParams = []) => (
         });
       })
       .then(null, next);
-  }
+  });
 };
 
 const getDocAndSend = (ModelStr, populateParams = []) => (req, res, next) => {
