@@ -563,7 +563,7 @@ GirderMarker.prototype.placeGirder = function() {
 
 GirderMarker.prototype.update = function() {
   // if we have a master with girders, try to reposition the marker
-  if (this.master && this.master.girders > 0) {
+  if (this.master && !this.master.rotating && this.master.girders > 0) {
     var targetPos = this.getTargetPos();
 
     // if we found a valid position and our master is on the ground, show the marker
@@ -617,7 +617,7 @@ function Gus(x, y) {
 
   // create a sprite object and set its anchor
   this.sprite = game.add.sprite(x, y, "Gus");
-
+  this.sprite.name = "Gus";
   // attach our sprite to the physics engine
   game.physics.p2.enable(this.sprite, false);
   this.sprite.body.setRectangle(20, 32);
@@ -985,6 +985,8 @@ function Tool(x, y) {
   var game = window.game;
 
   this.sprite = game.add.sprite(x, y, "Tool");
+  this.sprite.name = "Tool";
+  this.sprite.owner = this;
   this.sprite.smoothed = false;
 
   this.sprite.initialRotation = Math.random() * TAU;
@@ -1003,11 +1005,13 @@ Tool.prototype.setCollisions = function() {
 
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.ITEM);
   this.sprite.body.collides([COLLISION_GROUPS.PLAYER_SOLID]);
-  this.sprite.body.onBeginContact.add(Tool.prototype.collect, this);
+
   this.sprite.body.fixedRotation = true;
 };
 
 Tool.prototype.collect = function() {
+  if (!this.sprite.visible) return;
+
   console.log("tool collected!");
   this.sprite.visible = false;
   this.sprite.body.clearShapes();
@@ -1331,6 +1335,7 @@ function initGameState() {
 
     game.dolly = new Dolly(game.camera);
     game.dolly.lockTo(gus.sprite);
+    game.physics.p2.setPostBroadphaseCallback(state.postBroadphase, state);
 
     console.log("Binding to keys...");
 
@@ -1497,7 +1502,17 @@ function initGameState() {
     restartTimeout = undefined;
     levelStarted = game.time.now;
   };
-  // -----------------------------
+  state.postBroadphase = function(body1, body2) {
+    if (body1.sprite.name === "Gus" && body2.sprite.name === "Tool") {
+      body2.sprite.owner.collect();
+      return false;
+    } else if (body1.sprite.name === "Tool" && body2.sprite.name === "Gus") {
+      body1.sprite.owner.collect();
+      return false;
+    }
+
+    return true;
+  };
   return state;
 }
 

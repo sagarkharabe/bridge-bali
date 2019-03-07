@@ -6,6 +6,8 @@ function Tool(x, y) {
   var game = window.game;
 
   this.sprite = game.add.sprite(x, y, "Tool");
+  this.sprite.name = "Tool";
+  this.sprite.owner = this;
   this.sprite.smoothed = false;
 
   this.sprite.initialRotation = Math.random() * TAU;
@@ -24,11 +26,13 @@ Tool.prototype.setCollisions = function() {
 
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.ITEM);
   this.sprite.body.collides([COLLISION_GROUPS.PLAYER_SOLID]);
-  this.sprite.body.onBeginContact.add(Tool.prototype.collect, this);
+
   this.sprite.body.fixedRotation = true;
 };
 
 Tool.prototype.collect = function() {
+  if (!this.sprite.visible) return;
+
   console.log("tool collected!");
   this.sprite.visible = false;
   this.sprite.body.clearShapes();
