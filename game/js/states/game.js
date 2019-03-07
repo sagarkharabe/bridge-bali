@@ -6,7 +6,7 @@ var LevelGenerator = require("../generator");
 function initGameState() {
   var state = {};
 
-  var gus, marker, generator, restartTimeout, hudCounter;
+  var gus, marker, generator, restartTimeout, hudCounter, levelStarted;
   var game = window.game;
 
   state.preload = function() {
@@ -40,47 +40,47 @@ function initGameState() {
         { t: 3, x: -256, y: 160 },
         { t: 3, x: -224, y: 128 },
         { t: 3, x: -224, y: 160 },
-        { t: 4, x: -224, y: -128 },
+        { t: 6, r: 180, x: -224, y: -128 },
         { t: 3, x: -224, y: -160 },
         { t: 3, x: -192, y: 128 },
         { t: 3, x: -192, y: 160 },
-        { t: 4, x: -192, y: -128 },
+        { t: 6, r: 180, x: -192, y: -128 },
         { t: 3, x: -192, y: -160 },
         { t: 3, x: -160, y: 128 },
         { t: 3, x: -160, y: 160 },
-        { t: 4, x: -160, y: -128 },
+        { t: 6, r: 180, x: -160, y: -128 },
         { t: 3, x: -160, y: -160 },
         { t: 3, x: -128, y: 128 },
         { t: 3, x: -128, y: 160 },
-        { t: 4, x: -128, y: -128 },
+        { t: 6, r: 180, x: -128, y: -128 },
         { t: 3, x: -128, y: -160 },
-        { t: 4, x: -96, y: -128 },
+        { t: 6, r: 180, x: -96, y: -128 },
         { t: 3, x: -96, y: -160 },
-        { t: 4, x: -64, y: -128 },
+        { t: 6, r: 180, x: -64, y: -128 },
         { t: 3, x: -64, y: -160 },
-        { t: 4, x: -32, y: -128 },
+        { t: 6, r: 180, x: -32, y: -128 },
         { t: 3, x: -32, y: -160 },
-        { t: 4, x: 0, y: -128 },
+        { t: 6, r: 180, x: 0, y: -128 },
         { t: 3, x: 0, y: -160 },
-        { t: 4, x: 32, y: -128 },
+        { t: 6, r: 180, x: 32, y: -128 },
         { t: 3, x: 32, y: -160 },
-        { t: 4, x: 64, y: -128 },
+        { t: 6, r: 180, x: 64, y: -128 },
         { t: 3, x: 64, y: -160 },
         { t: 3, x: 96, y: 128 },
         { t: 3, x: 96, y: 160 },
-        { t: 4, x: 96, y: -128 },
+        { t: 6, r: 180, x: 96, y: -128 },
         { t: 3, x: 96, y: -160 },
         { t: 3, x: 128, y: 128 },
         { t: 3, x: 128, y: 160 },
-        { t: 4, x: 128, y: -128 },
+        { t: 6, r: 180, x: 128, y: -128 },
         { t: 3, x: 128, y: -160 },
         { t: 3, x: 160, y: 128 },
         { t: 3, x: 160, y: 160 },
-        { t: 4, x: 160, y: -128 },
+        { t: 6, r: 180, x: 160, y: -128 },
         { t: 3, x: 160, y: -160 },
         { t: 3, x: 192, y: 128 },
         { t: 3, x: 192, y: 160 },
-        { t: 4, x: 192, y: -128 },
+        { t: 6, r: 180, x: 192, y: -128 },
         { t: 3, x: 192, y: -160 },
         { t: 3, x: 224, y: -160 },
         { t: 3, x: 224, y: -128 },
@@ -168,9 +168,22 @@ function initGameState() {
         }
       },
       {
-        icon: game.add.sprite(141, 41, "Girder"),
+        icon: game.add.sprite(181, 41, "Girder"),
         value: function() {
           return gus.girders;
+        }
+      },
+      {
+        icon: game.add.sprite(game.camera.width - 200, 41, "Clock"),
+        value: function() {
+          var timediff = Math.floor((game.time.now - levelStarted) / 1000);
+          if (timediff > 99 * 60 + 59) timediff = 99 * 60 + 59;
+          var minutes = Math.floor(timediff / 60).toString();
+          var seconds =
+            timediff % 60 < 10
+              ? "0" + (timediff % 60).toString()
+              : (timediff % 60).toString();
+          return minutes + ":" + seconds;
         }
       }
     ];
@@ -181,15 +194,30 @@ function initGameState() {
         y: counter.icon.position.y
       };
       counter.icon.anchor = new Phaser.Point(0.5, 0.5);
+      counter.shadow = game.add.text(
+        counter.icon.position.x + 4,
+        counter.icon.position.y + 4,
+        "",
+        {
+          font: "bold 24pt 'Press Start 2P', sans-serif",
+          fill: "#0D0D0D"
+        }
+      );
       counter.text = game.add.text(
         counter.icon.position.x,
         counter.icon.position.y,
         "",
-        { font: "bold 24pt 'Press Start 2P', sans-serif" }
+        {
+          font: "bold 24pt 'Press Start 2P', sans-serif",
+          fill: "#F2F2F2"
+        }
       );
       counter.text.anchor = new Phaser.Point(0, 0.5);
+      counter.shadow.anchor = new Phaser.Point(0, 0.5);
+
       return counter;
     });
+    levelStarted = game.time.now;
   };
 
   state.update = function() {
@@ -229,16 +257,30 @@ function initGameState() {
 
     // render HUD
     hudCounters.forEach(function(counter) {
+      counter.icon.bringToTop();
       counter.icon.position = game.dolly.screenspaceToWorldspace(
         counter.icon.initPos
       );
-      counter.icon.rotation = gus.sprite.rotation;
 
-      var textpos = { x: counter.icon.initPos.x, y: counter.icon.initPos.y };
-      textpos.x += 32;
+      counter.icon.rotation = game.dolly.rotation;
+
+      var textpos = {
+        x: counter.icon.initPos.x + 36,
+        y: counter.icon.initPos.y + 8
+      };
+      counter.shadow.bringToTop();
+      counter.shadow.position = game.dolly.screenspaceToWorldspace(textpos);
+      counter.shadow.text = counter.value();
+      counter.shadow.rotation = game.dolly.rotation;
+
+      textpos = {
+        x: counter.icon.initPos.x + 32,
+        y: counter.icon.initPos.y + 4
+      };
+      counter.text.bringToTop();
       counter.text.position = game.dolly.screenspaceToWorldspace(textpos);
       counter.text.text = counter.value();
-      counter.text.rotation = gus.sprite.rotation;
+      counter.text.rotation = game.dolly.rotation;
     });
   };
 
@@ -259,6 +301,7 @@ function initGameState() {
     game.camera.scale.y = 1;
 
     restartTimeout = undefined;
+    levelStarted = game.time.now;
   };
   // -----------------------------
   return state;

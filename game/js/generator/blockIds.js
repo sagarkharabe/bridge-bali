@@ -17,7 +17,9 @@ function addBlockId(id, loadFunction) {
 
 function generateBlockIdForConstructor(id, constructor) {
   addBlockId(id, function(defObj) {
-    return new constructor(defObj.x, defObj.y);
+    var newObj = new constructor(defObj.x, defObj.y);
+    if (defObj.r) newObj.sprite.rotation = (defObj.r / 180) * Math.PI;
+    return newObj;
   });
 }
 

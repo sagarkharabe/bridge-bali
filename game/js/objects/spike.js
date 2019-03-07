@@ -19,13 +19,7 @@ function Spike(x, y) {
   this.sprite.body.onBeginContact.add(Spike.prototype.touched, this);
 }
 
-Spike.prototype.touched = function(
-  spikes,
-  other,
-  thisShape,
-  otherShape,
-  contact
-) {
+Spike.prototype.touched = function(spikes, other) {
   if (other.parent.gameObject.constructor.name === "Gus") {
     other.parent.gameObject.doom();
   }
