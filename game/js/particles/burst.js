@@ -33,17 +33,19 @@ function ParticleBurst(x, y, particle, options) {
   this.emitter.gravity = options.gravity || 0;
 
   this.emitter.start(true, options.lifetime || 1000, null, options.count || 10);
-
-  // prune old particle emitters
-  particleBursts.forEach(function(burst, idx) {
-    if (burst.emitter.countLiving() === 0) particleBursts.splice(idx, 1);
-  });
+  this.startTime = game.time.now;
 
   particleBursts.push(this);
 }
 
 ParticleBurst.update = function() {
-  particleBursts.forEach(function(burst) {
+  particleBursts.forEach(function(burst, idx) {
+    if (game.time.now - burst.startTime > burst.emitter.lifespan) {
+      particleBursts.splice(idx, 1);
+      burst.emitter.destroy();
+      return;
+    }
+
     if (!burst.fadeOut) return;
 
     burst.emitter.forEachAlive(function(part) {

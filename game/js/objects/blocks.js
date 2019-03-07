@@ -80,7 +80,7 @@ BreakBrickBlock.prototype.update = function() {
   } else if (this.countCollapseTime > 0) {
     this.countCollapseTime += game.time.physicsElapsedMS;
 
-    var s = Math.round(Math.cos(TAU * this.countCollapseTime)) * 0.25;
+    var s = Math.round(Math.cos(this.countCollapseTime / (3 * TAU))) * 0.25;
     this.sprite.scale = { x: 1 + s, y: 1 + s };
   }
 };
@@ -111,7 +111,7 @@ BreakBrickBlock.update = function() {
 BreakBrickBlock.reset = function() {
   breakingBlocks.forEach(function(block) {
     block.sprite.visible = true;
-    block.sprite.scale = new Phaser.Point(1, 1);
+    block.sprite.scale = { x: 1, y: 1 }; // this is cheaper than a Phaser.Point
     block.countCollapseTime = 0;
     block.setCollisions();
   });
