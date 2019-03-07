@@ -698,7 +698,15 @@ Gus.prototype.kill = function() {
 
 Gus.prototype.touchesWall = function(gus, other, sensor, shape, contact) {
   if (!this.canRotate) return;
-  if (sensor !== this.rotationSensor) return;
+  if (sensor !== this.rotationSensor) {
+    var isHorizontal = Math.abs(Math.cos(this.rotation)) > EPSILON;
+    if (isHorizontal && Math.abs(this.sprite.body.velocity.y) > 1)
+      this.sprite.position.x -= this.sprite.body.velocity.x;
+    else if (Math.abs(this.sprite.body.velocity.x) > 1)
+      this.sprite.position.y -= this.sprite.body.velocity.y;
+
+    return;
+  }
 
   var leftVec = p2.vec2.fromValues(
     -Math.cos(this.rotation),
@@ -847,13 +855,9 @@ Gus.prototype.walk = function(dir) {
   var cosine = Math.cos(this.rotation);
   if (Math.abs(cosine) > EPSILON) {
     this.sprite.body.velocity.x = cosine * intendedVelocity;
-    if (this.isTouching("down"))
-      this.sprite.body.velocity.y = cosine * -this.hopStrength;
   } else {
     var sine = Math.sin(this.rotation);
     this.sprite.body.velocity.y = sine * intendedVelocity;
-    if (this.isTouching("down"))
-      this.sprite.body.velocity.x = sine * this.hopStrength;
   }
 
   // play animations
