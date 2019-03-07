@@ -17,7 +17,8 @@ function startGame(phaser) {
     undefined,
     false
   );
-
+  // necessary for screenshots when using WebGL renderer
+  game.preserveDrawingBuffer = true;
   // add states
   game.state.add("load", loadState());
   game.state.add("create", createState());

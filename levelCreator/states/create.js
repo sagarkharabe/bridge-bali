@@ -1,6 +1,6 @@
 const COLORS = require("../../game/js/const/colors");
 const NUM_TO_TILES = require("../../game/js/const/tilemap");
-
+let gusSpawn;
 function tileToNum(tile) {
   for (let n in NUM_TO_TILES) if (NUM_TO_TILES[n] === tile) return +n;
 
@@ -50,8 +50,18 @@ function initCreateState() {
           }
         }
       }
+      if (gusSpawn)
+        parsedTileMap.push({
+          x: gusSpawn.x,
+          y: gusSpawn.y,
+          t: tileToNum("Gus")
+        });
       console.log("sending...");
       eventEmitter.emit("send tile map", parsedTileMap);
+    });
+    eventEmitter.on("request screenshot", function() {
+      var screenshot = game.canvas.toDataURL();
+      eventEmitter.emit("send screenshot", screenshot);
     });
   };
 
@@ -65,6 +75,11 @@ function initCreateState() {
       const y = parseCoordinate(game.input.mousePointer.y) - 300;
       let placedTool;
       if (game.activeTool) placedTool = game.add.sprite(x, y, game.activeTool);
+      if (game.activeTool === "Gus") {
+        if (gusSpawn) gusSpawn.kill();
+        gusSpawn = placedTool;
+        return;
+      }
 
       if (
         unparsedTileMap[x] &&

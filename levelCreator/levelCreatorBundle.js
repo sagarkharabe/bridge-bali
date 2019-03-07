@@ -34,7 +34,8 @@ function startGame(phaser) {
     undefined,
     false
   );
-
+  // necessary for screenshots when using WebGL renderer
+  game.preserveDrawingBuffer = true;
   // add states
   game.state.add("load", loadState());
   game.state.add("create", createState());
@@ -56,7 +57,7 @@ function startGame(phaser) {
 },{"./states/create":4,"./states/load":5}],4:[function(require,module,exports){
 const COLORS = require("../../game/js/const/colors");
 const NUM_TO_TILES = require("../../game/js/const/tilemap");
-
+let gusSpawn;
 function tileToNum(tile) {
   for (let n in NUM_TO_TILES) if (NUM_TO_TILES[n] === tile) return +n;
 
@@ -106,8 +107,18 @@ function initCreateState() {
           }
         }
       }
+      if (gusSpawn)
+        parsedTileMap.push({
+          x: gusSpawn.x,
+          y: gusSpawn.y,
+          t: tileToNum("Gus")
+        });
       console.log("sending...");
       eventEmitter.emit("send tile map", parsedTileMap);
+    });
+    eventEmitter.on("request screenshot", function() {
+      var screenshot = game.canvas.toDataURL();
+      eventEmitter.emit("send screenshot", screenshot);
     });
   };
 
@@ -121,6 +132,11 @@ function initCreateState() {
       const y = parseCoordinate(game.input.mousePointer.y) - 300;
       let placedTool;
       if (game.activeTool) placedTool = game.add.sprite(x, y, game.activeTool);
+      if (game.activeTool === "Gus") {
+        if (gusSpawn) gusSpawn.kill();
+        gusSpawn = placedTool;
+        return;
+      }
 
       if (
         unparsedTileMap[x] &&
@@ -156,7 +172,7 @@ function initLoadState() {
     game.load.image("BrickRedBlock", "/assets/images/brick_red.png");
     game.load.image("Girder", "/assets/images/girder.png");
     game.load.image("Tool", "/assets/images/tool.png");
-    game.load.spritesheet("Gus", "/assets/images/gus.png", 32, 32);
+    game.load.image("Gus", "/assets/images/gus-static.png");
 
     console.log("Done loading");
   };

@@ -10,7 +10,7 @@ function initLoadState() {
     game.load.image("BrickRedBlock", "/assets/images/brick_red.png");
     game.load.image("Girder", "/assets/images/girder.png");
     game.load.image("Tool", "/assets/images/tool.png");
-    game.load.spritesheet("Gus", "/assets/images/gus.png", 32, 32);
+    game.load.image("Gus", "/assets/images/gus-static.png");
 
     console.log("Done loading");
   };
