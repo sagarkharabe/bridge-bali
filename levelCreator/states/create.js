@@ -2,41 +2,50 @@ const COLORS = require("../../game/js/const/colors");
 
 function initCreateState() {
   const state = {};
+
   const eventEmitter = window.eventEmitter;
-  const tileMap = {};
+
+  /* unparsedTileMap[x][y] = {sprite: sprite, tile: tile}
+   * e.g. { 50: { 25: [ sprite: sprite, tile: 'RedBrick' ] } }
+   *
+   * formatted like this so that each addition to it is O(1) rather than O(n)
+   * O(n) would suck with mouse drag.
+   */
+  const unparsedTileMap = {};
+
   state.preload = function() {
     eventEmitter.emit("loaded", () => {});
   };
 
   state.create = function() {
     const game = window.game;
+
     game.stage.setBackgroundColor(COLORS.DEFAULT_SKY);
 
     eventEmitter.on("change active tool", tool => {
       game.activeTool = tool;
     });
 
-    eventEmitter.on("request parsed tile map", function() {
+    eventEmitter.on("request tile map", function() {
       console.log("recieved request. processing...");
       const parsedTileMap = [];
 
-      for (let x in tileMap) {
-        if (!tileMap.hasOwnProperty(x)) continue;
+      for (let x in unparsedTileMap) {
+        if (!unparsedTileMap.hasOwnProperty(x)) continue;
 
-        for (let y in tileMap[x]) {
-          if (!tileMap.hasOwnProperty(x)) continue;
-          if (tileMap[x][y] && tileMap[x][y][1]) {
+        for (let y in unparsedTileMap[x]) {
+          if (!unparsedTileMap.hasOwnProperty(x)) continue;
+          if (unparsedTileMap[x][y] && unparsedTileMap[x][y]["tile"]) {
             parsedTileMap.push({
               x: x,
               y: y,
-              tile: tileMap[x][y][1]
+              tile: unparsedTileMap[x][y]["tile"]
             });
           }
         }
       }
-      console.dir(parsedTileMap);
       console.log("sending...");
-      eventEmitter.emit("send parsed tile map", parsedTileMap);
+      eventEmitter.emit("send tile map", parsedTileMap);
     });
   };
 
@@ -50,13 +59,15 @@ function initCreateState() {
       const y = parseCoordinate(game.input.mousePointer.y) - 300;
       const placedTool = game.add.sprite(x, y, game.activeTool);
 
-      if (tileMap[x] && tileMap[x][y]) tileMap[x][y][0].kill();
+      if (unparsedTileMap[x] && unparsedTileMap[x][y])
+        unparsedTileMap[x][y]["sprite"].kill();
 
-      if (!tileMap[x]) tileMap[x] = {};
-      tileMap[x][y] = [placedTool, game.activeTool];
-      console.dir(tileMap);
+      if (!unparsedTileMap[x]) unparsedTileMap[x] = {};
+      unparsedTileMap[x][y] = { sprite: placedTool, tile: game.activeTool };
+      console.dir(unparsedTileMap);
     }
   };
+
   return state;
 }
 
