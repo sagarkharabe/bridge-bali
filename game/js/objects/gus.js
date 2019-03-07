@@ -224,6 +224,13 @@ Gus.prototype.applyGravity = function() {
     this.sprite.body.velocity.x += Math.floor(
       Math.sin(this.rotation) * (-this.gravity * game.time.physicsElapsed)
     );
+
+    this.sprite.body.velocity.y += Math.floor(
+      Math.cos(this.rotation) * (this.gravity * game.time.physicsElapsed)
+    );
+    this.sprite.body.velocity.x += Math.floor(
+      Math.sin(this.rotation) * (-this.gravity * game.time.physicsElapsed)
+    );
     this.sprite.body.velocity.y += Math.floor(
       Math.cos(this.rotation) * (this.gravity * game.time.physicsElapsed)
     );

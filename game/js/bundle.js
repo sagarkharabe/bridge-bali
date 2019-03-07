@@ -337,8 +337,6 @@ Dolly.prototype.update = function() {
     this.position = midpoint(this.position, this.targetPos);
   }
 
-  console.log(this.position, this.lockTarget.position);
-
   if (this.targetAng !== null) {
     while (this.targetAng - this.rotation > Math.PI) this.rotation += TAU;
     while (this.rotation - this.targetAng > Math.PI) this.rotation -= TAU;
@@ -814,6 +812,13 @@ Gus.prototype.finishRotation = function() {
 
 Gus.prototype.applyGravity = function() {
   if (!this.isTouching("down")) {
+    this.sprite.body.velocity.x += Math.floor(
+      Math.sin(this.rotation) * (-this.gravity * game.time.physicsElapsed)
+    );
+
+    this.sprite.body.velocity.y += Math.floor(
+      Math.cos(this.rotation) * (this.gravity * game.time.physicsElapsed)
+    );
     this.sprite.body.velocity.x += Math.floor(
       Math.sin(this.rotation) * (-this.gravity * game.time.physicsElapsed)
     );
@@ -1436,7 +1441,7 @@ function initGameState() {
     game.dolly.update();
     ParticleBurst.update();
     // render HUD
-    var rate = game.time.fps; //Math.ceil(1000.0/((game.time.now*1.0)-(game.time.prevTime*1.0)));
+    var rate = game.time.fps;
     fpsCounter.position = game.dolly.screenspaceToWorldspace({ x: 0, y: 0 });
     fpsCounter.rotation = game.dolly.rotation;
     fpsCounter.text = rate + " FPS" + (rate < 30 ? "!!!!" : " :)");

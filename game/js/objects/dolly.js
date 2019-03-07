@@ -32,8 +32,6 @@ Dolly.prototype.update = function() {
     this.position = midpoint(this.position, this.targetPos);
   }
 
-  console.log(this.position, this.lockTarget.position);
-
   if (this.targetAng !== null) {
     while (this.targetAng - this.rotation > Math.PI) this.rotation += TAU;
     while (this.rotation - this.targetAng > Math.PI) this.rotation -= TAU;

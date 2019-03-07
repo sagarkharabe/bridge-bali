@@ -315,7 +315,7 @@ function initGameState() {
     game.dolly.update();
     ParticleBurst.update();
     // render HUD
-    var rate = game.time.fps; //Math.ceil(1000.0/((game.time.now*1.0)-(game.time.prevTime*1.0)));
+    var rate = game.time.fps;
     fpsCounter.position = game.dolly.screenspaceToWorldspace({ x: 0, y: 0 });
     fpsCounter.rotation = game.dolly.rotation;
     fpsCounter.text = rate + " FPS" + (rate < 30 ? "!!!!" : " :)");
