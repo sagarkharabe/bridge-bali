@@ -1,11 +1,4 @@
-// var bulk = require("bulk-require");
-// var section = bulk(__dirname, ["game/js/const/*.js"]);
-// console.log(section);
-var bootState = require("./states/boot");
-var gameState = require("./states/game");
-var loadState = require("./states/load");
-
-var Phaser = require("phaser");
+//var Phaser = require("phaser");
 
 // startup options
 var FULLSCREEN = false;
@@ -23,7 +16,9 @@ function startGame(Phaser) {
     undefined,
     false
   );
-
+  var bootState = require("./states/boot");
+  var gameState = require("./states/game");
+  var loadState = require("./states/load");
   // add states
   game.state.add("boot", bootState());
   game.state.add("load", loadState());
