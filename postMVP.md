@@ -14,3 +14,5 @@ This file is for keep track of features I want to implement after we have optain
     * Determine level difficulty based on attempts at a level vs. completions
     * Track who finishes fastest and with the fewest girders
     * Play against ghosts of previous plays
+    * Social sharing
+    * Data viz for each level / user
