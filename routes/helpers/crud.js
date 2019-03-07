@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+var Promise = require("bluebird");
 /**
  * INTERNAL HELPERS
  */
@@ -59,6 +59,8 @@ const getDocsAndSend = (ModelStr, selectParams = [], populateParams = []) => (
       } else {
         sort[req.query.sort] = "desc";
       }
+    } else {
+      sort.dateCreate = "desc";
     }
   }
 
@@ -89,30 +91,62 @@ const getDocsAndSend = (ModelStr, selectParams = [], populateParams = []) => (
       } else {
         sort[req.query.sort] = "desc";
       }
+    } else {
+      sort.name = "asc";
     }
   }
   // allow users to specify results per page and to step through
   //   results by pages number
   let page = !isNaN(req.query.page) ? parseInt(req.query.page) - 1 : 0;
   let limit = !isNaN(req.query.limit) ? parseInt(req.query.limit) : 20;
-
-  Model.find(query)
-    .skip(page * limit)
-    .limit(limit)
-    .sort(sort)
-    .select(selectParams.join(" "))
-    .populate(populateParams)
-    .then(function(documents) {
-      let count = Model.count(query);
-      return Promise.all([documents, count]);
-    })
-    .then(function(results) {
-      res.json({
-        results: results[0],
-        pages: limit !== 0 ? Math.ceil(results[1] / limit) : 1
+  // here I do terrible things and fail entirely at using DRY
+  //    in order to search levels by their creators
+  if (ModelStr === "Level" && req.query.creator !== undefined) {
+    mongoose
+      .model("User")
+      .find({ name: { $regex: req.query.creator, $options: "i" } })
+      .then(function(users) {
+        let creators = users.map(function(user) {
+          return { creator: user._id };
+        });
+        query.$or = creators;
+        Model.find(query)
+          .skip(page * limit)
+          .limit(limit)
+          .sort(sort)
+          .select(selectParams.join(" "))
+          .populate(populateParams)
+          .then(function(documents) {
+            let count = Model.count(query);
+            return Promise.all([documents, count]);
+          })
+          .then(function(results) {
+            res.json({
+              results: results[0],
+              pages: limit !== 0 ? Math.ceil(results[1] / limit) : 1
+            });
+          })
+          .then(null, next);
       });
-    })
-    .then(null, next);
+  } else {
+    Model.find(query)
+      .skip(page * limit)
+      .limit(limit)
+      .sort(sort)
+      .select(selectParams.join(" "))
+      .populate(populateParams)
+      .then(function(documents) {
+        let count = Model.count(query);
+        return Promise.all([documents, count]);
+      })
+      .then(function(results) {
+        res.json({
+          results: results[0],
+          pages: limit !== 0 ? Math.ceil(results[1] / limit) : 1
+        });
+      })
+      .then(null, next);
+  }
 };
 
 const getDocAndSend = (ModelStr, populateParams = []) => (req, res, next) => {

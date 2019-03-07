@@ -875,25 +875,6 @@ var Gus = require("../objects/gus");
 var Dolly = require("../objects/dolly");
 var GirderMarker = require("../objects/girderMarker");
 var LevelGenerator = require("../generator");
-function screenToWorldSpace(point) {
-  var cosine = Math.cos(game.camera.displayObject.rotation),
-    sine = Math.sin(game.camera.displayObject.rotation);
-  var topleft = {
-    x:
-      game.camera.displayObject.pivot.x -
-      (cosine * game.camera.width) / 2 -
-      (sine * game.camera.height) / 2,
-    y:
-      game.camera.displayObject.pivot.y -
-      (cosine * game.camera.height) / 2 +
-      (sine * game.camera.width) / 2
-  };
-
-  return new Phaser.Point(
-    point.x * cosine + point.y * sine + topleft.x,
-    point.y * cosine - point.x * sine + topleft.y
-  );
-}
 
 function initGameState() {
   var state = {};
@@ -908,98 +889,98 @@ function initGameState() {
       sky: "#4499FF",
       girder: 6,
       objs: [
-        { t: "4", x: -288, y: -160 },
-        { t: "3", x: -288, y: -128 },
-        { t: "3", x: -288, y: -96 },
-        { t: "3", x: -288, y: -64 },
-        { t: "3", x: -288, y: -32 },
-        { t: "3", x: -288, y: 0 },
-        { t: "3", x: -288, y: 32 },
-        { t: "3", x: -288, y: 64 },
-        { t: "3", x: -288, y: 96 },
-        { t: "3", x: -288, y: 128 },
-        { t: "3", x: -288, y: 160 },
-        { t: "3", x: -256, y: -160 },
-        { t: "3", x: -256, y: -128 },
-        { t: "3", x: -256, y: -96 },
-        { t: "3", x: -256, y: -64 },
-        { t: "3", x: -256, y: -32 },
-        { t: "3", x: -256, y: 0 },
-        { t: "3", x: -256, y: 32 },
-        { t: "3", x: -256, y: 64 },
-        { t: "3", x: -256, y: 96 },
-        { t: "3", x: -256, y: 128 },
-        { t: "3", x: -256, y: 160 },
-        { t: "3", x: -224, y: 128 },
-        { t: "3", x: -224, y: 160 },
-        { t: "3", x: -224, y: -128 },
-        { t: "3", x: -224, y: -160 },
-        { t: "3", x: -192, y: 128 },
-        { t: "3", x: -192, y: 160 },
-        { t: "3", x: -192, y: -128 },
-        { t: "3", x: -192, y: -160 },
-        { t: "3", x: -160, y: 128 },
-        { t: "3", x: -160, y: 160 },
-        { t: "3", x: -160, y: -128 },
-        { t: "3", x: -160, y: -160 },
-        { t: "3", x: -128, y: 128 },
-        { t: "3", x: -128, y: 160 },
-        { t: "3", x: -128, y: -128 },
-        { t: "3", x: -128, y: -160 },
-        { t: "3", x: -96, y: -128 },
-        { t: "3", x: -96, y: -160 },
-        { t: "3", x: -64, y: -128 },
-        { t: "3", x: -64, y: -160 },
-        { t: "3", x: -32, y: -128 },
-        { t: "3", x: -32, y: -160 },
-        { t: "3", x: 0, y: -128 },
-        { t: "3", x: 0, y: -160 },
-        { t: "3", x: 32, y: -128 },
-        { t: "3", x: 32, y: -160 },
-        { t: "3", x: 64, y: -128 },
-        { t: "3", x: 64, y: -160 },
-        { t: "3", x: 96, y: 128 },
-        { t: "3", x: 96, y: 160 },
-        { t: "3", x: 96, y: -128 },
-        { t: "3", x: 96, y: -160 },
-        { t: "3", x: 128, y: 128 },
-        { t: "3", x: 128, y: 160 },
-        { t: "3", x: 128, y: -128 },
-        { t: "3", x: 128, y: -160 },
-        { t: "3", x: 160, y: 128 },
-        { t: "3", x: 160, y: 160 },
-        { t: "3", x: 160, y: -128 },
-        { t: "3", x: 160, y: -160 },
-        { t: "3", x: 192, y: 128 },
-        { t: "3", x: 192, y: 160 },
-        { t: "3", x: 192, y: -128 },
-        { t: "3", x: 192, y: -160 },
-        { t: "3", x: 224, y: -160 },
-        { t: "3", x: 224, y: -128 },
-        { t: "3", x: 224, y: -96 },
-        { t: "3", x: 224, y: -64 },
-        { t: "3", x: 224, y: -32 },
-        { t: "3", x: 224, y: 0 },
-        { t: "3", x: 224, y: 32 },
-        { t: "3", x: 224, y: 64 },
-        { t: "3", x: 224, y: 96 },
-        { t: "3", x: 224, y: 128 },
-        { t: "3", x: 224, y: 160 },
-        { t: "3", x: 256, y: -160 },
-        { t: "3", x: 256, y: -128 },
-        { t: "3", x: 256, y: -96 },
-        { t: "3", x: 256, y: -64 },
-        { t: "3", x: 256, y: -32 },
-        { t: "3", x: 256, y: 0 },
-        { t: "3", x: 256, y: 32 },
-        { t: "3", x: 256, y: 64 },
-        { t: "3", x: 256, y: 96 },
-        { t: "3", x: 256, y: 128 },
-        { t: "3", x: 256, y: 160 },
-        { t: "2", x: 128, y: 96 },
-        { t: "2", x: 128, y: -96 },
-        { t: "2", x: -160, y: -96 },
-        { t: "1", x: -160, y: 96 }
+        { t: 3, x: -288, y: -160 },
+        { t: 3, x: -288, y: -128 },
+        { t: 3, x: -288, y: -96 },
+        { t: 3, x: -288, y: -64 },
+        { t: 3, x: -288, y: -32 },
+        { t: 3, x: -288, y: 0 },
+        { t: 3, x: -288, y: 32 },
+        { t: 3, x: -288, y: 64 },
+        { t: 3, x: -288, y: 96 },
+        { t: 3, x: -288, y: 128 },
+        { t: 3, x: -288, y: 160 },
+        { t: 3, x: -256, y: -160 },
+        { t: 3, x: -256, y: -128 },
+        { t: 3, x: -256, y: -96 },
+        { t: 3, x: -256, y: -64 },
+        { t: 3, x: -256, y: -32 },
+        { t: 3, x: -256, y: 0 },
+        { t: 3, x: -256, y: 32 },
+        { t: 3, x: -256, y: 64 },
+        { t: 3, x: -256, y: 96 },
+        { t: 3, x: -256, y: 128 },
+        { t: 3, x: -256, y: 160 },
+        { t: 3, x: -224, y: 128 },
+        { t: 3, x: -224, y: 160 },
+        { t: 4, x: -224, y: -128 },
+        { t: 3, x: -224, y: -160 },
+        { t: 3, x: -192, y: 128 },
+        { t: 3, x: -192, y: 160 },
+        { t: 4, x: -192, y: -128 },
+        { t: 3, x: -192, y: -160 },
+        { t: 3, x: -160, y: 128 },
+        { t: 3, x: -160, y: 160 },
+        { t: 4, x: -160, y: -128 },
+        { t: 3, x: -160, y: -160 },
+        { t: 3, x: -128, y: 128 },
+        { t: 3, x: -128, y: 160 },
+        { t: 4, x: -128, y: -128 },
+        { t: 3, x: -128, y: -160 },
+        { t: 4, x: -96, y: -128 },
+        { t: 3, x: -96, y: -160 },
+        { t: 4, x: -64, y: -128 },
+        { t: 3, x: -64, y: -160 },
+        { t: 4, x: -32, y: -128 },
+        { t: 3, x: -32, y: -160 },
+        { t: 4, x: 0, y: -128 },
+        { t: 3, x: 0, y: -160 },
+        { t: 4, x: 32, y: -128 },
+        { t: 3, x: 32, y: -160 },
+        { t: 4, x: 64, y: -128 },
+        { t: 3, x: 64, y: -160 },
+        { t: 3, x: 96, y: 128 },
+        { t: 3, x: 96, y: 160 },
+        { t: 4, x: 96, y: -128 },
+        { t: 3, x: 96, y: -160 },
+        { t: 3, x: 128, y: 128 },
+        { t: 3, x: 128, y: 160 },
+        { t: 4, x: 128, y: -128 },
+        { t: 3, x: 128, y: -160 },
+        { t: 3, x: 160, y: 128 },
+        { t: 3, x: 160, y: 160 },
+        { t: 4, x: 160, y: -128 },
+        { t: 3, x: 160, y: -160 },
+        { t: 3, x: 192, y: 128 },
+        { t: 3, x: 192, y: 160 },
+        { t: 4, x: 192, y: -128 },
+        { t: 3, x: 192, y: -160 },
+        { t: 3, x: 224, y: -160 },
+        { t: 3, x: 224, y: -128 },
+        { t: 3, x: 224, y: -96 },
+        { t: 3, x: 224, y: -64 },
+        { t: 3, x: 224, y: -32 },
+        { t: 3, x: 224, y: 0 },
+        { t: 3, x: 224, y: 32 },
+        { t: 3, x: 224, y: 64 },
+        { t: 3, x: 224, y: 96 },
+        { t: 3, x: 224, y: 128 },
+        { t: 3, x: 224, y: 160 },
+        { t: 3, x: 256, y: -160 },
+        { t: 3, x: 256, y: -128 },
+        { t: 3, x: 256, y: -96 },
+        { t: 3, x: 256, y: -64 },
+        { t: 3, x: 256, y: -32 },
+        { t: 3, x: 256, y: 0 },
+        { t: 3, x: 256, y: 32 },
+        { t: 3, x: 256, y: 64 },
+        { t: 3, x: 256, y: 96 },
+        { t: 3, x: 256, y: 128 },
+        { t: 3, x: 256, y: 160 },
+        { t: 2, x: 128, y: 96 },
+        { t: 2, x: 128, y: -96 },
+        { t: 2, x: -160, y: -96 },
+        { t: 1, x: -160, y: 96 }
       ]
     };
 
@@ -1121,12 +1102,14 @@ function initGameState() {
 
     // render HUD
     hudCounters.forEach(function(counter) {
-      counter.icon.position = screenToWorldSpace(counter.icon.initPos);
+      counter.icon.position = game.dolly.screenspaceToWorldspace(
+        counter.icon.initPos
+      );
       counter.icon.rotation = gus.sprite.rotation;
 
       var textpos = { x: counter.icon.initPos.x, y: counter.icon.initPos.y };
       textpos.x += 32;
-      counter.text.position = screenToWorldSpace(textpos);
+      counter.text.position = game.dolly.screenspaceToWorldspace(textpos);
       counter.text.text = counter.value();
       counter.text.rotation = gus.sprite.rotation;
     });

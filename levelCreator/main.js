@@ -12,7 +12,7 @@ function startGame(phaser) {
     WIDTH,
     HEIGHT,
     Phaser.AUTO,
-    "game-container",
+    "level-creator-container",
     undefined,
     undefined,
     false

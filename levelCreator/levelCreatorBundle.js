@@ -1,3 +1,49 @@
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+var COLORS = {};
+
+COLORS.DEFAULT_SKY = "#4428BC";
+module.exports = COLORS;
+
+},{}],2:[function(require,module,exports){
+var loadState = require("./states/load");
+var createState = require("./states/create");
+
+// startup options
+var FULLSCREEN = false;
+var WIDTH = FULLSCREEN ? window.innerWidth * window.devicePixelRatio : 800,
+  HEIGHT = FULLSCREEN ? window.innerHeight * window.devicePixelRatio : 600;
+
+function startGame(phaser) {
+  // initialize the game
+  window.game = new phaser.Game(
+    WIDTH,
+    HEIGHT,
+    Phaser.AUTO,
+    "level-creator-container",
+    undefined,
+    undefined,
+    false
+  );
+
+  // add states
+  game.state.add("load", loadState());
+  game.state.add("create", createState());
+
+  game.state.start("load");
+}
+
+(function checkPhaserExists(phaser) {
+  if (phaser) {
+    console.log("Phaser runtime initialized, starting...");
+    startGame(phaser);
+  } else {
+    setTimeout(function() {
+      checkPhaserExists(window.Phaser);
+    }, 100);
+  }
+})(window.Phaser);
+
+},{"./states/create":3,"./states/load":4}],3:[function(require,module,exports){
 const COLORS = require("../../game/js/const/colors");
 
 function initCreateState() {
@@ -191,3 +237,38 @@ module.exports = initCreateState;
 // }
 //
 // module.exports = initGameState;
+
+},{"../../game/js/const/colors":1}],4:[function(require,module,exports){
+function initLoadState() {
+  var state = {};
+  var game = window.game;
+
+  state.preload = function() {
+    console.log("Loading assets...");
+
+    game.load.image("BrickBlack", "/assets/images/brick_black.png");
+    game.load.image("BrickBreak", "/assets/images/brick_break.png");
+    game.load.image("BrickRed", "/assets/images/brick_red.png");
+    game.load.image("Girder", "/assets/images/girder.png");
+    game.load.image("Tool", "/assets/images/tool.png");
+    game.load.spritesheet("Gus", "/assets/images/gus.png", 32, 32);
+
+    console.log("Done loading");
+  };
+
+  state.create = function() {
+    console.log("Starting world...");
+    game.world.setBounds(-400, -300, 800, 600); // fullscreen???
+    console.log(game);
+    game.physics.p2.setBoundsToWorld();
+    console.log("Going to create state...");
+    // start game state
+    game.state.start("create");
+  };
+
+  return state;
+}
+
+module.exports = initLoadState;
+
+},{}]},{},[2]);
