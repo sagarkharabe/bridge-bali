@@ -7,6 +7,7 @@ let gusSpawn,
   rightKey,
   rotateCounterKey,
   routateClockwiseKey;
+let lastRotTime = 0;
 const Dolly = require("../../game/js/objects/dolly");
 function tileToNum(tile) {
   for (let n in NUM_TO_TILES) if (NUM_TO_TILES[n] === tile) return +n;
@@ -39,6 +40,9 @@ function initCreateState() {
     downKey = game.input.keyboard.addKey(Phaser.Keyboard.S);
     leftKey = game.input.keyboard.addKey(Phaser.Keyboard.A);
     rightKey = game.input.keyboard.addKey(Phaser.Keyboard.D);
+    rotateCounterKey = game.input.keyboard.addKey(Phaser.Keyboard.Q);
+    routateClockwiseKey = game.input.keyboard.addKey(Phaser.Keyboard.E);
+
     game.dolly = new Dolly(game.camera);
     game.dolly.targetPos = new Phaser.Point(0, 0);
 
@@ -121,6 +125,14 @@ function initCreateState() {
       );
       game.dolly.targetPos = game.dolly.screenspaceToWorldspace(clickPoint);
     }
+    function rotate(dir) {
+      if (Date.now() - lastRotTime > 500) {
+        if (!game.dolly.targetAng) game.dolly.targetAng = 0;
+        game.dolly.targetAng += (dir * Math.PI) / 2;
+        lastRotTime = Date.now();
+      }
+    }
+
     const moveAmount = 64;
 
     if (upKey.isDown) move(0, moveAmount);
@@ -128,12 +140,8 @@ function initCreateState() {
     if (leftKey.isDown) move(moveAmount, 0);
     if (rightKey.isDown) move(-moveAmount, 0);
 
-    // if (game.input.activePointer.rightButton.isDown) {
-    //
-    //   const clickPoint = new Phaser.Point( game.input.mousePointer.x, game.input.mousePointer.y );
-    //   game.dolly.targetPos = game.dolly.screenspaceToWorldspace( clickPoint );
-    //
-    // }
+    if (rotateCounterKey.isDown) rotate(1);
+    if (routateClockwiseKey.isDown) rotate(-1);
 
     game.dolly.update();
   };
