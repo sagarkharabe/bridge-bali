@@ -161,7 +161,7 @@ GirderMarker.prototype.placeGirder = function() {
     this.master.canRotate = false;
 
     // make some particles!
-    new ParticleBurst(
+    this.debrisBurst = new ParticleBurst(
       this.sprite.position.x,
       this.sprite.position.y,
       "Debris",

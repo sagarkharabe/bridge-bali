@@ -369,10 +369,18 @@ function initGameState() {
     levelStarted = game.time.now;
   };
   state.postBroadphase = function(body1, body2) {
-    if (body1.sprite.name === "Gus" && body2.sprite.name === "Tool") {
+    if (
+      body1.sprite.name === "Gus" &&
+      body2.sprite.name === "Tool" &&
+      body1.fixedRotation
+    ) {
       body2.sprite.owner.collect();
       return false;
-    } else if (body1.sprite.name === "Tool" && body2.sprite.name === "Gus") {
+    } else if (
+      body1.sprite.name === "Tool" &&
+      body2.sprite.name === "Gus" &&
+      body2.fixedRotation
+    ) {
       body1.sprite.owner.collect();
       return false;
     }

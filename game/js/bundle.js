@@ -546,7 +546,7 @@ GirderMarker.prototype.placeGirder = function() {
     this.master.canRotate = false;
 
     // make some particles!
-    new ParticleBurst(
+    this.debrisBurst = new ParticleBurst(
       this.sprite.position.x,
       this.sprite.position.y,
       "Debris",
@@ -1017,16 +1017,21 @@ Tool.prototype.collect = function() {
   this.sprite.visible = false;
   this.sprite.body.clearShapes();
   game.toolsRemaining--;
-  new ParticleBurst(this.sprite.position.x, this.sprite.position.y, "Tool", {
-    lifetime: 3000,
-    count: 8,
-    scaleMin: 0.4,
-    scaleMax: 1.0,
-    rotMin: 0,
-    rotMax: 360,
-    speed: 100,
-    fadeOut: true
-  });
+  this.collectBurst = new ParticleBurst(
+    this.sprite.position.x,
+    this.sprite.position.y,
+    "Tool",
+    {
+      lifetime: 3000,
+      count: 8,
+      scaleMin: 0.4,
+      scaleMax: 1.0,
+      rotMin: 0,
+      rotMax: 360,
+      speed: 100,
+      fadeOut: true
+    }
+  );
 };
 
 Tool.prototype.reset = function() {
@@ -1065,9 +1070,6 @@ function ParticleBurst(x, y, particle, options) {
   );
   this.emitter.setRotation(options.rotMin || 0, options.rotMax || 0);
 
-  var scale =
-    (options.scaleMin || 1) +
-    Math.random() * ((options.scaleMax || 1) - (options.scaleMin || 1));
   this.emitter.setScale(
     options.scaleMin || 1,
     options.scaleMax || 1,
@@ -1504,10 +1506,18 @@ function initGameState() {
     levelStarted = game.time.now;
   };
   state.postBroadphase = function(body1, body2) {
-    if (body1.sprite.name === "Gus" && body2.sprite.name === "Tool") {
+    if (
+      body1.sprite.name === "Gus" &&
+      body2.sprite.name === "Tool" &&
+      body1.fixedRotation
+    ) {
       body2.sprite.owner.collect();
       return false;
-    } else if (body1.sprite.name === "Tool" && body2.sprite.name === "Gus") {
+    } else if (
+      body1.sprite.name === "Tool" &&
+      body2.sprite.name === "Gus" &&
+      body2.fixedRotation
+    ) {
       body1.sprite.owner.collect();
       return false;
     }

@@ -17,9 +17,6 @@ function ParticleBurst(x, y, particle, options) {
   );
   this.emitter.setRotation(options.rotMin || 0, options.rotMax || 0);
 
-  var scale =
-    (options.scaleMin || 1) +
-    Math.random() * ((options.scaleMax || 1) - (options.scaleMin || 1));
   this.emitter.setScale(
     options.scaleMin || 1,
     options.scaleMax || 1,
