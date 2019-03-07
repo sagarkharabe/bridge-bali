@@ -130,7 +130,10 @@ function initCreateState() {
         unparsedTileMap[x][y]["sprite"].kill();
 
       if (!unparsedTileMap[x]) unparsedTileMap[x] = {};
-      unparsedTileMap[x][y] = { sprite: placedTool, tile: game.activeTool };
+      unparsedTileMap[x][y] = {
+        sprite: placedTool,
+        tile: game.activeTool
+      };
       console.dir(unparsedTileMap);
     }
   };
