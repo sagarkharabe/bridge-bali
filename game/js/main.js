@@ -28,7 +28,7 @@ function startGame(Phaser) {
 }
 
 (function checkPhaserExists(phaser) {
-  if (phaser) {
+  if (phaser && window.game === undefined) {
     console.log("Phaser runtime initialized, starting...");
     startGame(phaser);
   } else {
