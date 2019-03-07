@@ -5,6 +5,16 @@ COLORS.DEFAULT_SKY = "#4428BC";
 module.exports = COLORS;
 
 },{}],2:[function(require,module,exports){
+module.exports = {
+  1: "Gus",
+  2: "Tool",
+  3: "RedBrickBlock",
+  4: "BlackBrickBlock",
+  5: "BreakBrickBlock",
+  6: "Spike"
+};
+
+},{}],3:[function(require,module,exports){
 var loadState = require("./states/load");
 var createState = require("./states/create");
 
@@ -43,9 +53,15 @@ function startGame(phaser) {
   }
 })(window.Phaser);
 
-},{"./states/create":3,"./states/load":4}],3:[function(require,module,exports){
+},{"./states/create":4,"./states/load":5}],4:[function(require,module,exports){
 const COLORS = require("../../game/js/const/colors");
+const NUM_TO_TILES = require("../../game/js/const/tilemap");
 
+function tileToNum(tile) {
+  for (let n in NUM_TO_TILES) if (NUM_TO_TILES[n] === tile) return +n;
+
+  throw new Error("Tile not found!");
+}
 function initCreateState() {
   const state = {};
 
@@ -85,7 +101,7 @@ function initCreateState() {
             parsedTileMap.push({
               x: x,
               y: y,
-              tile: unparsedTileMap[x][y]["tile"]
+              t: tileToNum(unparsedTileMap[x][y]["tile"])
             });
           }
         }
@@ -124,137 +140,7 @@ function initCreateState() {
 
 module.exports = initCreateState;
 
-// var LevelGenerator = require( "../generator" );
-//
-// function screenToWorldSpace( point ) {
-//
-//   var cosine = Math.cos( game.camera.displayObject.rotation ), sine = Math.sin( game.camera.displayObject.rotation );
-//   var topleft = {
-//     x: game.camera.displayObject.pivot.x - ( cosine * game.camera.width / 2 ) - ( sine * game.camera.height / 2 ),
-//     y: game.camera.displayObject.pivot.y - ( cosine * game.camera.height / 2 ) + ( sine * game.camera.width / 2 )
-//   }
-//
-//   return new Phaser.Point( point.x * cosine + point.y * sine + topleft.x,
-//                            point.y * cosine - point.x * sine + topleft.y );
-//
-// }
-//
-// function initGameState() {
-//
-//   var state = {};
-//   var gus, marker, generator, restartTimeout, hudCounters;
-//   var game = window.game;
-//
-//   state.preload = function () {
-//     // set background color
-//     game.stage.setBackgroundColor( '#4428BC' );
-//
-//   }
-//
-//   state.create = function () {
-//
-//     // generate the rest of the fucking level
-//     console.log( "Generating level from level data..." );
-//     generator.parseObjects();
-//
-//     if ( game.toolsToCollect !== undefined ) {
-//       game.toolsRemaining = game.toolsToCollect.length;
-//     } else {
-//       game.toolsRemaining = 1;
-//       game.toolsToCollect = [];
-//       console.error( "No tools were included in this level" );
-//     }
-//
-//     console.log( "Creating Gus..." );
-//
-//     if ( game.gusStartPos === undefined ) {
-//       game.gusStartPos = { x: 0, y: 0 };
-//     }
-//
-//     gus = new Gus( game.gusStartPos.x, game.gusStartPos.y );
-//     gus.girders = generator.getStartingGirders();
-//     marker = new GirderMarker();
-//     marker.setMaster( gus );
-//
-//     console.log( "Binding to keys..." );
-//
-//     game.cursors = game.input.keyboard.createCursorKeys();
-//     marker.setPlaceGirderButton( game.input.keyboard.addKey( Phaser.KeyCode.SPACEBAR ) );
-//     game.input.keyboard.addKey( Phaser.KeyCode.R ).onDown.add( function() { gus.doom() }, this, 0 );
-//
-//     // make hud icons
-//     hudCounters = [
-//       { icon: game.add.sprite( 41, 41, "Tool" ), value: function() { return game.toolsRemaining } },
-//       { icon: game.add.sprite( 141, 41, "Girder" ), value: function() { return gus.girders } }
-//     ];
-//
-//     hudCounters.map( function( counter ) {
-//       counter.icon.initPos = { x: counter.icon.position.x, y: counter.icon.position.y };
-//       counter.icon.anchor = new Phaser.Point( 0.5, 0.5 );
-//       counter.text = game.add.text( counter.icon.position.x, counter.icon.position.y, "", { font: "bold 28pt mono" } );
-//       counter.text.anchor = new Phaser.Point( 0, 0.5 );
-//       return counter;
-//     });
-//
-//   }
-//
-//   state.update = function () {
-//
-//     // update actors
-//     gus.update();
-//     marker.update();
-//     game.toolsToCollect.forEach( function( tool ) { tool.update() });
-//
-//     if ( game.toolsRemaining === 0 ) {
-//       if ( restartTimeout === undefined ) restartTimeout = setTimeout( function() { state.restartLevel() }, 10000 );
-//
-//       game.camera.scale.x *= 1 + game.time.physicsElapsed;
-//       game.camera.scale.y *= 1 + game.time.physicsElapsed;
-//       gus.sprite.rotation += game.time.physicsElapsed * 60;
-//     } else if ( gus.isDead && restartTimeout === undefined ) {
-//       restartTimeout = setTimeout( function() { state.restartLevel() }, 5000 );
-//     }
-//
-//     // lock camera to player
-//     game.camera.displayObject.pivot.x = gus.sprite.position.x;
-//     game.camera.displayObject.pivot.y = gus.sprite.position.y;
-//     game.camera.displayObject.rotation = (Math.PI * 2) - gus.sprite.rotation;
-//
-//     // render HUD
-//     hudCounters.forEach( function( counter ) {
-//       counter.icon.position = screenToWorldSpace( counter.icon.initPos );
-//       counter.icon.rotation = gus.sprite.rotation;
-//
-//       var textpos = { x: counter.icon.initPos.x, y: counter.icon.initPos.y };
-//       textpos.x += 32;
-//       counter.text.position = screenToWorldSpace( textpos );
-//       counter.text.text = counter.value();
-//       counter.text.rotation = gus.sprite.rotation;
-//     })
-//
-//   }
-//
-//   state.restartLevel = function () {
-//
-//     game.toolsToCollect.forEach( function( tool ) { tool.reset() });
-//     marker.girdersPlaced.forEach( function( girder ) { girder.sprite.destroy() });
-//
-//     gus.respawn();
-//
-//     game.camera.scale.x = 1;
-//     game.camera.scale.y = 1;
-//
-//     restartTimeout = undefined;
-//
-//   }
-//
-//   return state;
-//
-// }
-//
-// module.exports = initGameState;
-
-},{"../../game/js/const/colors":1}],4:[function(require,module,exports){
+},{"../../game/js/const/colors":1,"../../game/js/const/tilemap":2}],5:[function(require,module,exports){
 function initLoadState() {
   var state = {};
   var game = window.game;
@@ -262,9 +148,9 @@ function initLoadState() {
   state.preload = function() {
     console.log("Loading assets...");
 
-    game.load.image("BrickBlack", "/assets/images/brick_black.png");
-    game.load.image("BrickBreak", "/assets/images/brick_break.png");
-    game.load.image("BrickRed", "/assets/images/brick_red.png");
+    game.load.image("BrickBlackBlock", "/assets/images/brick_black.png");
+    game.load.image("BrickBreakBlock", "/assets/images/brick_break.png");
+    game.load.image("BrickRedBlock", "/assets/images/brick_red.png");
     game.load.image("Girder", "/assets/images/girder.png");
     game.load.image("Tool", "/assets/images/tool.png");
     game.load.spritesheet("Gus", "/assets/images/gus.png", 32, 32);
@@ -276,7 +162,7 @@ function initLoadState() {
     console.log("Starting world...");
     game.world.setBounds(-400, -300, 800, 600); // fullscreen???
     console.log(game);
-    game.physics.p2.setBoundsToWorld();
+
     console.log("Going to create state...");
     // start game state
     game.state.start("create");
@@ -287,4 +173,4 @@ function initLoadState() {
 
 module.exports = initLoadState;
 
-},{}]},{},[2]);
+},{}]},{},[3]);

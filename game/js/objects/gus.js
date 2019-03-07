@@ -26,14 +26,15 @@ function Gus(x, y) {
 
   // create a sprite object and set its anchor
   this.sprite = game.add.sprite(x, y, "Gus");
-  this.sprite.smoothed = false;
 
   // attach our sprite to the physics engine
   game.physics.p2.enable(this.sprite, false);
+  this.sprite.body.setRectangle(20, 32);
   this.sprite.body.fixedRotation = true;
+  this.sprite.body.gameObject = this;
 
   // create gus's rotation sensor
-  this.rotationSensor = this.sprite.body.addRectangle(30, 20);
+  this.rotationSensor = this.sprite.body.addRectangle(20, 20);
   this.setCollision();
   this.sprite.body.onBeginContact.add(Gus.prototype.touchesWall, this);
 
@@ -62,7 +63,8 @@ Gus.prototype.setCollision = function() {
   this.sprite.body.collides([
     COLLISION_GROUPS.BLOCK_SOLID,
     COLLISION_GROUPS.BLOCK_ROTATE,
-    COLLISION_GROUPS.ITEM
+    COLLISION_GROUPS.ITEM,
+    COLLISION_GROUPS.SPIKES
   ]);
 };
 
@@ -91,7 +93,7 @@ Gus.prototype.doom = function() {
   this.sprite.body.velocity.x = Math.sin(this.rotation) * 250;
   this.sprite.body.velocity.y = Math.cos(this.rotation) * -250;
 
-  this.sprite.body.angularVelocity = 60;
+  this.sprite.body.angularVelocity = 30;
   game.dolly.unlock();
 };
 

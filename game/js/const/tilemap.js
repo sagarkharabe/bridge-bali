@@ -3,5 +3,6 @@ module.exports = {
   2: "Tool",
   3: "RedBrickBlock",
   4: "BlackBrickBlock",
-  5: "BreakBrickBlock"
+  5: "BreakBrickBlock",
+  6: "Spike"
 };

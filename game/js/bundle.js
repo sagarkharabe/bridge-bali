@@ -5,6 +5,7 @@ COLLISION_GROUPS.BLOCK_ROTATE = true;
 COLLISION_GROUPS.PLAYER_SOLID = true;
 COLLISION_GROUPS.PLAYER_SENSOR = true;
 COLLISION_GROUPS.ITEM = true;
+COLLISION_GROUPS.SPIKES = true;
 module.exports = COLLISION_GROUPS;
 
 },{}],2:[function(require,module,exports){
@@ -25,7 +26,8 @@ module.exports = {
   2: "Tool",
   3: "RedBrickBlock",
   4: "BlackBrickBlock",
-  5: "BreakBrickBlock"
+  5: "BreakBrickBlock",
+  6: "Spike"
 };
 
 },{}],5:[function(require,module,exports){
@@ -172,7 +174,7 @@ function startGame(Phaser) {
   }
 })(window.Phaser);
 
-},{"./states/boot":14,"./states/game":15,"./states/load":16,"phaser":17}],8:[function(require,module,exports){
+},{"./states/boot":15,"./states/game":16,"./states/load":17,"phaser":18}],8:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
 
 function Block(x, y, sprite) {
@@ -525,14 +527,15 @@ function Gus(x, y) {
 
   // create a sprite object and set its anchor
   this.sprite = game.add.sprite(x, y, "Gus");
-  this.sprite.smoothed = false;
 
   // attach our sprite to the physics engine
   game.physics.p2.enable(this.sprite, false);
+  this.sprite.body.setRectangle(20, 32);
   this.sprite.body.fixedRotation = true;
+  this.sprite.body.gameObject = this;
 
   // create gus's rotation sensor
-  this.rotationSensor = this.sprite.body.addRectangle(30, 20);
+  this.rotationSensor = this.sprite.body.addRectangle(20, 20);
   this.setCollision();
   this.sprite.body.onBeginContact.add(Gus.prototype.touchesWall, this);
 
@@ -561,7 +564,8 @@ Gus.prototype.setCollision = function() {
   this.sprite.body.collides([
     COLLISION_GROUPS.BLOCK_SOLID,
     COLLISION_GROUPS.BLOCK_ROTATE,
-    COLLISION_GROUPS.ITEM
+    COLLISION_GROUPS.ITEM,
+    COLLISION_GROUPS.SPIKES
   ]);
 };
 
@@ -590,7 +594,7 @@ Gus.prototype.doom = function() {
   this.sprite.body.velocity.x = Math.sin(this.rotation) * 250;
   this.sprite.body.velocity.y = Math.cos(this.rotation) * -250;
 
-  this.sprite.body.angularVelocity = 60;
+  this.sprite.body.angularVelocity = 30;
   game.dolly.unlock();
 };
 
@@ -836,10 +840,47 @@ module.exports = {
   Girder: require("./blocks").Girder,
   Gus: require("./gus"),
   GirderMarker: require("./girderMarker"),
-  Tool: require("./tools")
+  Tool: require("./tools"),
+  Spike: require("./spike")
 };
 
-},{"./blocks":8,"./girderMarker":10,"./gus":11,"./tools":13}],13:[function(require,module,exports){
+},{"./blocks":8,"./girderMarker":10,"./gus":11,"./spike":13,"./tools":14}],13:[function(require,module,exports){
+var COLLISION_GROUPS = require("../const/collisionGroup");
+
+function Spike(x, y) {
+  var game = window.game;
+  x = Math.floor(x / 32) * 32;
+  y = Math.floor(y / 32) * 32;
+
+  this.sprite = game.add.sprite(x, y, "Spike");
+
+  game.physics.p2.enable(this.sprite, false);
+
+  this.sprite.body.setRectangle(32, 32);
+  this.sprite.body.static = true;
+  this.sprite.body.fixedRotation = true;
+
+  this.sprite.body.setCollisionGroup(COLLISION_GROUPS.SPIKES);
+  this.sprite.body.collides([COLLISION_GROUPS.PLAYER_SOLID]);
+
+  this.sprite.body.onBeginContact.add(Spike.prototype.touched, this);
+}
+
+Spike.prototype.touched = function(
+  spikes,
+  other,
+  thisShape,
+  otherShape,
+  contact
+) {
+  if (other.parent.gameObject.constructor.name === "Gus") {
+    other.parent.gameObject.doom();
+  }
+};
+
+module.exports = Spike;
+
+},{"../const/collisionGroup":1}],14:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var TAU = require("../const").TAU;
 
@@ -892,7 +933,7 @@ Tool.prototype.update = function() {
 
 module.exports = Tool;
 
-},{"../const":3,"../const/collisionGroup":1}],14:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1}],15:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
 
 function initBootState() {
@@ -918,7 +959,7 @@ function initBootState() {
 }
 module.exports = initBootState;
 
-},{"../const/collisionGroup":1}],15:[function(require,module,exports){
+},{"../const/collisionGroup":1}],16:[function(require,module,exports){
 var Gus = require("../objects/gus");
 var Dolly = require("../objects/dolly");
 var GirderMarker = require("../objects/girderMarker");
@@ -1106,7 +1147,7 @@ function initGameState() {
         counter.icon.position.x,
         counter.icon.position.y,
         "",
-        { font: "bold 28pt mono" }
+        { font: "bold 24pt 'Press Start 2P', sans-serif" }
       );
       counter.text.anchor = new Phaser.Point(0, 0.5);
       return counter;
@@ -1187,7 +1228,7 @@ function initGameState() {
 
 module.exports = initGameState;
 
-},{"../generator":6,"../objects/dolly":9,"../objects/girderMarker":10,"../objects/gus":11}],16:[function(require,module,exports){
+},{"../generator":6,"../objects/dolly":9,"../objects/girderMarker":10,"../objects/gus":11}],17:[function(require,module,exports){
 function initLoadState() {
   var state = {};
   var game = window.game;
@@ -1200,6 +1241,7 @@ function initLoadState() {
     game.load.image("BrickRed", "/assets/images/brick_red.png");
     game.load.image("Girder", "/assets/images/girder.png");
     game.load.image("Tool", "/assets/images/tool.png");
+    ame.load.image("Spike", "/assets/images/spike.png");
     game.load.spritesheet("Gus", "/assets/images/gus.png", 32, 32);
 
     console.log("Done loading");
@@ -1219,7 +1261,7 @@ function initLoadState() {
 
 module.exports = initLoadState;
 
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 (function (process,global){
 /**
 * @author       Richard Davey <rich@photonstorm.com>
@@ -102959,7 +103001,7 @@ PIXI.TextureSilentFail = true;
 */
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":18}],18:[function(require,module,exports){
+},{"_process":19}],19:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 

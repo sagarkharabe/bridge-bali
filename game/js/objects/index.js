@@ -4,5 +4,6 @@ module.exports = {
   Girder: require("./blocks").Girder,
   Gus: require("./gus"),
   GirderMarker: require("./girderMarker"),
-  Tool: require("./tools")
+  Tool: require("./tools"),
+  Spike: require("./spike")
 };

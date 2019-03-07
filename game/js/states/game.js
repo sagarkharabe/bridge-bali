@@ -185,7 +185,7 @@ function initGameState() {
         counter.icon.position.x,
         counter.icon.position.y,
         "",
-        { font: "bold 28pt mono" }
+        { font: "bold 24pt 'Press Start 2P', sans-serif" }
       );
       counter.text.anchor = new Phaser.Point(0, 0.5);
       return counter;
