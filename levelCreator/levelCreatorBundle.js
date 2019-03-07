@@ -205,9 +205,19 @@ function initCreateState() {
           if (!unparsedTileMap[x].hasOwnProperty(x)) continue;
           if (unparsedTileMap[x][y] && unparsedTileMap[x][y]["tile"]) {
             parsedTileMap.push({
-              x: x,
-              y: y,
-              t: tileToNum(unparsedTileMap[x][y]["tile"])
+              x: parseInt(x),
+              y: parseInt(y),
+              t: parseInt(tileToNum(unparsedTileMap[x][y]["tile"])),
+              r:
+                unparsedTileMap[x][y].tile !== "Spike"
+                  ? undefined
+                  : unparsedTileMap[x][y].sprite.angle === 0
+                  ? undefined
+                  : unparsedTileMap[x][y].sprite.angle === -180
+                  ? 180
+                  : unparsedTileMap[x][y].sprite.angle === -90
+                  ? 270
+                  : unparsedTileMap[x][y].sprite.angle
             });
           }
         }
@@ -220,6 +230,7 @@ function initCreateState() {
         });
       console.log("sending...");
       eventEmitter.emit("send tile map", parsedTileMap);
+      console.log(unparsedTileMap);
     });
     eventEmitter.on("request screenshot", function() {
       var screenshot = game.canvas.toDataURL();
@@ -241,7 +252,104 @@ function initCreateState() {
       const x = parseCoordinate(targetPoint.x);
       const y = parseCoordinate(targetPoint.y);
       let placedTool;
-      if (game.activeTool) placedTool = game.add.sprite(x, y, game.activeTool);
+      if (game.activeTool) {
+        placedTool = game.add.sprite(x, y, game.activeTool);
+        placedTool.anchor.setTo(0.5, 0.5);
+      }
+      if (game.activeTool === "Spike") {
+        let orientations = {
+          0: 0,
+          "-180": 0,
+          90: 0,
+          "-90": 0
+        };
+        let above = !unparsedTileMap[x]
+            ? {}
+            : !unparsedTileMap[x][y - 32]
+            ? {}
+            : unparsedTileMap[x][y - 32],
+          below = !unparsedTileMap[x]
+            ? {}
+            : !unparsedTileMap[x][y + 32]
+            ? {}
+            : unparsedTileMap[x][y + 32],
+          left = !unparsedTileMap[x - 32]
+            ? {}
+            : !unparsedTileMap[x - 32][y]
+            ? {}
+            : unparsedTileMap[x - 32][y],
+          right = !unparsedTileMap[x + 32]
+            ? {}
+            : !unparsedTileMap[x + 32][y]
+            ? {}
+            : unparsedTileMap[x + 32][y];
+        // aboveLeft = !unparsedTileMap[x-32] ? {} : !unparsedTileMap[x-32][y-32] ? {} : unparsedTileMap[x-32][y-32],
+        // aboveRight = !unparsedTileMap[x+32] ? {} : !unparsedTileMap[x+32][y-32] ? {} : unparsedTileMap[x+32][y-32],
+        // belowLeft = !unparsedTileMap[x-32] ? {} : !unparsedTileMap[x-32][y+32] ? {} : unparsedTileMap[x-32][y+32],
+        // belowRight = !unparsedTileMap[x+32] ? {} : !unparsedTileMap[x+32][y+32] ? {} : unparsedTileMap[x+32][y+32];
+        if (above.tile === "RedBrickBlock" || above.tile === "BlackBrickBlock")
+          orientations[-180] += 7;
+        if (below.tile === "RedBrickBlock" || below.tile === "BlackBrickBlock")
+          orientations[0] += 7;
+        if (left.tile === "RedBrickBlock" || left.tile === "BlackBrickBlock")
+          orientations[90] += 7;
+        if (right.tile === "RedBrickBlock" || right.tile === "BlackBrickBlock")
+          orientations[-90] += 7;
+        if (
+          above.tile === "Spike" &&
+          (above.sprite.angle === 90 || above.sprite.angle === -90)
+        )
+          orientations[above.sprite.angle] += 2;
+        if (
+          below.tile === "Spike" &&
+          (below.sprite.angle === 90 || below.sprite.angle === -90)
+        )
+          orientations[below.sprite.angle] += 2;
+        if (
+          left.tile === "Spike" &&
+          (left.sprite.angle === 0 || left.sprite.angle === -180)
+        )
+          orientations[left.sprite.angle] += 2;
+        if (
+          right.tile === "Spike" &&
+          (right.sprite.angle === 0 || right.sprite.angle === -180)
+        ) {
+          console.log("right is spike");
+          orientations[right.sprite.angle] += 2;
+        }
+        console.log(
+          "right",
+          right,
+          "left",
+          left,
+          "above",
+          above,
+          "below",
+          below
+        );
+        console.log("orientations", orientations);
+        let maxOrient = 0;
+        if (orientations["-180"] > orientations[maxOrient]) maxOrient = -180;
+        if (orientations[90] > orientations[maxOrient]) maxOrient = 90;
+        if (orientations["-90"] > orientations[maxOrient]) maxOrient = -90;
+        placedTool.angle = maxOrient;
+        console.log("new spike angle", placedTool.angle);
+        // console.log('above',above,'below',below,'left',left,'right',right);
+        // if(unparsedTileMap[x-32] && unparsedTileMap[x-32][y] && (unparsedTileMap[x-32][y].tile === 'RedBrickBlock' || unparsedTileMap[x-32][y].tile === 'BlackBrickBlock'))
+        //   orientations[90] += 7;
+        // else if((unparsedTileMap[x+32] && unparsedTileMap[x+32][y] && (unparsedTileMap[x+32][y].tile === 'RedBrickBlock' || unparsedTileMap[x+32][y].tile === 'BlackBrickBlock')))
+        //   orientations[270] += 7;
+        // else if((unparsedTileMap[x] && unparsedTileMap[x][y-32] && (unparsedTileMap[x][y-32].tile === 'RedBrickBlock' || unparsedTileMap[x][y-32].tile === 'BlackBrickBlock')))
+        //   orientations.push(180);
+        // else if((unparsedTileMap[x] && unparsedTileMap[x][y+32] && (unparsedTileMap[x][y+32].tile === 'RedBrickBlock' || unparsedTileMap[x][y+32].tile === 'BlackBrickBlock')))
+        //   orientations.push(0);
+
+        // if(orientations.length === 1)
+        //   placedTool.angle = orientations[0];
+        // else {
+        //   if(orientations.indexOf(0) && )
+        // }
+      }
       if (game.activeTool === "Gus") {
         if (gusSpawn) gusSpawn.kill();
         gusSpawn = placedTool;
@@ -259,6 +367,7 @@ function initCreateState() {
       unparsedTileMap[x][y] = {
         sprite: placedTool,
         tile: game.activeTool
+        // r: game.activeTool === 'Spike' ? placedTool.angle : undefined
       };
       console.dir(unparsedTileMap);
     }
@@ -307,6 +416,7 @@ function initLoadState() {
     game.load.image("BrickBreakBlock", "/assets/images/brick_break.png");
     game.load.image("BrickRedBlock", "/assets/images/brick_red.png");
     game.load.image("Girder", "/assets/images/girder.png");
+    game.load.image("Spike", "/assets/images/spike.png");
     game.load.image("Tool", "/assets/images/tool.png");
     game.load.image("Gus", "/assets/images/gus-static.png");
 
