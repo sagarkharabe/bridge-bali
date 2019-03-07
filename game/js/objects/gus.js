@@ -33,7 +33,7 @@ function Gus(x, y) {
   this.sprite.body.fixedRotation = true;
 
   // create gus's rotation sensor
-  this.rotationSensor = this.sprite.body.addRectangle(this.sprite.width, 20);
+  this.rotationSensor = this.sprite.body.addRectangle(30, 20);
   this.setCollision();
   this.sprite.body.onBeginContact.add(Gus.prototype.touchesWall, this);
 
