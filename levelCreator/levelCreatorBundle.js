@@ -82,7 +82,7 @@ function initCreateState() {
 
   state.create = function() {
     const game = window.game;
-
+    gusSpawn = game.add.sprite(0, 0, "Gus");
     game.stage.setBackgroundColor(COLORS.DEFAULT_SKY);
 
     eventEmitter.on("change active tool", tool => {
