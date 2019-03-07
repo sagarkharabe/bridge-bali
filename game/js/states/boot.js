@@ -4,6 +4,8 @@ function initBootState() {
   var state = {};
   var game = window.game;
   state.create = function() {
+    // use advance timing engine
+    game.time.advancedTiming = true;
     // start game physics
     console.log("Initializing physics...");
     game.physics.startSystem(Phaser.Physics.P2JS);
