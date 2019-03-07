@@ -3,6 +3,7 @@ var Dolly = require("../objects/dolly");
 var GirderMarker = require("../objects/girderMarker");
 var LevelGenerator = require("../generator");
 var ParticleBurst = require("../particles/burst");
+var BreakBrickBlock = require("../objects").BreakBrickBlock;
 function initGameState() {
   var state = {};
 
@@ -123,7 +124,9 @@ function initGameState() {
         { t: 3, x: 608, y: 352 },
         { t: 3, x: 576, y: 384 },
         { t: 3, x: 608, y: 384 },
-
+        { t: 5, x: 416, y: 352 },
+        { t: 5, x: 448, y: 352 },
+        { t: 5, x: 480, y: 352 },
         { t: 4, x: 0, y: 256 },
         { t: 4, x: 32, y: 256 },
         { t: 4, x: 0, y: 288 },
@@ -280,6 +283,7 @@ function initGameState() {
     game.toolsToCollect.forEach(function(tool) {
       tool.update();
     });
+    BreakBrickBlock.update();
 
     if (game.toolsRemaining === 0) {
       if (restartTimeout === undefined)
@@ -345,7 +349,7 @@ function initGameState() {
     marker.girdersPlaced.forEach(function(girder) {
       girder.sprite.destroy();
     });
-
+    BreakBrickBlock.reset();
     gus.respawn();
     gus.rotationSpeed = 0;
     gus.girders = generator.getStartingGirders();

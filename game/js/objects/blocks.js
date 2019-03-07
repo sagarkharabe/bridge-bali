@@ -1,5 +1,6 @@
+var ParticleBurst = require("../particles/burst");
 var COLLISION_GROUPS = require("../const/collisionGroup");
-
+var TAU = require("../const").TAU;
 function Block(x, y, sprite) {
   var game = window.game;
   x = Math.floor(x / 32) * 32;
@@ -43,7 +44,81 @@ function BlackBrickBlock(x, y) {
   this.sprite.body.collides([COLLISION_GROUPS.PLAYER_SOLID]);
 }
 BlackBrickBlock.prototype = Block;
+
+var breakingBlocks = [];
+function BreakBrickBlock(x, y) {
+  Block.call(this, x, y, "BrickBreak");
+
+  this.collapseTime = 1000;
+  this.countCollapseTime = 0;
+
+  this.setCollisions();
+
+  breakingBlocks.push(this);
+}
+BreakBrickBlock.prototype = Object.create(Block.prototype);
+
+BreakBrickBlock.prototype.setCollisions = function() {
+  this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_ROTATE);
+  this.sprite.body.collides([
+    COLLISION_GROUPS.PLAYER_SOLID,
+    COLLISION_GROUPS.PLAYER_SENSOR
+  ]);
+  this.sprite.body.onBeginContact.add(
+    BreakBrickBlock.prototype.startCollapsing,
+    this
+  );
+};
+
+BreakBrickBlock.prototype.startCollapsing = function() {
+  this.countCollapseTime = this.countCollapseTime || game.time.physicsElapsedMS;
+};
+
+BreakBrickBlock.prototype.update = function() {
+  if (this.countCollapseTime > this.collapseTime) {
+    this.collapse();
+  } else if (this.countCollapseTime > 0) {
+    this.countCollapseTime += game.time.physicsElapsedMS;
+
+    var s = Math.round(Math.cos(TAU * this.countCollapseTime)) * 0.25;
+    this.sprite.scale = { x: 1 + s, y: 1 + s };
+  }
+};
+
+BreakBrickBlock.prototype.collapse = function() {
+  if (!this.sprite.visible) return;
+
+  this.sprite.visible = false;
+  this.sprite.body.clearCollision();
+
+  // make some particles!
+  new ParticleBurst(this.sprite.position.x, this.sprite.position.y, "Debris", {
+    lifetime: 500,
+    count: 14,
+    scaleMin: 0.4,
+    scaleMax: 1.0,
+    speed: 200,
+    fadeOut: true
+  });
+};
+
+BreakBrickBlock.update = function() {
+  breakingBlocks.forEach(function(block) {
+    block.update();
+  });
+};
+
+BreakBrickBlock.reset = function() {
+  breakingBlocks.forEach(function(block) {
+    block.sprite.visible = true;
+    block.sprite.scale = new Phaser.Point(1, 1);
+    block.countCollapseTime = 0;
+    block.setCollisions();
+  });
+};
+
 module.exports = Block;
 module.exports.RedBrickBlock = RedBrickBlock;
 module.exports.BlackBrickBlock = BlackBrickBlock;
+module.exports.BreakBrickBlock = BreakBrickBlock;
 module.exports.Girder = Girder;

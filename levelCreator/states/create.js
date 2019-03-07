@@ -26,7 +26,7 @@ function initCreateState() {
 
   state.create = function() {
     const game = window.game;
-    gusSpawn = game.add.sprite(0, 0, "Gus");
+    gusSpawn = game.add.sprite(-16, -16, "Gus");
     game.stage.setBackgroundColor(COLORS.DEFAULT_SKY);
 
     game.dolly = new Dolly(game.camera);
