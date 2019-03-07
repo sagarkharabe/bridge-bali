@@ -1,6 +1,6 @@
 var game = window.game;
 var Girder = require("./blocks").Girder;
-
+var ParticleBurst = require("../particles/burst");
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var EPSILON = require("../const").EPSILON;
 function GirderMarker() {
@@ -159,6 +159,21 @@ GirderMarker.prototype.placeGirder = function() {
     this.master.girders--;
     // stop Gus from rotating onto the new girder immediately
     this.master.canRotate = false;
+
+    // make some particles!
+    new ParticleBurst(
+      this.sprite.position.x,
+      this.sprite.position.y,
+      "Debris",
+      {
+        lifetime: 500,
+        count: 14,
+        scaleMin: 0.4,
+        scaleMax: 1.0,
+        speed: 200,
+        fadeOut: true
+      }
+    );
   }
 };
 

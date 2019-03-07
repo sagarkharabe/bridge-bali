@@ -176,7 +176,7 @@ function startGame(Phaser) {
   }
 })(window.Phaser);
 
-},{"./states/boot":15,"./states/game":16,"./states/load":17,"phaser":18}],8:[function(require,module,exports){
+},{"./states/boot":16,"./states/game":17,"./states/load":18,"phaser":19}],8:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
 
 function Block(x, y, sprite) {
@@ -311,7 +311,7 @@ module.exports = Dolly;
 },{"../const":3}],10:[function(require,module,exports){
 var game = window.game;
 var Girder = require("./blocks").Girder;
-
+var ParticleBurst = require("../particles/burst");
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var EPSILON = require("../const").EPSILON;
 function GirderMarker() {
@@ -470,6 +470,21 @@ GirderMarker.prototype.placeGirder = function() {
     this.master.girders--;
     // stop Gus from rotating onto the new girder immediately
     this.master.canRotate = false;
+
+    // make some particles!
+    new ParticleBurst(
+      this.sprite.position.x,
+      this.sprite.position.y,
+      "Debris",
+      {
+        lifetime: 500,
+        count: 14,
+        scaleMin: 0.4,
+        scaleMax: 1.0,
+        speed: 200,
+        fadeOut: true
+      }
+    );
   }
 };
 
@@ -500,7 +515,7 @@ GirderMarker.prototype.update = function() {
 
 module.exports = GirderMarker;
 
-},{"../const":3,"../const/collisionGroup":1,"./blocks":8}],11:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1,"../particles/burst":15,"./blocks":8}],11:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var EPSILON = require("../const").EPSILON;
 var TAU = require("../const").TAU;
@@ -877,6 +892,7 @@ Spike.prototype.touched = function(spikes, other) {
 module.exports = Spike;
 
 },{"../const/collisionGroup":1}],14:[function(require,module,exports){
+var ParticleBurst = require("../particles/burst");
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var TAU = require("../const").TAU;
 
@@ -911,6 +927,16 @@ Tool.prototype.collect = function() {
   this.sprite.visible = false;
   this.sprite.body.clearShapes();
   game.toolsRemaining--;
+  new ParticleBurst(this.sprite.position.x, this.sprite.position.y, "Tool", {
+    lifetime: 3000,
+    count: 8,
+    scaleMin: 0.4,
+    scaleMax: 1.0,
+    rotMin: 0,
+    rotMax: 360,
+    speed: 100,
+    fadeOut: true
+  });
 };
 
 Tool.prototype.reset = function() {
@@ -929,7 +955,64 @@ Tool.prototype.update = function() {
 
 module.exports = Tool;
 
-},{"../const":3,"../const/collisionGroup":1}],15:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1,"../particles/burst":15}],15:[function(require,module,exports){
+var particleBursts = [];
+function ParticleBurst(x, y, particle, options) {
+  options = options || {};
+  var game = window.game;
+
+  this.emitter = game.add.emitter(x, y, 200);
+  this.fadeOut = options.fadeOut || false;
+
+  this.emitter.makeParticles(particle);
+
+  this.emitter.setAlpha(
+    options.alphaMin || 1.0,
+    options.alphaMax || 1.0,
+    options.lifetime || 1000,
+    Phaser.Easing.Linear.None,
+    true
+  );
+  this.emitter.setRotation(options.rotMin || 0, options.rotMax || 0);
+
+  var scale =
+    (options.scaleMin || 1) +
+    Math.random() * ((options.scaleMax || 1) - (options.scaleMin || 1));
+  this.emitter.setScale(
+    options.scaleMin || 1,
+    options.scaleMax || 1,
+    options.scaleMin || 1,
+    options.scaleMax || 1,
+    0
+  );
+
+  this.emitter.setXSpeed(-(options.speed || 100), options.speed || 100);
+  this.emitter.setYSpeed(-(options.speed || 100), options.speed || 100);
+  this.emitter.gravity = options.gravity || 0;
+
+  this.emitter.start(true, options.lifetime || 1000, null, options.count || 10);
+
+  // prune old particle emitters
+  particleBursts.forEach(function(burst, idx) {
+    if (burst.emitter.countLiving() === 0) particleBursts.splice(idx, 1);
+  });
+
+  particleBursts.push(this);
+}
+
+ParticleBurst.update = function() {
+  particleBursts.forEach(function(burst) {
+    if (!burst.fadeOut) return;
+
+    burst.emitter.forEachAlive(function(part) {
+      part.alpha = part.lifespan / burst.emitter.lifespan;
+    });
+  });
+};
+
+module.exports = ParticleBurst;
+
+},{}],16:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
 
 function initBootState() {
@@ -955,12 +1038,12 @@ function initBootState() {
 }
 module.exports = initBootState;
 
-},{"../const/collisionGroup":1}],16:[function(require,module,exports){
+},{"../const/collisionGroup":1}],17:[function(require,module,exports){
 var Gus = require("../objects/gus");
 var Dolly = require("../objects/dolly");
 var GirderMarker = require("../objects/girderMarker");
 var LevelGenerator = require("../generator");
-
+var ParticleBurst = require("../particles/burst");
 function initGameState() {
   var state = {};
 
@@ -971,101 +1054,154 @@ function initGameState() {
     console.log("Loading level data...");
 
     var level = {
-      sky: "#4499FF",
-      girder: 6,
+      sky: "#FFBB22",
+      girder: 10,
       objs: [
-        { t: 3, x: -288, y: -160 },
-        { t: 3, x: -288, y: -128 },
-        { t: 3, x: -288, y: -96 },
-        { t: 3, x: -288, y: -64 },
-        { t: 3, x: -288, y: -32 },
-        { t: 3, x: -288, y: 0 },
-        { t: 3, x: -288, y: 32 },
-        { t: 3, x: -288, y: 64 },
-        { t: 3, x: -288, y: 96 },
-        { t: 3, x: -288, y: 128 },
-        { t: 3, x: -288, y: 160 },
-        { t: 3, x: -256, y: -160 },
-        { t: 3, x: -256, y: -128 },
-        { t: 3, x: -256, y: -96 },
-        { t: 3, x: -256, y: -64 },
-        { t: 3, x: -256, y: -32 },
-        { t: 3, x: -256, y: 0 },
-        { t: 3, x: -256, y: 32 },
-        { t: 3, x: -256, y: 64 },
-        { t: 3, x: -256, y: 96 },
-        { t: 3, x: -256, y: 128 },
-        { t: 3, x: -256, y: 160 },
-        { t: 3, x: -224, y: 128 },
-        { t: 3, x: -224, y: 160 },
-        { t: 6, r: 180, x: -224, y: -128 },
-        { t: 3, x: -224, y: -160 },
-        { t: 3, x: -192, y: 128 },
-        { t: 3, x: -192, y: 160 },
-        { t: 6, r: 180, x: -192, y: -128 },
-        { t: 3, x: -192, y: -160 },
-        { t: 3, x: -160, y: 128 },
-        { t: 3, x: -160, y: 160 },
-        { t: 6, r: 180, x: -160, y: -128 },
-        { t: 3, x: -160, y: -160 },
-        { t: 3, x: -128, y: 128 },
-        { t: 3, x: -128, y: 160 },
-        { t: 6, r: 180, x: -128, y: -128 },
-        { t: 3, x: -128, y: -160 },
-        { t: 6, r: 180, x: -96, y: -128 },
-        { t: 3, x: -96, y: -160 },
-        { t: 6, r: 180, x: -64, y: -128 },
-        { t: 3, x: -64, y: -160 },
-        { t: 6, r: 180, x: -32, y: -128 },
-        { t: 3, x: -32, y: -160 },
-        { t: 6, r: 180, x: 0, y: -128 },
-        { t: 3, x: 0, y: -160 },
-        { t: 6, r: 180, x: 32, y: -128 },
-        { t: 3, x: 32, y: -160 },
-        { t: 6, r: 180, x: 64, y: -128 },
-        { t: 3, x: 64, y: -160 },
-        { t: 3, x: 96, y: 128 },
-        { t: 3, x: 96, y: 160 },
-        { t: 6, r: 180, x: 96, y: -128 },
-        { t: 3, x: 96, y: -160 },
-        { t: 3, x: 128, y: 128 },
-        { t: 3, x: 128, y: 160 },
-        { t: 6, r: 180, x: 128, y: -128 },
-        { t: 3, x: 128, y: -160 },
-        { t: 3, x: 160, y: 128 },
-        { t: 3, x: 160, y: 160 },
-        { t: 6, r: 180, x: 160, y: -128 },
-        { t: 3, x: 160, y: -160 },
-        { t: 3, x: 192, y: 128 },
-        { t: 3, x: 192, y: 160 },
-        { t: 6, r: 180, x: 192, y: -128 },
-        { t: 3, x: 192, y: -160 },
-        { t: 3, x: 224, y: -160 },
-        { t: 3, x: 224, y: -128 },
-        { t: 3, x: 224, y: -96 },
-        { t: 3, x: 224, y: -64 },
-        { t: 3, x: 224, y: -32 },
-        { t: 3, x: 224, y: 0 },
-        { t: 3, x: 224, y: 32 },
-        { t: 3, x: 224, y: 64 },
-        { t: 3, x: 224, y: 96 },
-        { t: 3, x: 224, y: 128 },
-        { t: 3, x: 224, y: 160 },
-        { t: 3, x: 256, y: -160 },
-        { t: 3, x: 256, y: -128 },
-        { t: 3, x: 256, y: -96 },
-        { t: 3, x: 256, y: -64 },
-        { t: 3, x: 256, y: -32 },
-        { t: 3, x: 256, y: 0 },
-        { t: 3, x: 256, y: 32 },
-        { t: 3, x: 256, y: 64 },
-        { t: 3, x: 256, y: 96 },
-        { t: 3, x: 256, y: 128 },
-        { t: 3, x: 256, y: 160 },
-        { t: 2, x: 128, y: 96 },
-        { t: 2, x: 128, y: -96 },
-        { t: 2, x: -160, y: -96 },
-        { t: 1, x: -160, y: 96 }
+        { t: 4, x: 0, y: 0 },
+        { t: 4, x: 32, y: 0 },
+        { t: 4, x: 64, y: 0 },
+        { t: 4, x: 96, y: 0 },
+        { t: 4, x: 128, y: 0 },
+        { t: 4, x: 160, y: 0 },
+        { t: 4, x: 192, y: 0 },
+        { t: 4, x: 224, y: 0 },
+        { t: 4, x: 0, y: 32 },
+        { t: 4, x: 32, y: 32 },
+        { t: 4, x: 64, y: 32 },
+        { t: 4, x: 96, y: 32 },
+        { t: 4, x: 128, y: 32 },
+        { t: 4, x: 160, y: 32 },
+        { t: 4, x: 192, y: 32 },
+        { t: 4, x: 224, y: 32 },
+        { t: 2, x: 96, y: -32 },
+        { t: 2, x: 96, y: 64 },
+
+        { t: 2, x: 512, y: -32 },
+        { t: 3, x: 416, y: 0 },
+        { t: 3, x: 448, y: 0 },
+        { t: 3, x: 480, y: 0 },
+        { t: 3, x: 512, y: 0 },
+        { t: 3, x: 544, y: 0 },
+        { t: 3, x: 576, y: 0 },
+        { t: 3, x: 608, y: 0 },
+        { t: 3, x: 416, y: 32 },
+        { t: 3, x: 448, y: 32 },
+        { t: 3, x: 480, y: 32 },
+        { t: 3, x: 512, y: 32 },
+        { t: 3, x: 544, y: 32 },
+        { t: 3, x: 576, y: 32 },
+        { t: 3, x: 608, y: 32 },
+
+        { t: 6, x: 0, y: 160 },
+        { t: 6, x: 32, y: 160 },
+        { t: 6, x: 64, y: 160 },
+        { t: 6, x: 96, y: 160 },
+        { t: 6, x: 128, y: 160 },
+        { t: 6, x: 160, y: 160 },
+        { t: 6, x: 192, y: 160 },
+        { t: 6, x: 224, y: 160 },
+        { t: 6, x: 256, y: 160 },
+        { t: 6, x: 288, y: 160 },
+        { t: 6, x: 320, y: 160 },
+        { t: 6, x: 352, y: 160 },
+        { t: 6, x: 384, y: 160 },
+        { t: 6, x: 416, y: 160 },
+        { t: 6, x: 440, y: 160 },
+        { t: 6, x: 472, y: 160 },
+        { t: 4, x: 0, y: 192 },
+        { t: 4, x: 32, y: 192 },
+        { t: 4, x: 64, y: 192 },
+        { t: 4, x: 96, y: 192 },
+        { t: 4, x: 128, y: 192 },
+        { t: 4, x: 160, y: 192 },
+        { t: 4, x: 192, y: 192 },
+        { t: 4, x: 224, y: 192 },
+        { t: 4, x: 256, y: 192 },
+        { t: 4, x: 288, y: 192 },
+        { t: 4, x: 320, y: 192 },
+        { t: 4, x: 352, y: 192 },
+        { t: 4, x: 384, y: 192 },
+        { t: 4, x: 416, y: 192 },
+        { t: 4, x: 440, y: 192 },
+        { t: 4, x: 472, y: 192 },
+        { t: 4, x: 0, y: 224 },
+        { t: 4, x: 32, y: 224 },
+        { t: 6, r: 180, x: 64, y: 224 },
+        { t: 6, r: 180, x: 96, y: 224 },
+        { t: 6, r: 180, x: 128, y: 224 },
+        { t: 6, r: 180, x: 160, y: 224 },
+        { t: 6, r: 180, x: 192, y: 224 },
+        { t: 6, r: 180, x: 224, y: 224 },
+        { t: 6, r: 180, x: 256, y: 224 },
+        { t: 6, r: 180, x: 288, y: 224 },
+        { t: 6, r: 180, x: 320, y: 224 },
+        { t: 6, r: 180, x: 352, y: 224 },
+        { t: 6, r: 180, x: 384, y: 224 },
+        { t: 6, r: 180, x: 416, y: 224 },
+        { t: 6, r: 180, x: 440, y: 224 },
+        { t: 6, r: 180, x: 472, y: 224 },
+
+        { t: 4, x: 576, y: 64 },
+        { t: 4, x: 608, y: 64 },
+        { t: 4, x: 576, y: 96 },
+        { t: 4, x: 608, y: 96 },
+        { t: 3, x: 576, y: 128 },
+        { t: 3, x: 608, y: 128 },
+        { t: 3, x: 576, y: 160 },
+        { t: 3, x: 608, y: 160 },
+        { t: 3, x: 576, y: 192 },
+        { t: 3, x: 608, y: 192 },
+        { t: 2, x: 544, y: 192 },
+        { t: 3, x: 576, y: 224 },
+        { t: 3, x: 608, y: 224 },
+        { t: 3, x: 576, y: 256 },
+        { t: 3, x: 608, y: 256 },
+        { t: 3, x: 576, y: 288 },
+        { t: 3, x: 608, y: 288 },
+        { t: 3, x: 576, y: 320 },
+        { t: 3, x: 608, y: 320 },
+        { t: 3, x: 576, y: 352 },
+        { t: 3, x: 608, y: 352 },
+        { t: 3, x: 576, y: 384 },
+        { t: 3, x: 608, y: 384 },
+
+        { t: 4, x: 0, y: 256 },
+        { t: 4, x: 32, y: 256 },
+        { t: 4, x: 0, y: 288 },
+        { t: 4, x: 32, y: 288 },
+        { t: 4, x: 0, y: 320 },
+        { t: 4, x: 32, y: 320 },
+        { t: 4, x: 0, y: 352 },
+        { t: 4, x: 32, y: 352 },
+        { t: 3, x: 64, y: 352 },
+        { t: 3, x: 96, y: 352 },
+        { t: 3, x: 128, y: 352 },
+        { t: 3, x: 160, y: 352 },
+        { t: 3, x: 192, y: 352 },
+        { t: 3, x: 224, y: 352 },
+        { t: 3, x: 256, y: 352 },
+        { t: 3, x: 256, y: 352 },
+        { t: 3, x: 288, y: 352 },
+        { t: 3, x: 320, y: 352 },
+        { t: 3, x: 352, y: 352 },
+        { t: 3, x: 384, y: 352 },
+        { t: 4, x: 0, y: 384 },
+        { t: 4, x: 32, y: 384 },
+        { t: 3, x: 64, y: 384 },
+        { t: 3, x: 96, y: 384 },
+        { t: 3, x: 128, y: 384 },
+        { t: 3, x: 160, y: 384 },
+        { t: 3, x: 192, y: 384 },
+        { t: 3, x: 224, y: 384 },
+        { t: 3, x: 256, y: 384 },
+        { t: 3, x: 256, y: 384 },
+        { t: 3, x: 288, y: 384 },
+        { t: 3, x: 320, y: 384 },
+        { t: 3, x: 352, y: 384 },
+        { t: 3, x: 384, y: 384 },
+
+        { t: 1, x: 128, y: 320 },
+        { t: 2, x: 128, y: 416 }
       ]
     };
 
@@ -1207,12 +1343,12 @@ function initGameState() {
 
       restartTimeout = setTimeout(function() {
         state.restartLevel();
-      }, 5000);
+      }, 500);
     }
 
     // lock camera to player
     game.dolly.update();
-
+    ParticleBurst.update();
     // render HUD
     hudCounters.forEach(function(counter) {
       counter.icon.bringToTop();
@@ -1267,7 +1403,7 @@ function initGameState() {
 
 module.exports = initGameState;
 
-},{"../generator":6,"../objects/dolly":9,"../objects/girderMarker":10,"../objects/gus":11}],17:[function(require,module,exports){
+},{"../generator":6,"../objects/dolly":9,"../objects/girderMarker":10,"../objects/gus":11,"../particles/burst":15}],18:[function(require,module,exports){
 function initLoadState() {
   var state = {};
   var game = window.game;
@@ -1281,6 +1417,8 @@ function initLoadState() {
     game.load.image("Girder", "/assets/images/girder.png");
     game.load.image("Tool", "/assets/images/tool.png");
     game.load.image("Spike", "/assets/images/spike.png");
+    game.load.image("GusHead", "/assets/images/part_gushead.png");
+    game.load.image("Debris", "/assets/images/part_redblock.png");
     game.load.spritesheet("Gus", "/assets/images/gus.png", 32, 32);
 
     console.log("Done loading");
@@ -1300,7 +1438,7 @@ function initLoadState() {
 
 module.exports = initLoadState;
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 (function (process,global){
 /**
 * @author       Richard Davey <rich@photonstorm.com>
@@ -103040,7 +103178,7 @@ PIXI.TextureSilentFail = true;
 */
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":19}],19:[function(require,module,exports){
+},{"_process":20}],20:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
