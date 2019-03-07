@@ -103,9 +103,14 @@ function initCreateState() {
     if (game.input.activePointer.isDown) {
       const x = parseCoordinate(game.input.mousePointer.x) - 400;
       const y = parseCoordinate(game.input.mousePointer.y) - 300;
-      const placedTool = game.add.sprite(x, y, game.activeTool);
+      let placedTool;
+      if (game.activeTool) placedTool = game.add.sprite(x, y, game.activeTool);
 
-      if (unparsedTileMap[x] && unparsedTileMap[x][y])
+      if (
+        unparsedTileMap[x] &&
+        unparsedTileMap[x][y] &&
+        unparsedTileMap[x][y]["sprite"]
+      )
         unparsedTileMap[x][y]["sprite"].kill();
 
       if (!unparsedTileMap[x]) unparsedTileMap[x] = {};
