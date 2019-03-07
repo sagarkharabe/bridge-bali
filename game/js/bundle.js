@@ -1558,9 +1558,19 @@ function initLoadState() {
 
     // eventEmitter.on("play this level", function(data) {
     //   console.log(data);
+    // if (data[0] === "levelArr") {
+    //   game.level = {
+    //     sky: "#FFBB22",
+    //     girders: 12,
+    //     objs: data[1]
+    //   };
+    //   console.log(game.level);
+    // }
+    // game.state.start("game");
     // });
     // eventEmitter.emit("what level to play", "log me");
-    game.state.start("game");
+
+    game.state.start("game"); // remove this when eventEmitter figured out
   };
 
   return state;

@@ -1,6 +1,3 @@
-var loadState = require("./states/load");
-var createState = require("./states/create");
-
 // startup options
 var FULLSCREEN = false;
 var WIDTH = FULLSCREEN ? window.innerWidth * window.devicePixelRatio : 800,
@@ -17,6 +14,9 @@ function startGame(phaser) {
     undefined,
     false
   );
+  var loadState = require("./states/load");
+  var createState = require("./states/create");
+
   // necessary for screenshots when using WebGL renderer
   game.preserveDrawingBuffer = true;
   // add states
