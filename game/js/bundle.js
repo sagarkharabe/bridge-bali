@@ -626,7 +626,7 @@ function Gus(x, y) {
   this.sprite.body.gameObject = this;
 
   // create gus's rotation sensor
-  this.rotationSensor = this.sprite.body.addRectangle(20, 20);
+  this.rotationSensor = this.sprite.body.addRectangle(20, 20, 0, -6);
   this.setCollision();
   this.sprite.body.onBeginContact.add(Gus.prototype.touchesWall, this);
 
@@ -1146,7 +1146,7 @@ function initGameState() {
 
   var gus, marker, generator, restartTimeout, hudCounter, levelStarted;
   var fpsCounter;
-  var game = window.game;
+  const game = window.game;
 
   state.preload = function() {
     console.log("Loading level data...");
@@ -1432,6 +1432,9 @@ function initGameState() {
         }, 15000);
 
       gus.isDead = true;
+
+      gus.sprite.body.velocity.x = 0;
+      gus.sprite.body.velocity.y = 0;
 
       gus.rotationSpeed = gus.rotationSpeed || 0;
       gus.rotationSpeed += game.time.physicsElapsed;

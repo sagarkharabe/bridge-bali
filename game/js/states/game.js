@@ -9,7 +9,7 @@ function initGameState() {
 
   var gus, marker, generator, restartTimeout, hudCounter, levelStarted;
   var fpsCounter;
-  var game = window.game;
+  const game = window.game;
 
   state.preload = function() {
     console.log("Loading level data...");
@@ -295,6 +295,9 @@ function initGameState() {
         }, 15000);
 
       gus.isDead = true;
+
+      gus.sprite.body.velocity.x = 0;
+      gus.sprite.body.velocity.y = 0;
 
       gus.rotationSpeed = gus.rotationSpeed || 0;
       gus.rotationSpeed += game.time.physicsElapsed;
