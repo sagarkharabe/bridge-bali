@@ -1125,6 +1125,7 @@ function initGameState() {
   var state = {};
 
   var gus, marker, generator, restartTimeout, hudCounter, levelStarted;
+  var fpsCounter;
   var game = window.game;
 
   state.preload = function() {
@@ -1333,6 +1334,7 @@ function initGameState() {
       0
     );
     // make hud icons
+    fpsCounter = game.add.text(0, 0, "60 FPS", { font: "9pt mono" });
     hudCounters = [
       {
         icon: game.add.sprite(41, 41, "Tool"),
@@ -1430,6 +1432,11 @@ function initGameState() {
     game.dolly.update();
     ParticleBurst.update();
     // render HUD
+    var rate = Math.ceil(1.0 / (game.time.elapsed / 1000.0));
+    fpsCounter.position = game.dolly.screenspaceToWorldspace({ x: 0, y: 0 });
+    fpsCounter.rotation = game.dolly.rotation;
+    fpsCounter.text = rate + " FPS" + (rate < 30 ? "!!!!" : "");
+
     hudCounters.forEach(function(counter) {
       counter.icon.bringToTop();
       counter.icon.position = game.dolly.screenspaceToWorldspace(
