@@ -1,0 +1,17 @@
+.game-window {
+  background-image: url("../images/gus.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 32px 32px;
+  background-color: #000000;
+
+  box-sizing: border-box;
+  border: 50 solid black;
+  border-top: (50 / 2) solid black;
+  border-bottom: (50 / 2) solid black;
+  display: flex;
+
+  max-width: 800px + (50 * 2);
+  height: 600px + 50;
+  margin: auto;
+}

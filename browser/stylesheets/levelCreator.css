@@ -1,0 +1,11 @@
+#level-creator-container {
+  box-sizing: border-box;
+  border: 50 solid black;
+  border-top: (50 / 2) solid black;
+  border-bottom: (50 / 2) solid black;
+  display: flex;
+
+  width: 800px + (50 * 2);
+  height: 600px + 50;
+  margin: auto;
+}
