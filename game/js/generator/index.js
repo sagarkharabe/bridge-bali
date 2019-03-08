@@ -1,6 +1,8 @@
 var blockIds = require("./blockIds");
 var defaultSkyColor = require("../const/colors").DEFAULT_SKY;
+var tilemap = require("../const/tilemap");
 
+var GhostBreakBrickBlock = require("../objects/ghostBreakBrickBlock");
 function LevelGenerator(levelData) {
   if (blockIds === undefined) console.error("blockIds are undefined (wtf!!)");
   this.blockIds = blockIds;
@@ -38,6 +40,11 @@ LevelGenerator.prototype.parseObjects = function() {
 
     // create it!
     levelObjects.push(createFunction(objDef));
+
+    // account for ghost mode
+    if (tilemap[objDef.t] === "BreakBrickBlock") {
+      // levelObjects.push( new GhostBreakBrickBlock( objDef.x, objDef.y ))
+    }
   });
 
   return levelObjects;

@@ -76,10 +76,6 @@ for (var index in tilemap) {
 
     if (foundConstructor !== undefined) {
       generateBlockIdForConstructor(index, foundConstructor);
-      // if ghost mode active, generate ghost breakBrick
-      if (tilemap[index] === "BreakBrickBlock" && game.hasGhost) {
-        generateBlockIdForConstructor(index, objects.GhostBreakBrickBlock);
-      }
     } else {
       console.log(
         "[LVGN]!! Failed to look up constructor for " + tilemap[index]
@@ -93,7 +89,9 @@ module.exports = blockIds;
 },{"../const/tilemap":4,"../objects":14}],6:[function(require,module,exports){
 var blockIds = require("./blockIds");
 var defaultSkyColor = require("../const/colors").DEFAULT_SKY;
+var tilemap = require("../const/tilemap");
 
+var GhostBreakBrickBlock = require("../objects/ghostBreakBrickBlock");
 function LevelGenerator(levelData) {
   if (blockIds === undefined) console.error("blockIds are undefined (wtf!!)");
   this.blockIds = blockIds;
@@ -131,6 +129,11 @@ LevelGenerator.prototype.parseObjects = function() {
 
     // create it!
     levelObjects.push(createFunction(objDef));
+
+    // account for ghost mode
+    if (tilemap[objDef.t] === "BreakBrickBlock") {
+      // levelObjects.push( new GhostBreakBrickBlock( objDef.x, objDef.y ))
+    }
   });
 
   return levelObjects;
@@ -138,7 +141,7 @@ LevelGenerator.prototype.parseObjects = function() {
 
 module.exports = LevelGenerator;
 
-},{"../const/colors":2,"./blockIds":5}],7:[function(require,module,exports){
+},{"../const/colors":2,"../const/tilemap":4,"../objects/ghostBreakBrickBlock":10,"./blockIds":5}],7:[function(require,module,exports){
 //var Phaser = require("phaser");
 
 // startup options
@@ -204,6 +207,7 @@ function RedBrickBlock(x, y) {
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_ROTATE);
   this.sprite.body.collides([
     COLLISION_GROUPS.PLAYER_SOLID,
+    COLLISION_GROUPS.GHOST_PLAYER_SOLID,
     COLLISION_GROUPS.PLAYER_SENSOR
   ]);
 }
@@ -214,6 +218,7 @@ function Girder(x, y) {
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_ROTATE);
   this.sprite.body.collides([
     COLLISION_GROUPS.PLAYER_SOLID,
+    COLLISION_GROUPS.GHOST_PLAYER_SOLID,
     COLLISION_GROUPS.PLAYER_SENSOR
   ]);
 }
@@ -223,18 +228,22 @@ function BlackBrickBlock(x, y) {
   Block.call(this, x, y, "BrickBlack");
 
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_SOLID);
-  this.sprite.body.collides([COLLISION_GROUPS.PLAYER_SOLID]);
+  this.sprite.body.collides([
+    COLLISION_GROUPS.PLAYER_SOLID,
+    COLLISION_GROUPS.GHOST_PLAYER_SOLID
+  ]);
 }
 BlackBrickBlock.prototype = Block;
 
 var breakingBlocks = [];
-function BreakBrickBlock(x, y) {
+function BreakBrickBlock(x, y, setCollisions) {
+  if (setCollisions === undefined) setCollisions = true;
   Block.call(this, x, y, "BrickBreak");
 
   this.collapseTime = 1000;
   this.countCollapseTime = 0;
 
-  this.setCollisions();
+  if (setCollisions) this.setCollisions();
 
   breakingBlocks.push(this);
 }
@@ -392,12 +401,12 @@ module.exports = Dolly;
 },{"../const":3}],10:[function(require,module,exports){
 "use strict";
 const BreakBrickBlock = require("./blocks").BreakBrickBlock;
-
+const COLLISION_GROUPS = require("../const/collisionGroup");
 class GhostBreakBrickBlock extends BreakBrickBlock {
   constructor(x, y) {
-    super(x, y);
+    super(x, y, false); // call BreakBrickBlock without it setting collisions
 
-    this.alpha = 0.5;
+    this.sprite.alpha = 0.5;
 
     // set collisions
     this.sprite.body.setCollisionGroup(COLLISION_GROUPS.GHOST_BLOCK_BREAK);
@@ -414,65 +423,610 @@ class GhostBreakBrickBlock extends BreakBrickBlock {
 
 module.exports = GhostBreakBrickBlock;
 
-},{"./blocks":8}],11:[function(require,module,exports){
-'use strict';
+},{"../const/collisionGroup":1,"./blocks":8}],11:[function(require,module,exports){
+"use strict";
 
- const game = window.game;
+const game = window.game;
 
- const Gus = require('./gus');
-const ParticleBurst = require( "../particles/burst" );
+const Gus = require("./gus");
+const ParticleBurst = require("../particles/burst");
 
- const COLLISION_GROUPS = require( "../const/collisionGroup" );
-const EPSILON = require( "../const" ).EPSILON;
-const TAU = require( "../const" ).TAU;
-this.alpha = 0.55
- class GhostGus extends Gus {
+const COLLISION_GROUPS = require("../const/collisionGroup");
+const EPSILON = require("../const").EPSILON;
+const TAU = require("../const").TAU;
+
+class GhostGus extends Gus {
   constructor(x, y) {
-    super(x, y);
-    this.record = [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    console.log("calling Bali constructor");
+    super(x, y, false);
+    console.log("'called Bali constructor'");
+    this.sprite.alpha = 0.5;
+
+    this.record = [
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ];
+
     // Set collisions
-    this.sprite.body.setCollisionGroup( COLLISION_GROUPS.GHOST_PLAYER_SOLID );
-    this.sprite.body.setCollisionGroup( COLLISION_GROUPS.GHOST_PLAYER_SENSOR, this.rotationSensor );
-    this.sprite.body.collides( [ COLLISION_GROUPS.GHOST_BLOCK_BREAK, COLLISION_GROUPS.BLOCK_SOLID, COLLISION_GROUPS.BLOCK_ROTATE, COLLISION_GROUPS.ITEM, COLLISION_GROUPS.SPIKES ] );
+    this.sprite.body.setCollisionGroup(COLLISION_GROUPS.GHOST_PLAYER_SOLID);
+    this.sprite.body.setCollisionGroup(
+      COLLISION_GROUPS.GHOST_PLAYER_SENSOR,
+      this.rotationSensor
+    );
+    this.sprite.body.collides([
+      COLLISION_GROUPS.GHOST_BLOCK_BREAK,
+      COLLISION_GROUPS.BLOCK_SOLID,
+      COLLISION_GROUPS.BLOCK_ROTATE,
+      COLLISION_GROUPS.ITEM,
+      COLLISION_GROUPS.SPIKES
+    ]);
+    console.log("MAKKN");
   }
 
-   update() {
+  update() {
     // clear horizontal movement
     const currentMove = this.record.pop();
 
-     if (Math.abs(Math.cos(this.rotation)) > EPSILON) this.sprite.body.velocity.x = 0;
+    if (Math.abs(Math.cos(this.rotation)) > EPSILON)
+      this.sprite.body.velocity.x = 0;
     else this.sprite.body.velocity.y = 0;
 
-     // check to see if we're rotating
+    // check to see if we're rotating
     if (this.rotating) {
-
-       // stop all movement
+      // stop all movement
       this.stop();
       this.sprite.body.velocity.y = 0;
       this.sprite.body.velocity.x = 0;
 
-       // create a rotate tween
+      // create a rotate tween
       if (this.rotateTween === undefined) {
-        this.rotateTween = game.add.tween(this.sprite).to({
-            rotation: this.targetRotation
-          }, 300, Phaser.Easing.Default, true)
+        this.rotateTween = game.add
+          .tween(this.sprite)
+          .to(
+            {
+              rotation: this.targetRotation
+            },
+            300,
+            Phaser.Easing.Default,
+            true
+          )
           .onComplete.add(function() {
-            this.rotation = this.targetRotation % (TAU); // keep angle within 0-2pi
+            this.rotation = this.targetRotation % TAU; // keep angle within 0-2pi
             this.finishRotation();
           }, this);
       }
-
-     } else if (!this.isDead) {
-
-       // do gravity
+    } else if (!this.isDead) {
+      // do gravity
       this.applyGravity();
 
-       if (this.rotationSensor.needsCollisionData) {
+      if (this.rotationSensor.needsCollisionData) {
         this.setCollision();
         this.rotationSensor.needsCollisionData = false;
       }
 
-       // check for input
+      // check for input
       if (currentMove === 1) {
         this.walk("left");
       } else if (currentMove === 2) {
@@ -481,23 +1035,21 @@ this.alpha = 0.55
         this.stop();
       }
 
-       if (!this.isTouching("down")) {
+      if (!this.isTouching("down")) {
         this.fallTime += game.time.physicsElapsedMS;
 
-         if (this.fallTime > this.killTime) {
+        if (this.fallTime > this.killTime) {
           this.kill();
         }
-
-       } else {
+      } else {
         this.fallTime = 0;
       }
-
-     }
-
-   }
+    }
+  }
 }
 
- module.exports = GhostGus;
+module.exports = GhostGus;
+
 },{"../const":3,"../const/collisionGroup":1,"../particles/burst":18,"./gus":13}],12:[function(require,module,exports){
 var game = window.game;
 var Girder = require("./blocks").Girder;
@@ -712,7 +1264,8 @@ var TAU = require("../const").TAU;
 
 var game = window.game;
 
-function Gus(x, y) {
+function Gus(x, y, setCollision) {
+  if (setCollision === undefined) setCollision = true;
   if (game === undefined) game = window.game;
 
   this.speed = 250; // walk speed
@@ -743,7 +1296,7 @@ function Gus(x, y) {
 
   // create gus's rotation sensor
   this.rotationSensor = this.sprite.body.addRectangle(20, 20, 0, -6);
-  this.setCollision();
+  if (setCollision) this.setCollision();
   this.sprite.body.onBeginContact.add(Gus.prototype.touchesWall, this);
 
   // add animations
@@ -763,6 +1316,7 @@ function dot(vec1, vec2) {
 }
 
 Gus.prototype.setCollision = function() {
+  console.log("COLL");
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.PLAYER_SOLID);
   this.sprite.body.setCollisionGroup(
     COLLISION_GROUPS.PLAYER_SENSOR,
@@ -1366,6 +1920,7 @@ function initBootState() {
 
     for (var key in COLLISION_GROUPS) {
       COLLISION_GROUPS[key] = game.physics.p2.createCollisionGroup();
+      console.log("created collision group for", key);
     }
     console.log("Activating ghost state...");
     game.ghost = true;

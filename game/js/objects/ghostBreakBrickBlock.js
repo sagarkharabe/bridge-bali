@@ -1,11 +1,11 @@
 "use strict";
 const BreakBrickBlock = require("./blocks").BreakBrickBlock;
-
+const COLLISION_GROUPS = require("../const/collisionGroup");
 class GhostBreakBrickBlock extends BreakBrickBlock {
   constructor(x, y) {
-    super(x, y);
+    super(x, y, false); // call BreakBrickBlock without it setting collisions
 
-    this.alpha = 0.5;
+    this.sprite.alpha = 0.5;
 
     // set collisions
     this.sprite.body.setCollisionGroup(COLLISION_GROUPS.GHOST_BLOCK_BREAK);
