@@ -63,6 +63,7 @@ Gus.prototype.setCollision = function() {
   this.sprite.body.collides([
     COLLISION_GROUPS.BLOCK_SOLID,
     COLLISION_GROUPS.BLOCK_ROTATE,
+    COLLISION_GROUPS.BLOCK_BREAK,
     COLLISION_GROUPS.ITEM,
     COLLISION_GROUPS.SPIKES
   ]);

@@ -72,7 +72,10 @@ function initCreateState() {
             parsedTileMap.push({
               x: x,
               y: y,
-              t: tileToNum(unparsedTileMap[x][y]["tile"])
+              t: tileToNum(unparsedTileMap[x][y]["tile"]),
+              r: unparsedTileMap[x][y].sprite.angle
+                ? unparsedTileMap[x][y].sprite.angle
+                : undefined
             });
           }
         }
@@ -86,9 +89,7 @@ function initCreateState() {
       console.log("sending...");
       eventEmitter.emit("send tile map", [parsedTileMap, unparsedTileMap]);
     };
-    if (eventEmitter.listenerCount("request tile map")) {
-      eventEmitter.removeAllListeners("request tile map");
-    }
+
     eventEmitter.on("request tile map", handleTileMapRequest);
 
     eventEmitter.on("request screenshot", function() {

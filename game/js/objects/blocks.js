@@ -59,8 +59,7 @@ function BreakBrickBlock(x, y) {
 BreakBrickBlock.prototype = Object.create(Block.prototype);
 
 BreakBrickBlock.prototype.setCollisions = function() {
-  this.sprite.body.setRectangle(32, 32);
-  this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_ROTATE);
+  this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_BREAK);
   this.sprite.body.collides([
     COLLISION_GROUPS.PLAYER_SOLID,
     COLLISION_GROUPS.PLAYER_SENSOR
@@ -93,14 +92,19 @@ BreakBrickBlock.prototype.collapse = function() {
   this.sprite.body.clearShapes();
 
   // make some particles!
-  new ParticleBurst(this.sprite.position.x, this.sprite.position.y, "Debris", {
-    lifetime: 500,
-    count: 14,
-    scaleMin: 0.4,
-    scaleMax: 1.0,
-    speed: 200,
-    fadeOut: true
-  });
+  this.breakBurst = new ParticleBurst(
+    this.sprite.position.x,
+    this.sprite.position.y,
+    "Debris",
+    {
+      lifetime: 500,
+      count: 14,
+      scaleMin: 0.4,
+      scaleMax: 1.0,
+      speed: 200,
+      fadeOut: true
+    }
+  );
 };
 
 BreakBrickBlock.update = function() {

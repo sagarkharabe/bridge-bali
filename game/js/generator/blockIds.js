@@ -1,6 +1,6 @@
 var tilemap = require("../const/tilemap");
 var objects = require("../objects");
-
+var game = window.game;
 var blockIds = {};
 
 function addBlockId(id, loadFunction) {
@@ -39,6 +39,10 @@ for (var index in tilemap) {
 
     if (foundConstructor !== undefined) {
       generateBlockIdForConstructor(index, foundConstructor);
+      // if ghost mode active, generate ghost breakBrick
+      if (tilemap[index] === "BreakBrickBlock" && game.hasGhost) {
+        generateBlockIdForConstructor(index, objects.GhostBreakBrickBlock);
+      }
     } else {
       console.log(
         "[LVGN]!! Failed to look up constructor for " + tilemap[index]
