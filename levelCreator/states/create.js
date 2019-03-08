@@ -31,7 +31,22 @@ function initCreateState() {
     eventEmitter.emit("loaded", () => {});
     unparsedTileMap = game.unparsedTileMap;
     game.parsedTileMap.forEach(function(obj) {
-      game.add.sprite(obj.x, obj.y, NUM_TO_TILES[obj.t]);
+      //game.add.sprite(obj.x, obj.y, NUM_TO_TILES[obj.t]);
+      var sprite = game.add.sprite(
+        obj.x,
+        obj.y,
+        unparsedTileMap[obj.x][obj.y].tile
+      );
+      sprite.anchor.setTo(0.5, 0.5);
+      unparsedTileMap[obj.x][obj.y].sprite = sprite;
+      console.log(
+        "adding sprite: " +
+          unparsedTileMap[obj.x][obj.y].tile +
+          " at " +
+          obj.x +
+          ", " +
+          obj.y
+      );
     });
     game.activeTool = "RedBrickBlock";
   };
@@ -39,6 +54,7 @@ function initCreateState() {
   state.create = function() {
     const game = window.game;
     gusSpawn = game.add.sprite(0, 0, "Gus");
+    gusSpawn.anchor.setTo(0.5, 0.5);
     game.stage.setBackgroundColor(COLORS.DEFAULT_SKY);
 
     game.dolly = new Dolly(game.camera);
@@ -80,6 +96,13 @@ function initCreateState() {
           }
         }
       }
+      if (!unparsedTileMap[gusSpawn.x]) {
+        unparsedTileMap[gusSpawn.x] = {};
+      }
+      unparsedTileMap[gusSpawn.x][gusSpawn.y] = {
+        tile: "Gus",
+        sprite: gusSpawn
+      };
       if (gusSpawn)
         parsedTileMap.push({
           x: gusSpawn.x,
