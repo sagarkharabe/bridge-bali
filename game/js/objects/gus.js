@@ -4,8 +4,7 @@ var TAU = require("../const").TAU;
 
 var game = window.game;
 
-function Gus(x, y, setCollision) {
-  if (setCollision === undefined) setCollision = true;
+function Gus(x, y) {
   if (game === undefined) game = window.game;
 
   this.speed = 250; // walk speed
@@ -36,7 +35,8 @@ function Gus(x, y, setCollision) {
 
   // create gus's rotation sensor
   this.rotationSensor = this.sprite.body.addRectangle(20, 20, 0, -6);
-  if (setCollision) this.setCollision();
+  //set collision
+  this.setCollision();
   this.sprite.body.onBeginContact.add(Gus.prototype.touchesWall, this);
 
   // add animations
@@ -56,7 +56,6 @@ function dot(vec1, vec2) {
 }
 
 Gus.prototype.setCollision = function() {
-  console.log("COLL");
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.PLAYER_SOLID);
   this.sprite.body.setCollisionGroup(
     COLLISION_GROUPS.PLAYER_SENSOR,

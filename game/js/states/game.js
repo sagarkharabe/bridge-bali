@@ -7,7 +7,13 @@ var BreakBrickBlock = require("../objects").BreakBrickBlock;
 function initGameState() {
   var state = {};
 
-  var gus, marker, generator, restartTimeout, hudCounter, levelStarted;
+  var gus,
+    ghostGus,
+    marker,
+    generator,
+    restartTimeout,
+    hudCounters,
+    levelStarted;
   var fpsCounter;
   const game = window.game;
 
@@ -39,6 +45,9 @@ function initGameState() {
     if (game.gusStartPos === undefined) {
       game.gusStartPos = { x: 0, y: 0 };
     }
+
+    const GhostGus = require("../objects/ghostGus");
+    ghostGus = new GhostGus(game.gusStartPos.x, game.gusStartPos.y);
 
     gus = new Gus(game.gusStartPos.x, game.gusStartPos.y);
     gus.girders = generator.getStartingGirders();
@@ -128,6 +137,7 @@ function initGameState() {
   state.update = function() {
     // update actors
     gus.update();
+    ghostGus.update();
     marker.update();
     game.toolsToCollect.forEach(function(tool) {
       tool.update();

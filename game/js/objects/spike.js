@@ -14,13 +14,18 @@ function Spike(x, y) {
   this.sprite.body.fixedRotation = true;
 
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.SPIKES);
-  this.sprite.body.collides([COLLISION_GROUPS.PLAYER_SOLID]);
+  this.sprite.body.collides([
+    COLLISION_GROUPS.PLAYER_SOLID,
+    COLLISION_GROUPS.GHOST_PLAYER_SOLID
+  ]);
 
   this.sprite.body.onBeginContact.add(Spike.prototype.touched, this);
 }
 
 Spike.prototype.touched = function(spikes, other) {
-  if (other.parent.gameObject.constructor.name === "Gus") {
+  var otherBlockType = other.parent.gameObject.constructor.name;
+
+  if (otherBlockType === "Gus" || otherBlockType === "GhostGus") {
     other.parent.gameObject.doom();
   }
 };

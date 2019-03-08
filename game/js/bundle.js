@@ -132,7 +132,7 @@ LevelGenerator.prototype.parseObjects = function() {
 
     // account for ghost mode
     if (tilemap[objDef.t] === "BreakBrickBlock") {
-      // levelObjects.push( new GhostBreakBrickBlock( objDef.x, objDef.y ))
+      levelObjects.push(new GhostBreakBrickBlock(objDef.x, objDef.y));
     }
   });
 
@@ -208,7 +208,8 @@ function RedBrickBlock(x, y) {
   this.sprite.body.collides([
     COLLISION_GROUPS.PLAYER_SOLID,
     COLLISION_GROUPS.GHOST_PLAYER_SOLID,
-    COLLISION_GROUPS.PLAYER_SENSOR
+    COLLISION_GROUPS.PLAYER_SENSOR,
+    COLLISION_GROUPS.GHOST_PLAYER_SENSOR
   ]);
 }
 RedBrickBlock.prototype = Block;
@@ -219,7 +220,8 @@ function Girder(x, y) {
   this.sprite.body.collides([
     COLLISION_GROUPS.PLAYER_SOLID,
     COLLISION_GROUPS.GHOST_PLAYER_SOLID,
-    COLLISION_GROUPS.PLAYER_SENSOR
+    COLLISION_GROUPS.PLAYER_SENSOR,
+    COLLISION_GROUPS.GHOST_PLAYER_SENSOR
   ]);
 }
 Girder.prototype = Block;
@@ -253,7 +255,8 @@ BreakBrickBlock.prototype.setCollisions = function() {
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_BREAK);
   this.sprite.body.collides([
     COLLISION_GROUPS.PLAYER_SOLID,
-    COLLISION_GROUPS.PLAYER_SENSOR
+    COLLISION_GROUPS.PLAYER_SENSOR,
+    COLLISION_GROUPS.GHOST_PLAYER_SENSOR
   ]);
   this.sprite.body.onBeginContact.add(
     BreakBrickBlock.prototype.startCollapsing,
@@ -441,7 +444,7 @@ class GhostGus extends Gus {
     super(x, y, false);
     console.log("'called Bali constructor'");
     this.sprite.alpha = 0.5;
-
+    this.setCollision();
     this.record = [
       2,
       2,
@@ -968,8 +971,20 @@ class GhostGus extends Gus {
       0,
       0
     ];
+  }
+  // diff from Gus's doom: doesn't unlock the dolly
+  doom() {
+    this.sprite.body.clearCollision();
+    this.sprite.body.fixedRotation = false;
 
-    // Set collisions
+    this.sprite.body.velocity.x = Math.sin(this.rotation) * 250;
+    this.sprite.body.velocity.y = Math.cos(this.rotation) * -250;
+
+    this.sprite.body.angularVelocity = 30;
+    //this.sprite.body.rotateRight( 360 );
+  }
+
+  setCollision() {
     this.sprite.body.setCollisionGroup(COLLISION_GROUPS.GHOST_PLAYER_SOLID);
     this.sprite.body.setCollisionGroup(
       COLLISION_GROUPS.GHOST_PLAYER_SENSOR,
@@ -982,7 +997,6 @@ class GhostGus extends Gus {
       COLLISION_GROUPS.ITEM,
       COLLISION_GROUPS.SPIKES
     ]);
-    console.log("MAKKN");
   }
 
   update() {
@@ -1264,8 +1278,7 @@ var TAU = require("../const").TAU;
 
 var game = window.game;
 
-function Gus(x, y, setCollision) {
-  if (setCollision === undefined) setCollision = true;
+function Gus(x, y) {
   if (game === undefined) game = window.game;
 
   this.speed = 250; // walk speed
@@ -1296,7 +1309,8 @@ function Gus(x, y, setCollision) {
 
   // create gus's rotation sensor
   this.rotationSensor = this.sprite.body.addRectangle(20, 20, 0, -6);
-  if (setCollision) this.setCollision();
+  //set collision
+  this.setCollision();
   this.sprite.body.onBeginContact.add(Gus.prototype.touchesWall, this);
 
   // add animations
@@ -1316,7 +1330,6 @@ function dot(vec1, vec2) {
 }
 
 Gus.prototype.setCollision = function() {
-  console.log("COLL");
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.PLAYER_SOLID);
   this.sprite.body.setCollisionGroup(
     COLLISION_GROUPS.PLAYER_SENSOR,
@@ -1760,13 +1773,18 @@ function Spike(x, y) {
   this.sprite.body.fixedRotation = true;
 
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.SPIKES);
-  this.sprite.body.collides([COLLISION_GROUPS.PLAYER_SOLID]);
+  this.sprite.body.collides([
+    COLLISION_GROUPS.PLAYER_SOLID,
+    COLLISION_GROUPS.GHOST_PLAYER_SOLID
+  ]);
 
   this.sprite.body.onBeginContact.add(Spike.prototype.touched, this);
 }
 
 Spike.prototype.touched = function(spikes, other) {
-  if (other.parent.gameObject.constructor.name === "Gus") {
+  var otherBlockType = other.parent.gameObject.constructor.name;
+
+  if (otherBlockType === "Gus" || otherBlockType === "GhostGus") {
     other.parent.gameObject.doom();
   }
 };
@@ -1943,7 +1961,13 @@ var BreakBrickBlock = require("../objects").BreakBrickBlock;
 function initGameState() {
   var state = {};
 
-  var gus, marker, generator, restartTimeout, hudCounter, levelStarted;
+  var gus,
+    ghostGus,
+    marker,
+    generator,
+    restartTimeout,
+    hudCounters,
+    levelStarted;
   var fpsCounter;
   const game = window.game;
 
@@ -1975,6 +1999,9 @@ function initGameState() {
     if (game.gusStartPos === undefined) {
       game.gusStartPos = { x: 0, y: 0 };
     }
+
+    const GhostGus = require("../objects/ghostGus");
+    ghostGus = new GhostGus(game.gusStartPos.x, game.gusStartPos.y);
 
     gus = new Gus(game.gusStartPos.x, game.gusStartPos.y);
     gus.girders = generator.getStartingGirders();
@@ -2064,6 +2091,7 @@ function initGameState() {
   state.update = function() {
     // update actors
     gus.update();
+    ghostGus.update();
     marker.update();
     game.toolsToCollect.forEach(function(tool) {
       tool.update();
@@ -2178,7 +2206,7 @@ function initGameState() {
 
 module.exports = initGameState;
 
-},{"../generator":6,"../objects":14,"../objects/dolly":9,"../objects/girderMarker":12,"../objects/gus":13,"../particles/burst":18}],21:[function(require,module,exports){
+},{"../generator":6,"../objects":14,"../objects/dolly":9,"../objects/ghostGus":11,"../objects/girderMarker":12,"../objects/gus":13,"../particles/burst":18}],21:[function(require,module,exports){
 function initLoadState() {
   var state = {};
   var game = window.game;
@@ -2203,6 +2231,12 @@ function initLoadState() {
     console.log("Starting world...");
     game.world.setBounds(-400, -300, 800, 600); // fullscreen???
     game.physics.p2.setBoundsToWorld();
+    game.add.sprite(-16, -16, "Gus");
+    var loadText = game.add.text(0, 32, "Loading assets...", {
+      font: '12pt "Arial", sans-serif',
+      fill: "white"
+    });
+    loadText.anchor = { x: 0.5, y: 0 };
 
     // start game state
     game.level = {
@@ -2359,20 +2393,68 @@ function initLoadState() {
         { t: 2, x: 128, y: 416 }
       ]
     };
-
+    loadText.text = "Waiting for level info...";
+    console.log("##", loadText.text);
     // eventEmitter.on("play this level", function(data) {
     //   console.log(data);
-    // if (data[0] === "levelArr") {
-    //   game.level = {
-    //     sky: "#FFBB22",
-    //     girders: 12,
-    //     objs: data[1]
-    //   };
-    //   console.log(game.level);
-    // }
-    // game.state.start("game");
+    //   if (data[0] === "levelArr") {
+    //     loadText.text = "Creating level...";
+
+    //     game.level = {
+    //       sky: "#FFBB22",
+    //       girders: 12,
+    //       objs: data[1]
+    //     };
+
+    //     (function gotoStart() {
+    //       if (game.state) game.state.start("game");
+    //       else setTimeout(gotoStart, 100);
+    //     })();
+    //   } else if (data[0] === "levelId") {
+    //     loadText.text = "Downloading level...";
+
+    //     var data = "";
+    //     var progress = 0;
+    //     var req = http.request(
+    //       {
+    //         hostname: "localhost",
+    //         path: "/api/levels/" + data[1] + "/map",
+    //         port: 1337,
+    //         headers: {
+    //           Origin: "localhost"
+    //         }
+    //       },
+    //       function(res) {
+    //         res.setEncoding("utf8");
+    //         console.dir(res);
+    //         var totalLen = res.headers["content-length"];
+
+    //         res.on("data", function(chunk) {
+    //           data += chunk;
+    //           progress += Math.floor((chunk.length / totalLen) * 100);
+    //           loadText.text =
+    //             "Downloading level (" + progress.toString() + "%)...";
+    //         });
+
+    //         res.on("end", function() {
+    //           loadText.text = "Downloading level (100%)...";
+    //           console.log(data);
+    //           (function gotoStart() {
+    //             if (game.state) game.state.start("game");
+    //             else setTimeout(gotoStart, 100);
+    //           })();
+    //         });
+    //       }
+    //     );
+
+    //     req.on("error", function(err) {
+    //       console.error("An error occurred receiving level data:", err);
+    //     });
+
+    //     req.end();
+    //   }
     // });
-    // eventEmitter.emit("what level to play", "log me");
+    //eventEmitter.emit("what level to play", "log me");
 
     game.state.start("game"); // remove this when eventEmitter figured out
   };

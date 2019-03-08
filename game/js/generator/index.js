@@ -43,7 +43,7 @@ LevelGenerator.prototype.parseObjects = function() {
 
     // account for ghost mode
     if (tilemap[objDef.t] === "BreakBrickBlock") {
-      // levelObjects.push( new GhostBreakBrickBlock( objDef.x, objDef.y ))
+      levelObjects.push(new GhostBreakBrickBlock(objDef.x, objDef.y));
     }
   });
 

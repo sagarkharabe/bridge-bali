@@ -15,7 +15,7 @@ class GhostGus extends Gus {
     super(x, y, false);
     console.log("'called Bali constructor'");
     this.sprite.alpha = 0.5;
-
+    this.setCollision();
     this.record = [
       2,
       2,
@@ -542,8 +542,20 @@ class GhostGus extends Gus {
       0,
       0
     ];
+  }
+  // diff from Gus's doom: doesn't unlock the dolly
+  doom() {
+    this.sprite.body.clearCollision();
+    this.sprite.body.fixedRotation = false;
 
-    // Set collisions
+    this.sprite.body.velocity.x = Math.sin(this.rotation) * 250;
+    this.sprite.body.velocity.y = Math.cos(this.rotation) * -250;
+
+    this.sprite.body.angularVelocity = 30;
+    //this.sprite.body.rotateRight( 360 );
+  }
+
+  setCollision() {
     this.sprite.body.setCollisionGroup(COLLISION_GROUPS.GHOST_PLAYER_SOLID);
     this.sprite.body.setCollisionGroup(
       COLLISION_GROUPS.GHOST_PLAYER_SENSOR,
@@ -556,7 +568,6 @@ class GhostGus extends Gus {
       COLLISION_GROUPS.ITEM,
       COLLISION_GROUPS.SPIKES
     ]);
-    console.log("MAKKN");
   }
 
   update() {

@@ -22,6 +22,12 @@ function initLoadState() {
     console.log("Starting world...");
     game.world.setBounds(-400, -300, 800, 600); // fullscreen???
     game.physics.p2.setBoundsToWorld();
+    game.add.sprite(-16, -16, "Gus");
+    var loadText = game.add.text(0, 32, "Loading assets...", {
+      font: '12pt "Arial", sans-serif',
+      fill: "white"
+    });
+    loadText.anchor = { x: 0.5, y: 0 };
 
     // start game state
     game.level = {
@@ -178,20 +184,68 @@ function initLoadState() {
         { t: 2, x: 128, y: 416 }
       ]
     };
-
+    loadText.text = "Waiting for level info...";
+    console.log("##", loadText.text);
     // eventEmitter.on("play this level", function(data) {
     //   console.log(data);
-    // if (data[0] === "levelArr") {
-    //   game.level = {
-    //     sky: "#FFBB22",
-    //     girders: 12,
-    //     objs: data[1]
-    //   };
-    //   console.log(game.level);
-    // }
-    // game.state.start("game");
+    //   if (data[0] === "levelArr") {
+    //     loadText.text = "Creating level...";
+
+    //     game.level = {
+    //       sky: "#FFBB22",
+    //       girders: 12,
+    //       objs: data[1]
+    //     };
+
+    //     (function gotoStart() {
+    //       if (game.state) game.state.start("game");
+    //       else setTimeout(gotoStart, 100);
+    //     })();
+    //   } else if (data[0] === "levelId") {
+    //     loadText.text = "Downloading level...";
+
+    //     var data = "";
+    //     var progress = 0;
+    //     var req = http.request(
+    //       {
+    //         hostname: "localhost",
+    //         path: "/api/levels/" + data[1] + "/map",
+    //         port: 1337,
+    //         headers: {
+    //           Origin: "localhost"
+    //         }
+    //       },
+    //       function(res) {
+    //         res.setEncoding("utf8");
+    //         console.dir(res);
+    //         var totalLen = res.headers["content-length"];
+
+    //         res.on("data", function(chunk) {
+    //           data += chunk;
+    //           progress += Math.floor((chunk.length / totalLen) * 100);
+    //           loadText.text =
+    //             "Downloading level (" + progress.toString() + "%)...";
+    //         });
+
+    //         res.on("end", function() {
+    //           loadText.text = "Downloading level (100%)...";
+    //           console.log(data);
+    //           (function gotoStart() {
+    //             if (game.state) game.state.start("game");
+    //             else setTimeout(gotoStart, 100);
+    //           })();
+    //         });
+    //       }
+    //     );
+
+    //     req.on("error", function(err) {
+    //       console.error("An error occurred receiving level data:", err);
+    //     });
+
+    //     req.end();
+    //   }
     // });
-    // eventEmitter.emit("what level to play", "log me");
+    //eventEmitter.emit("what level to play", "log me");
 
     game.state.start("game"); // remove this when eventEmitter figured out
   };
