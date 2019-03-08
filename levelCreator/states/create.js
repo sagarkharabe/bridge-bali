@@ -25,10 +25,15 @@ function initCreateState() {
    * formatted like this so that each addition to it is O(1) rather than O(n)
    * O(n) would suck with mouse drag.
    */
-  const unparsedTileMap = {};
+  let unparsedTileMap;
 
   state.preload = function() {
     eventEmitter.emit("loaded", () => {});
+    unparsedTileMap = game.unparsedTileMap;
+    game.parsedTileMap.forEach(function(obj) {
+      game.add.sprite(obj.x, obj.y, NUM_TO_TILES[obj.t]);
+    });
+    game.activeTool = "RedBrickBlock";
   };
 
   state.create = function() {
@@ -79,7 +84,7 @@ function initCreateState() {
           t: tileToNum("Gus")
         });
       console.log("sending...");
-      eventEmitter.emit("send tile map", parsedTileMap);
+      eventEmitter.emit("send tile map", [parsedTileMap, unparsedTileMap]);
     };
     if (eventEmitter.listenerCount("request tile map")) {
       eventEmitter.removeAllListeners("request tile map");
