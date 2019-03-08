@@ -34,9 +34,11 @@ app.set("view engine", "handlebars");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(express.static("public"));
-app.use(express.static("game/js"));
-app.use(express.static("levelCreator"));
+app.use("/browser", express.static(path.join(__dirname, "browser")));
+app.use("/public", express.static(path.join(__dirname, "public")));
+app.use("/game", express.static(path.join(__dirname, "game")));
+app.use("/levelCreator", express.static(path.join(__dirname, "levelCreator")));
+
 app.get("/", (req, res) => {
   res.render("home");
 });
