@@ -11,7 +11,7 @@ function Tool(x, y) {
   this.sprite.smoothed = false;
 
   this.sprite.initialRotation = Math.random() * TAU;
-
+  this.sprite.cosOffset = Math.random() * 10;
   game.physics.p2.enable(this.sprite, false);
 
   this.setCollisions();
@@ -63,9 +63,10 @@ Tool.prototype.reset = function() {
 };
 
 Tool.prototype.update = function() {
-  this.sprite.rotation =
-    this.sprite.initialRotation +
-    Math.sin((TAU / 100) * (game.time.now / 1000)) * TAU;
+  var time = game.time.now;
+  var phase = Math.sin((TAU / 15) * (time / 1000 + this.sprite.cosOffset));
+
+  this.sprite.rotation = this.sprite.initialRotation + phase * TAU;
 };
 
 module.exports = Tool;
