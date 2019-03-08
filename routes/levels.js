@@ -23,7 +23,10 @@ router.get("/users", getDocsAndSend("Level", null, ["creator"]));
 // user can create level
 router.post("/", mustBeLoggedIn, createDoc("Level", "creator"));
 // guest can see level
-router.get("/:id", getDocAndSend("Level"));
+router.get("/:id", getDocAndSend("Level", ["-map"], ["creator"]));
+
+// mapdata route
+router.get("/:id/map", getDocAndSend("Level", ["map"], ["map"]));
 
 // user can update own level
 router.put("/:id", mustBeLoggedIn, getDocAndUpdateIfOwnerOrAdmin("Level"));

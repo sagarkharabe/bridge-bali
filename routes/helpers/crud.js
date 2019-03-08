@@ -143,11 +143,17 @@ const getDocsAndSend = (ModelStr, selectParams = [], populateParams = []) => (
   });
 };
 
-const getDocAndSend = (ModelStr, populateParams = []) => (req, res, next) => {
+const getDocAndSend = (ModelStr, selectParams = [], populateParams = []) => (
+  req,
+  res,
+  next
+) => {
   const id = req.params.id;
   const Model = mongoose.model(ModelStr);
 
+  Model.findById(id);
   Model.findById(id)
+    .select(selectParams.join(" "))
     .populate(populateParams.join(" "))
     .then(document => res.status(200).json(document))
     .then(null, next);
