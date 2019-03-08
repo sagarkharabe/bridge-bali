@@ -6,7 +6,8 @@
   "scripts": {
     "server": "nodemon index.js",
     "watch": "watchify game/js/main.js -o game/js/bundle.js",
-    "watchlevel": "watchify levelCreator/main.js -o levelCreator/levelCreatorBundle.js"
+    "watchlevel": "watchify levelCreator/main.js -o levelCreator/levelCreatorBundle.js",
+    "watchbrowser": "watchify browser/js/app.js -o browser/js/browserBundle.js"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
     "browserify": "^16.2.3",
     "chalk": "^2.4.2",
     "dotenv": "^6.2.0",
+    "events": "^3.0.0",
     "express": "^4.16.4",
     "express-handlebars": "^3.0.2",
     "express-session": "^1.15.6",
