@@ -19,7 +19,6 @@ function initLoadState() {
   state.create = function() {
     console.log("Starting world...");
     game.world.setBounds(-400, -300, 800, 600); // fullscreen???
-    console.log(game);
 
     console.log("Going to create state...");
     // start game state
@@ -30,7 +29,10 @@ function initLoadState() {
       console.log("about to log out the unparsed tile map");
       console.log(game.unparsedTileMap);
       game.parsedTileMap = maps[1];
-      game.state.start("create");
+      (function gotoStart() {
+        if (game.state) game.state.start("create");
+        else setTimeout(gotoStart, 100);
+      })();
     });
     eventEmitter.emit("I need both the maps!");
   };
