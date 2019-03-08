@@ -1,0 +1,27 @@
+<header>
+  <a href="/home" id='company-title'><img src="/game/assets/images/gus.png" id='logo' /></a>
+  <div>
+    <a href="/home" id="company-title">Bridge Bali</a>
+
+    <nav>
+      <ul>
+        <li><a href="/">Levels</a></li>
+        <li><a href="/">Top Creators</a></li>
+        <li><a href="/">Stuff</a></li>
+        {{#if user}}
+        <li><a href="/">Builder</a></li>
+        {{else}}
+        {{/if}}
+      </ul>
+    </nav>
+  </div>
+  <div>
+    {{#if user}}
+    <p>Welcome, {{user.name}}</p>
+    <a href="/users/logout">Logout</a>
+    {{else}}
+    <a href="/auth/google">Login with Google</a>
+    {{/if}}
+
+  </div>
+</header>

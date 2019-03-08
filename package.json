@@ -7,7 +7,7 @@
     "server": "nodemon index.js",
     "watch": "watchify game/js/main.js -o game/js/bundle.js",
     "watchlevel": "watchify levelCreator/main.js -o levelCreator/levelCreatorBundle.js",
-    "watchbrowser": "watchify browser/js/app.js -o browser/js/browserBundle.js"
+    "watchbrowser": "watchify browser/js/app.js -o browser/js/browserbundle.js"
   },
   "repository": {
     "type": "git",
@@ -34,6 +34,7 @@
     "express-handlebars": "^3.0.2",
     "express-session": "^1.15.6",
     "mongoose": "^5.4.16",
+    "node-sass-middleware": "^0.11.0",
     "passport": "^0.4.0",
     "passport-local": "^1.0.0",
     "phaser": "^2.5.0",
