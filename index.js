@@ -36,6 +36,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/browser", express.static(path.join(__dirname, "browser")));
+app.use(
+  "/browser/stylesheets",
+  express.static(path.join(__dirname, "browser/stylesheets"))
+);
 app.use("/public", express.static(path.join(__dirname, "public")));
 app.use("/game", express.static(path.join(__dirname, "game")));
 app.use("/levelCreator", express.static(path.join(__dirname, "levelCreator")));

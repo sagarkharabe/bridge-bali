@@ -1,3 +1,37 @@
-body{
-  background: url('images/escheresque_ste_@2X.png')
+@import url(https://fonts.googleapis.com/css?family=Press+Start+2P|Maven+Pro);
+
+body {
+  background: url("../images/escheresque_ste_@2X.png");
+  color: white;
+  font-family: "Maven Pro", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+a {
+  color: black;
+  cursor: pointer;
+}
+a:hover,
+a:visited {
+  color: black;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Press Start 2P", cursive;
+  text-shadow: 4px 4px 0px black;
+}
+h2 {
+  font-size: 16pt;
+}
+h3 {
+  font-size: 12pt;
+}
+.row {
+  margin: auto;
+}
+disabled {
+  cursor: default;
 }
