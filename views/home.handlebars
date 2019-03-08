@@ -1,9 +1,58 @@
+<link rel="stylesheet" href="/browser/stylesheets/home.css">
 <link rel="stylesheet" href="/browser/stylesheets/game-window.css">
-<script type="text/javascript" src="/browser/js/browserbundle.js"></script>
+
 <script src="/game/js/bundle.js"></script>
 
+<section id="home">
+  <div id="tutorial" class="row">
+    <div class="left-column">
+      <h2>Learn to Play</h2>
+      <p>Help Gus get all his tools back! Follow the tutorial on the right to learn how to play. Use the tips here to
+        help you. Good luck!</p>
 
-<div class="game-view">
-  <div id="game-container" class="game-window">
+      <h2>Tips & Tricks</h2>
+      <ul>
+        <li ng-repeat="tip in tips">{{ tip }}</li>
+      </ul>
+
+      <h2>Jump Right In</h2>
+      <div class="text-center">
+        <a class="btn" ng-click='playRandom()'>Play a Random Level</a><br><br>
+        <a class="btn" ui-sref="levels.list">Browse All Levels</a>
+      </div>
+    </div>
+    <div id="game-view">
+      <div id="game-container" class="game-window">
+      </div>
+    </div>
   </div>
-</div>
+
+  <div id="featured" class="row">
+    <h1 class="text-center">Featured Levels</h1>
+    <div class="levels-list">
+      <div class="row" ng-repeat="levelRow in featuredLevels">
+        <level-thumbnail ng-repeat="level in levelRow" level="level"></level-thumbnail>
+      </div>
+    </div>
+  </div>
+
+  <div id="whois" class="row">
+    <h1 class="text-center">Who is Gus?</h1>
+    <p class="text-block pull-left">Gus is your down to earth construction worker in a world where nothing is down to
+      earth. While working on a construction site, Gus was transported to the Chaos Dimension where ordinary physics fly
+      out the window. Even worse, Gus's tools were all lost during the trip and scattered throughout!</p>
+
+    <p class="text-block pull-right text-right">Fortunately for Gus, the Chaos Dimension is a lot like just another
+      construction site. Thanks to his years of training on dangerous sites, and quirks in the gravity of the Chaos
+      Dimension, Gus is a master of navigating the perilous unknown. Can Gus find all his tools and return home safely,
+      or will be trapped forever?</p>
+  </div>
+
+  <div id="getgoing" class="row text-center">
+    <h1>Get Building!</h1>
+
+    <a class="btn" href="#tutorial">Play the Tutorial</a>
+    <a class="btn" ui-sref="levels.list">See All Levels</a>
+    <a class="btn" ui-sref="builder">Build a Level</a>
+  </div>
+</section>
