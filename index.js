@@ -46,8 +46,8 @@ app.get("/createLevel", function(req, res) {
   res.render("levelCreator/levelCreator");
 });
 
-app.use("/users", require("./routes/users"));
-app.use("/levels", require("./routes/levels"));
+app.use("/api/users", require("./routes/users"));
+app.use("/api/levels", require("./routes/levels"));
 
 const port = 5000;
 app.listen(port, () => {

@@ -5,13 +5,13 @@ function initLoadState() {
   state.preload = function() {
     console.log("Loading assets...");
 
-    game.load.image("BrickBlackBlock", "game/assets/images/brick_black.png");
-    game.load.image("BrickBreakBlock", "game/assets/images/brick_break.png");
-    game.load.image("BrickRedBlock", "game/assets/images/brick_red.png");
-    game.load.image("Girder", "game/assets/images/girder.png");
-    game.load.image("Spike", "game/assets/images/spike.png");
-    game.load.image("Tool", "game/assets/images/tool.png");
-    game.load.image("Gus", "game/assets/images/gus-static.png");
+    game.load.image("BlackBrickBlock", "/assets/images/brick_black.png");
+    game.load.image("BreakBrickBlock", "/assets/images/brick_break.png");
+    game.load.image("RedBrickBlock", "/assets/images/brick_red.png");
+    game.load.image("Girder", "/assets/images/girder.png");
+    game.load.image("Spike", "/assets/images/spike.png");
+    game.load.image("Tool", "/assets/images/tool.png");
+    game.load.image("Gus", "/assets/images/gus-static.png");
 
     console.log("Done loading");
   };

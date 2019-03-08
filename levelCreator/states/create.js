@@ -1,5 +1,9 @@
+"use strict";
 const COLORS = require("../../game/js/const/colors");
 const NUM_TO_TILES = require("../../game/js/const/tilemap");
+
+var Dolly = require("../../game/js/objects/dolly");
+
 let gusSpawn,
   upKey,
   downKey,
@@ -8,12 +12,13 @@ let gusSpawn,
   rotateCounterKey,
   routateClockwiseKey;
 let lastRotTime = 0;
-const Dolly = require("../../game/js/objects/dolly");
+
 function tileToNum(tile) {
   for (let n in NUM_TO_TILES) if (NUM_TO_TILES[n] === tile) return +n;
 
   throw new Error("Tile not found!");
 }
+
 function initCreateState() {
   const state = {};
 
@@ -31,29 +36,21 @@ function initCreateState() {
     eventEmitter.emit("loaded", () => {});
     unparsedTileMap = game.unparsedTileMap;
     game.parsedTileMap.forEach(function(obj) {
-      //game.add.sprite(obj.x, obj.y, NUM_TO_TILES[obj.t]);
-      var sprite = game.add.sprite(
-        obj.x,
-        obj.y,
-        unparsedTileMap[obj.x][obj.y].tile
-      );
+      var unparTiMa = unparsedTileMap[obj.x][obj.y];
+      var sprite = game.add.sprite(obj.x, obj.y, unparTiMa.tile);
+      if (unparTiMa.tile === "Gus") {
+        gusSpawn = sprite;
+      }
       sprite.anchor.setTo(0.5, 0.5);
-      unparsedTileMap[obj.x][obj.y].sprite = sprite;
-      console.log(
-        "adding sprite: " +
-          unparsedTileMap[obj.x][obj.y].tile +
-          " at " +
-          obj.x +
-          ", " +
-          obj.y
-      );
+      unparTiMa.sprite = sprite;
+      if (unparTiMa !== undefined) unparTiMa.sprite.angle = obj.r;
     });
     game.activeTool = "RedBrickBlock";
   };
 
   state.create = function() {
     const game = window.game;
-    gusSpawn = game.add.sprite(0, 0, "Gus");
+    gusSpawn = gusSpawn || game.add.sprite("0", "0", "Gus");
     gusSpawn.anchor.setTo(0.5, 0.5);
     game.stage.setBackgroundColor(COLORS.DEFAULT_SKY);
 
@@ -76,8 +73,15 @@ function initCreateState() {
     });
 
     var handleTileMapRequest = function() {
-      console.log("recieved request. processing...");
       const parsedTileMap = [];
+
+      if (!unparsedTileMap[gusSpawn.x]) {
+        unparsedTileMap[gusSpawn.x] = {};
+      }
+      unparsedTileMap[gusSpawn.x][gusSpawn.y] = {
+        tile: "Gus",
+        sprite: gusSpawn
+      };
 
       for (let x in unparsedTileMap) {
         if (!unparsedTileMap.hasOwnProperty(x)) continue;
@@ -85,6 +89,11 @@ function initCreateState() {
         for (let y in unparsedTileMap[x]) {
           if (!unparsedTileMap[x].hasOwnProperty(y)) continue;
           if (unparsedTileMap[x][y] && unparsedTileMap[x][y]["tile"]) {
+            if (unparsedTileMap[x][y]["tile"] === "Gus") {
+              if (x != gusSpawn.x || y != gusSpawn.y) {
+                continue;
+              }
+            }
             parsedTileMap.push({
               x: x,
               y: y,
@@ -96,20 +105,11 @@ function initCreateState() {
           }
         }
       }
-      if (!unparsedTileMap[gusSpawn.x]) {
-        unparsedTileMap[gusSpawn.x] = {};
-      }
-      unparsedTileMap[gusSpawn.x][gusSpawn.y] = {
-        tile: "Gus",
-        sprite: gusSpawn
-      };
-      if (gusSpawn)
-        parsedTileMap.push({
-          x: gusSpawn.x,
-          y: gusSpawn.y,
-          t: tileToNum("Gus")
-        });
-      console.log("sending...");
+      /*if (gusSpawn) parsedTileMap.push({
+				x: gusSpawn.x,
+			y: gusSpawn.y,
+			t: tileToNum('Gus')
+			});*/
       eventEmitter.emit("send tile map", [parsedTileMap, unparsedTileMap]);
     };
 

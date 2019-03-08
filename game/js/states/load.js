@@ -1,6 +1,8 @@
 function initLoadState() {
   var state = {};
   var game = window.game;
+  const eventEmitter = window.eventEmitter;
+  const http = require("http");
 
   state.preload = function() {
     console.log("Loading assets...");
@@ -186,68 +188,75 @@ function initLoadState() {
     };
     loadText.text = "Waiting for level info...";
     console.log("##", loadText.text);
-    // eventEmitter.on("play this level", function(data) {
-    //   console.log(data);
-    //   if (data[0] === "levelArr") {
-    //     loadText.text = "Creating level...";
 
-    //     game.level = {
-    //       sky: "#FFBB22",
-    //       girders: 12,
-    //       objs: data[1]
-    //     };
+    eventEmitter.on("play this level", function(data) {
+      console.log("##", data);
+      if (data[0] === "levelArr") {
+        loadText.text = "Creating level...";
 
-    //     (function gotoStart() {
-    //       if (game.state) game.state.start("game");
-    //       else setTimeout(gotoStart, 100);
-    //     })();
-    //   } else if (data[0] === "levelId") {
-    //     loadText.text = "Downloading level...";
+        game.level = {
+          sky: "#FFBB22",
+          girders: 12,
+          objs: data[1]
+        };
 
-    //     var data = "";
-    //     var progress = 0;
-    //     var req = http.request(
-    //       {
-    //         hostname: "localhost",
-    //         path: "/api/levels/" + data[1] + "/map",
-    //         port: 1337,
-    //         headers: {
-    //           Origin: "localhost"
-    //         }
-    //       },
-    //       function(res) {
-    //         res.setEncoding("utf8");
-    //         console.dir(res);
-    //         var totalLen = res.headers["content-length"];
+        state.gotoStart();
+      } else if (data[0] === "levelId") {
+        loadText.text = "Downloading level...";
 
-    //         res.on("data", function(chunk) {
-    //           data += chunk;
-    //           progress += Math.floor((chunk.length / totalLen) * 100);
-    //           loadText.text =
-    //             "Downloading level (" + progress.toString() + "%)...";
-    //         });
+        var levelData = "";
+        var progress = 0;
+        var id = data[1];
 
-    //         res.on("end", function() {
-    //           loadText.text = "Downloading level (100%)...";
-    //           console.log(data);
-    //           (function gotoStart() {
-    //             if (game.state) game.state.start("game");
-    //             else setTimeout(gotoStart, 100);
-    //           })();
-    //         });
-    //       }
-    //     );
+        console.log("Getting level " + id);
+        var req = http.request(
+          {
+            hostname: "localhost",
+            path: "/api/levels/" + id + "/map",
+            port: 5000,
+            headers: {
+              Origin: "localhost"
+            }
+          },
+          function(res) {
+            res.setEncoding("utf8");
+            console.dir(res);
+            var totalLen = res.headers["content-length"];
 
-    //     req.on("error", function(err) {
-    //       console.error("An error occurred receiving level data:", err);
-    //     });
+            res.on("data", function(chunk) {
+              levelData += chunk;
+              progress += Math.floor((chunk.length / totalLen) * 100);
+              loadText.text =
+                "Downloading level (" + progress.toString() + "%)...";
+            });
 
-    //     req.end();
-    //   }
-    // });
-    //eventEmitter.emit("what level to play", "log me");
+            res.on("end", function() {
+              loadText.text = "Downloading level (100%)...";
+              levelData = JSON.parse(levelData);
+              console.log(levelData);
+              if (levelData.map) {
+                // check checksum here
 
-    game.state.start("game"); // remove this when eventEmitter figured out
+                game.level = levelData.map;
+              } else {
+                console.log("Mapdata invalid!");
+              }
+
+              state.gotoStart();
+            });
+          }
+        );
+
+        req.on("error", function(err) {
+          console.error("An error occurred receiving level data:", err);
+        });
+
+        req.end();
+      } else {
+        state.gotoStart();
+      }
+    });
+    eventEmitter.emit("what level to play", "log me");
   };
 
   return state;

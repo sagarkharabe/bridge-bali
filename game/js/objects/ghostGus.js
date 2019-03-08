@@ -11,9 +11,9 @@ const TAU = require("../const").TAU;
 
 class GhostGus extends Gus {
   constructor(x, y) {
-    console.log("calling Bali constructor");
+    console.log("calling BaliGhost constructor");
     super(x, y, false);
-    console.log("'called Bali constructor'");
+    console.log("'called BaliGhost constructor'");
     this.sprite.alpha = 0.5;
     this.setCollision();
     this.record = [
