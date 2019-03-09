@@ -1322,7 +1322,9 @@ function Spike(x, y) {
 Spike.prototype.touched = function(spikes, other) {
   var otherBlockType = other.parent.gameObject.constructor.name;
 
-  if (otherBlockType === "Gus" || otherBlockType === "GhostGus") {
+  var doomBlockTypes = ["Gus", "GhostGus", "RecordingGus"];
+
+  if (doomBlockTypes.find(blockType => blockType === otherBlockType)) {
     other.parent.gameObject.doom();
   }
 };
@@ -1506,10 +1508,12 @@ function initGameState() {
     generator,
     restartTimeout,
     hudCounters,
-    levelStarted;
+    levelStarted,
+    startingGirderCount;
   var fpsCounter;
+  var gameEndingEmitted = false;
   const game = window.game;
-
+  const eventEmitter = window.eventEmitter;
   state.preload = function() {
     console.log("Loading level data...");
     console.log(game.level);
@@ -1545,6 +1549,7 @@ function initGameState() {
 
     gus = new Gus(game.gusStartPos.x, game.gusStartPos.y);
     gus.girders = generator.getStartingGirders();
+    startingGirderCount = gus.girders;
     marker = new GirderMarker();
     marker.setMaster(gus);
 
@@ -1642,6 +1647,7 @@ function initGameState() {
       if (restartTimeout === undefined)
         restartTimeout = setTimeout(function() {
           state.restartLevel();
+          gameEndingEmitted = false;
         }, 15000);
 
       gus.isDead = true;
@@ -1657,6 +1663,13 @@ function initGameState() {
       game.camera.scale.y *= 1 + game.time.physicsElapsed / 5;
       game.dolly.rotation = Math.PI * 2 - gus.sprite.rotation;
       game.dolly.unlock();
+      if (!gameEndingEmitted) {
+        gameEndingEmitted = true;
+        eventEmitter.emit("game ended", [
+          startingGirderCount - gus.girders,
+          game.time.now - levelStarted
+        ]);
+      }
     } else if (gus.isDead && restartTimeout === undefined) {
       game.dolly.unlock();
 
