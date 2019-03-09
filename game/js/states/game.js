@@ -49,6 +49,7 @@ function initGameState() {
 
     const GhostGus = require("../objects/ghostGus");
     ghostGus = new GhostGus(game.gusStartPos.x, game.gusStartPos.y);
+    ghostGus.girders = generator.getStartingGirders();
 
     gus = new Gus(game.gusStartPos.x, game.gusStartPos.y);
     gus.girders = generator.getStartingGirders();

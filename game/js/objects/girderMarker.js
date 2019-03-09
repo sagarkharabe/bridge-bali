@@ -3,7 +3,7 @@ var Girder = require("./blocks").Girder;
 var ParticleBurst = require("../particles/burst");
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var EPSILON = require("../const").EPSILON;
-function GirderMarker() {
+function GirderMarker(isGhost) {
   if (game === undefined) game = window.game;
 
   this.master = null;
@@ -18,6 +18,8 @@ function GirderMarker() {
   this.placeable = false;
   this.sprite.alpha = 0.5;
   this.sprite.visible = false;
+  // set ghost status
+  if (isGhost) this.ghost = true;
 }
 
 GirderMarker.prototype.setMaster = function(newMaster) {
@@ -72,6 +74,9 @@ GirderMarker.prototype.masterPos = function() {
 };
 
 GirderMarker.prototype.getTargetPos = function() {
+  var playerSensor = this.ghost
+    ? COLLISION_GROUPS.GHOST_PLAYER_SENSOR
+    : COLLISION_GROUPS.PLAYER_SENSOR;
   // get our position factory based on the player's facing
   var posFactory = this.masterPos();
   if (this.master.facingRight) posFactory = posFactory.right();
@@ -87,9 +92,7 @@ GirderMarker.prototype.getTargetPos = function() {
     // there is! is it an unplaceable object?
     var hitUnplaceable = false;
     hitBoxes.forEach(function(box) {
-      if (
-        box.parent.collidesWith.indexOf(COLLISION_GROUPS.PLAYER_SENSOR) === -1
-      )
+      if (box.parent.collidesWith.indexOf(playerSensor) === -1)
         hitUnplaceable = true;
     });
     if (hitUnplaceable) return undefined;

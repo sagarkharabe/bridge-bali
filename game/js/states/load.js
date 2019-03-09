@@ -200,9 +200,9 @@ function initLoadState() {
         loadText.text = "Creating level...";
 
         game.level = {
-          sky: "#FFBB22",
-          girders: 12,
-          objs: data[1]
+          skyColor: "#FFBB22",
+          startgirders: 12,
+          objects: data[1]
         };
 
         state.gotoStart();
