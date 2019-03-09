@@ -6,6 +6,11 @@ var draftSaveObj;
 var testing = false;
 var activeToolImg = "/game/assets/images/brick_red.png";
 
+// document.addEventListener("DOMContentLoaded", function() {
+//   document.getElementById("creatorAndTester").innerHTML =
+//     '<span> <link rel="stylesheet" href="/browser/stylesheets/levelCreator.css"><script type="text/javascript" src="levelCreator/levelCreatorBundle.js"></script><div class="level-creator-view"><div class="game-window"id="level-creator-container></div></div></span> ';
+// });
+
 const changeActiveTool = function(tool) {
   console.log("##from change tools", tool.tile);
   eventEmitter.emit("change active tool", tool.tile);
@@ -47,7 +52,6 @@ const testTesting = function() {
   (function checkGameDestroyed() {
     if (window.game.state === null) {
       window.game = null;
-      console.log(window.game);
       nextMapUse = "switchToGame";
       activeToolImg = "/game/assets/images/brick_red.png";
       if (!testing) {

@@ -28,18 +28,24 @@
       </ul>
     </nav>
   </header>
+  {{toggleTesting testing}}
+  {{@root.testing}}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      console.log(testing)
+
+    })
+  </script>
+
   {{#if testing}}
   {{> _game-view}}
   {{else}}
   {{> _level-creator-view}}
   {{/if}}
 
-
-
   <div id="editor-controls">
     <br>
-    <button class='btn' onclick='testTesting() ; {{toggleTesting testing}}'>Show Game</button>
+    <button class='btn' id="test" onclick='testTesting() '>Show Game</button>
     <button class='btn' onclick='requestParsedTileMap()'>GET TILE MAP</button>
   </div>
-
   {{testing}}
