@@ -26,7 +26,7 @@ router.post("/", mustBeLoggedIn, createDoc("Level", "creator"));
 router.get("/:id", getDocAndSend("Level", ["-map"], ["creator"]));
 
 // mapdata route
-router.get("/:id/map", getDocAndSend("Level", ["map"], ["map"]));
+router.get("/:id/map", getDocAndSend("Level", ["map"]));
 
 // user can update own level
 router.put("/:id", mustBeLoggedIn, getDocAndUpdateIfOwnerOrAdmin("Level"));

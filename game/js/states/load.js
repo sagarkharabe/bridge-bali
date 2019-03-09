@@ -38,9 +38,9 @@ function initLoadState() {
 
     // start game state
     game.level = {
-      sky: "#FFBB22",
-      girders: 10,
-      objs: [
+      skyColor: "#FFBB22",
+      startgirders: 10,
+      objects: [
         { t: 4, x: 0, y: 0 },
         { t: 4, x: 32, y: 0 },
         { t: 4, x: 64, y: 0 },

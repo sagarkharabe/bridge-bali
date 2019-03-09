@@ -10,15 +10,15 @@ function LevelGenerator(levelData) {
 }
 
 LevelGenerator.prototype.getSkyColor = function() {
-  return this.levelData.sky || defaultSkyColor;
+  return this.levelData.skyColor || defaultSkyColor;
 };
 LevelGenerator.prototype.getStartingGirders = function() {
-  return this.levelData.girders || 10;
+  return this.levelData.startGirders || 10;
 };
 
 LevelGenerator.prototype.parseObjects = function() {
   var levelObjects = [];
-  var objDefList = this.levelData.objs;
+  var objDefList = this.levelData.objects;
   var blocks = this.blockIds;
 
   objDefList.forEach(function(objDef) {

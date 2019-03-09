@@ -29,18 +29,17 @@
     </nav>
   </header>
   {{#if testing}}
-  {{> _game-view}}
-  {{else}}
   {{> _level-creator-view}}
+  {{else}}
+  {{> _game-view}}
   {{/if}}
 
 
 
   <div id="editor-controls">
-    <button class='btn' ng-show="!testing" onclick='testTesting()'>Test Level</button>
-    <button class='btn' ng-show="testing" onclick='testTesting()'>Edit Level</button>
-    <button class='btn btn-create' ng-show="readyToSave"
-      onclick='submitBeatenLevel(beatenLevel, levelTitle, girdersAllowed, skyColor, false)'>Save Draft</button>
-    <button class='btn btn-create' ng-show="beaten && readyToSave"
-      onclick='submitBeatenLevel(beatenLevel, levelTitle, girdersAllowed, skyColor)'>Submit Level</button>
+    <br>
+    <button class='btn' onclick='testTesting() ; {{toggleTesting testing}}'>Show Game</button>
+    <button class='btn' onclick='requestParsedTileMap()'>GET TILE MAP</button>
   </div>
+
+  {{testing}}

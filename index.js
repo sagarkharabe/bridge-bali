@@ -7,6 +7,7 @@ const chalk = require("chalk");
 const exphbs = require("express-handlebars");
 require("./models");
 const app = express();
+const { toggleTesting } = require("./hbshelpers/createLevel");
 //require("./config/app-variables")(app);
 
 MONGOURI = "mongodb://sagar:sagar5544@ds259820.mlab.com:59820/new-mario-db";
@@ -25,7 +26,9 @@ mongoose
 app.engine(
   "handlebars",
   exphbs({
-    helpers: {},
+    helpers: {
+      toggleTesting
+    },
     defaultLayout: "main"
   })
 );
@@ -49,7 +52,8 @@ app.get("/", (req, res) => {
 });
 app.get("/createLevel", function(req, res) {
   res.render("levelCreator/levelCreator", {
-    toolArr: toolArr
+    toolArr: toolArr,
+    testing: false
   });
 });
 
@@ -92,5 +96,3 @@ var toolArr = {
     tile: "Tool"
   }
 };
-
-//  const Red Brick = { "img" : "game/assets/images/brick_red.png" }
