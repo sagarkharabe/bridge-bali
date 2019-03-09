@@ -12,7 +12,27 @@ const TAU = require("../const").TAU;
 class RecordingGus extends Gus {
   constructor(x, y) {
     super(x, y);
-    this.record = [];
+    this.uncompressedRecord = [];
+  }
+
+  compressRecord() {
+    const uncompressedRecord = this.uncompressedRecord;
+    const compressedRecord = [];
+
+    let currentNum = uncompressedRecord[0];
+    let currentNumCount = 1;
+
+    for (let i = 1; i < uncompressedRecord.length; i++) {
+      if (uncompressedRecord[i] === currentNum) currentNumCount++;
+      else {
+        compressedRecord.push(currentNum, currentNumCount);
+        currentNum = uncompressedRecord[i];
+        currentNumCount = 1;
+      }
+    }
+    compressedRecord.push(currentNum, currentNumCount);
+
+    this.compressedRecord = compressedRecord;
   }
 
   // accounting for rotation, determines what keyDown the ghost
@@ -27,13 +47,15 @@ class RecordingGus extends Gus {
     n += Math.floor(this.rotation / (Math.PI / 2));
 
     // result should only be 1 or 2
-    this.record.push(n % 3);
+    this.uncompressedRecord.push(n % 3);
   }
 
   kill() {
-    this.record = this.record.reverse();
-    document.getElementById("arr").textContent = this.record;
-    console.log(this.record);
+    this.uncompressedRecord = this.uncompressedRecord.reverse();
+    this.compressRecord();
+    console.log(this.compressedRecord);
+    // document.getElementById('arr').textContent = this.record;
+
     new ParticleBurst(
       this.sprite.position.x,
       this.sprite.position.y,

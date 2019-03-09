@@ -2,7 +2,8 @@ var blockIds = require("./blockIds");
 var defaultSkyColor = require("../const/colors").DEFAULT_SKY;
 var tilemap = require("../const/tilemap");
 
-var GhostBreakBrickBlock = require("../objects/ghostBreakBrickBlock");
+var GhostBreakBrickBlock = require("../objects/ghostBlocks")
+  .GhostBreakBrickBlock;
 function LevelGenerator(levelData) {
   if (blockIds === undefined) console.error("blockIds are undefined (wtf!!)");
   this.blockIds = blockIds;

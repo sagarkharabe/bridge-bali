@@ -91,7 +91,8 @@ var blockIds = require("./blockIds");
 var defaultSkyColor = require("../const/colors").DEFAULT_SKY;
 var tilemap = require("../const/tilemap");
 
-var GhostBreakBrickBlock = require("../objects/ghostBreakBrickBlock");
+var GhostBreakBrickBlock = require("../objects/ghostBlocks")
+  .GhostBreakBrickBlock;
 function LevelGenerator(levelData) {
   if (blockIds === undefined) console.error("blockIds are undefined (wtf!!)");
   this.blockIds = blockIds;
@@ -99,15 +100,15 @@ function LevelGenerator(levelData) {
 }
 
 LevelGenerator.prototype.getSkyColor = function() {
-  return this.levelData.sky || defaultSkyColor;
+  return this.levelData.skyColor || defaultSkyColor;
 };
 LevelGenerator.prototype.getStartingGirders = function() {
-  return this.levelData.girders || 10;
+  return this.levelData.startGirders || 10;
 };
 
 LevelGenerator.prototype.parseObjects = function() {
   var levelObjects = [];
-  var objDefList = this.levelData.objs;
+  var objDefList = this.levelData.objects;
   var blocks = this.blockIds;
 
   objDefList.forEach(function(objDef) {
@@ -141,7 +142,7 @@ LevelGenerator.prototype.parseObjects = function() {
 
 module.exports = LevelGenerator;
 
-},{"../const/colors":2,"../const/tilemap":4,"../objects/ghostBreakBrickBlock":10,"./blockIds":5}],7:[function(require,module,exports){
+},{"../const/colors":2,"../const/tilemap":4,"../objects/ghostBlocks":10,"./blockIds":5}],7:[function(require,module,exports){
 //var Phaser = require("phaser");
 
 // startup options
@@ -219,9 +220,7 @@ function Girder(x, y) {
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_ROTATE);
   this.sprite.body.collides([
     COLLISION_GROUPS.PLAYER_SOLID,
-    COLLISION_GROUPS.GHOST_PLAYER_SOLID,
-    COLLISION_GROUPS.PLAYER_SENSOR,
-    COLLISION_GROUPS.GHOST_PLAYER_SENSOR
+    COLLISION_GROUPS.PLAYER_SENSOR
   ]);
 }
 Girder.prototype = Block;
@@ -404,10 +403,13 @@ module.exports = Dolly;
 },{"../const":3}],10:[function(require,module,exports){
 "use strict";
 const BreakBrickBlock = require("./blocks").BreakBrickBlock;
+const Block = require("./blocks");
+
 const COLLISION_GROUPS = require("../const/collisionGroup");
+
 class GhostBreakBrickBlock extends BreakBrickBlock {
   constructor(x, y) {
-    super(x, y, false); // call BreakBrickBlock without it setting collisions
+    super(x, y, false); // false argument calls BreakBrickBlock constructor without it setting collisions
 
     this.sprite.alpha = 0.5;
 
@@ -424,7 +426,25 @@ class GhostBreakBrickBlock extends BreakBrickBlock {
   }
 }
 
-module.exports = GhostBreakBrickBlock;
+class GhostGirder extends Block {
+  constructor(x, y) {
+    super(x, y); // Block constructor does not set collisions
+
+    this.sprite.alpha = 0.5;
+
+    // set collisions
+    this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_ROTATE);
+    this.sprite.body.collides([
+      COLLISION_GROUPS.GHOST_PLAYER_SOLID,
+      COLLISION_GROUPS.GHOST_PLAYER_SENSOR
+    ]);
+  }
+}
+
+module.exports = {
+  GhostBreakBrickBlock: GhostBreakBrickBlock,
+  GhostGirder: GhostGirder
+};
 
 },{"../const/collisionGroup":1,"./blocks":8}],11:[function(require,module,exports){
 "use strict";
@@ -440,538 +460,16 @@ const TAU = require("../const").TAU;
 
 class GhostGus extends Gus {
   constructor(x, y) {
-    console.log("calling BaliGhost constructor");
     super(x, y, false);
-    console.log("'called BaliGhost constructor'");
+
     this.sprite.alpha = 0.5;
+
+    this.compressedRecord = [0, 174, 1, 85, 2, 195, 0, 68];
+
     this.setCollision();
-    this.record = [
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      0,
-      0,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      2,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ];
+    this.uncompressRecord();
   }
+
   // diff from Gus's doom: doesn't unlock the dolly
   doom() {
     this.sprite.body.clearCollision();
@@ -999,9 +497,24 @@ class GhostGus extends Gus {
     ]);
   }
 
+  uncompressRecord() {
+    const compressedRecord = this.compressedRecord;
+
+    const uncompressedRecord = [];
+
+    for (let i = 0; i < compressedRecord.length; i += 2) {
+      let numTimes = compressedRecord.pop();
+      let key = compressedRecord.pop();
+
+      for (let j = 0; j < numTimes; j++) uncompressedRecord.push(key);
+    }
+
+    this.uncompressedRecord = uncompressedRecord;
+  }
+
   update() {
     // clear horizontal movement
-    const currentMove = this.record.pop();
+    const currentMove = this.uncompressedRecord.pop();
 
     if (Math.abs(Math.cos(this.rotation)) > EPSILON)
       this.sprite.body.velocity.x = 0;
@@ -1624,17 +1137,17 @@ module.exports = {
   RedBrickBlock: require("./blocks").RedBrickBlock,
   BlackBrickBlock: require("./blocks").BlackBrickBlock,
   BreakBrickBlock: require("./blocks").BreakBrickBlock,
-  GhostBreakBrickBlock: require("./ghostBreakBrickBlock"),
-  GhostGus: require("./ghostGus"),
   Girder: require("./blocks").Girder,
   Gus: require("./gus"),
   GirderMarker: require("./girderMarker"),
   RecordingGus: require("./recordingGus"),
   Tool: require("./tool"),
-  Spike: require("./spike")
+  Spike: require("./spike"),
+  GhostBreakBrickBlock: require("./ghostBlocks").GhostBreakBrickBlock,
+  GhostGus: require("./ghostGus")
 };
 
-},{"./blocks":8,"./ghostBreakBrickBlock":10,"./ghostGus":11,"./girderMarker":12,"./gus":13,"./recordingGus":15,"./spike":16,"./tool":17}],15:[function(require,module,exports){
+},{"./blocks":8,"./ghostBlocks":10,"./ghostGus":11,"./girderMarker":12,"./gus":13,"./recordingGus":15,"./spike":16,"./tool":17}],15:[function(require,module,exports){
 "use strict";
 
 const game = window.game;
@@ -1649,7 +1162,27 @@ const TAU = require("../const").TAU;
 class RecordingGus extends Gus {
   constructor(x, y) {
     super(x, y);
-    this.record = [];
+    this.uncompressedRecord = [];
+  }
+
+  compressRecord() {
+    const uncompressedRecord = this.uncompressedRecord;
+    const compressedRecord = [];
+
+    let currentNum = uncompressedRecord[0];
+    let currentNumCount = 1;
+
+    for (let i = 1; i < uncompressedRecord.length; i++) {
+      if (uncompressedRecord[i] === currentNum) currentNumCount++;
+      else {
+        compressedRecord.push(currentNum, currentNumCount);
+        currentNum = uncompressedRecord[i];
+        currentNumCount = 1;
+      }
+    }
+    compressedRecord.push(currentNum, currentNumCount);
+
+    this.compressedRecord = compressedRecord;
   }
 
   // accounting for rotation, determines what keyDown the ghost
@@ -1664,13 +1197,15 @@ class RecordingGus extends Gus {
     n += Math.floor(this.rotation / (Math.PI / 2));
 
     // result should only be 1 or 2
-    this.record.push(n % 3);
+    this.uncompressedRecord.push(n % 3);
   }
 
   kill() {
-    this.record = this.record.reverse();
-    document.getElementById("arr").textContent = this.record;
-    console.log(this.record);
+    this.uncompressedRecord = this.uncompressedRecord.reverse();
+    this.compressRecord();
+    console.log(this.compressedRecord);
+    // document.getElementById('arr').textContent = this.record;
+
     new ParticleBurst(
       this.sprite.position.x,
       this.sprite.position.y,
@@ -1958,6 +1493,7 @@ var GirderMarker = require("../objects/girderMarker");
 var LevelGenerator = require("../generator");
 var ParticleBurst = require("../particles/burst");
 var BreakBrickBlock = require("../objects").BreakBrickBlock;
+var Gus = require("../objects/recordingGus");
 function initGameState() {
   var state = {};
 
@@ -2206,7 +1742,7 @@ function initGameState() {
 
 module.exports = initGameState;
 
-},{"../generator":6,"../objects":14,"../objects/dolly":9,"../objects/ghostGus":11,"../objects/girderMarker":12,"../objects/gus":13,"../particles/burst":18}],21:[function(require,module,exports){
+},{"../generator":6,"../objects":14,"../objects/dolly":9,"../objects/ghostGus":11,"../objects/girderMarker":12,"../objects/gus":13,"../objects/recordingGus":15,"../particles/burst":18}],21:[function(require,module,exports){
 function initLoadState() {
   var state = {};
   var game = window.game;
@@ -2247,9 +1783,9 @@ function initLoadState() {
 
     // start game state
     game.level = {
-      sky: "#FFBB22",
-      girders: 10,
-      objs: [
+      skyColor: "#FFBB22",
+      startgirders: 10,
+      objects: [
         { t: 4, x: 0, y: 0 },
         { t: 4, x: 32, y: 0 },
         { t: 4, x: 64, y: 0 },

@@ -4,6 +4,7 @@ var GirderMarker = require("../objects/girderMarker");
 var LevelGenerator = require("../generator");
 var ParticleBurst = require("../particles/burst");
 var BreakBrickBlock = require("../objects").BreakBrickBlock;
+var Gus = require("../objects/recordingGus");
 function initGameState() {
   var state = {};
 
