@@ -35,3 +35,51 @@ h3 {
 disabled {
   cursor: default;
 }
+.btn {
+  background: #e1a51d;
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 0;
+  border: (50 / 2) solid black;
+  color: white;
+  font-weight: bold;
+  font-size: 110%;
+}
+.btn:visited {
+  color: white;
+}
+.btn:hover {
+  color: black;
+}
+.btn.btn-star {
+  background-color: #e1a51d;
+}
+.btn.btn-follow {
+  background-color: royalblue;
+}
+
+.btn.btn-delete {
+  background-color: darken(red, 10%);
+  float: right;
+  margin-top: 0;
+  font-size: 100%;
+  padding: 5px 10px;
+}
+.btn.btn-create {
+  background-color: darken(#8ad835, 20%);
+}
+.btn.btn-disabled {
+  background-color: grey;
+}
+.btn.btn-star-hollow {
+  background-color: rgba(0, 0, 0, 0);
+}
+.btn.btn-star-hollow:hover {
+  background-color: #e1a51d;
+}
+.btn.btn-follow-hollow {
+  background-color: rgba(0, 0, 0, 0);
+}
+.btn.btn-follow-hollow:hover {
+  background-color: royalblue;
+}

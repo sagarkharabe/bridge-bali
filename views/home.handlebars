@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="/browser/stylesheets/home.css">
-<link rel="stylesheet" href="/browser/stylesheets/game-window.css">
+
 
 <script src="/game/js/bundle.js"></script>
 
@@ -17,14 +17,11 @@
 
       <h2>Jump Right In</h2>
       <div class="text-center">
-        <a class="btn" ng-click='playRandom()'>Play a Random Level</a><br><br>
+        <a class="btn" onclick='playRandom()'>Play a Random Level</a><br><br>
         <a class="btn" ui-sref="levels.list">Browse All Levels</a>
       </div>
     </div>
-    <div id="game-view">
-      <div id="game-container" class="game-window">
-      </div>
-    </div>
+    {{> _game-view}}
   </div>
 
   <div id="featured" class="row">

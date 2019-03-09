@@ -1,7 +1,8 @@
 <link rel="stylesheet" href="/browser/stylesheets/levelCreator.css">
+<script type="text/javascript" src="/browser/js/states/createLevel.js"></script>
 <script type="text/javascript" src="levelCreator/levelCreatorBundle.js"></script>
 <div>
-  {{> _editor-description}}
+  {{!-- {{> _editor-description}} --}}
   <form id='create-level-form' ng-click="stopInputCapture()">
     <div class="level-title">
       <label for='text' name='level-title'>Level Title</label>
@@ -21,23 +22,24 @@
       <ul id='tool-bar'>
         {{#each toolArr}}
         <li>
-          <a onclick='changeActiveTool(tool)'><img style='height: 32px' ng-src='{{tool.img}}' /></a>
+          <a onclick='changeActiveTool(tool)'><img style='height: 32px ; display:inline-block' value="{{@key}}"
+              src="{{this.img}}" /></a>
         </li>
         {{/each}}
       </ul>
     </nav>
   </header>
 
-  <div ng-if=!testing>
+  {{!-- <div ng-if=!testing>
     <div class="level-creator-view" ng-style='{cursor: "url("+activeToolImg+") 16 16, auto"}'
       ng-mouseenter="startInputCapture()" ng-mouseleave="stopInputCapture()">
       <div class="game-window" id='level-creator-container'></div>
     </div>
 
-  </div>
-  <div ng-if=testing>
+  </div> --}}
+  {{!-- <div ng-if=testing>
     <game-view ng-mouseenter="startInputCapture()" ng-mouseleave="stopInputCapture()"></game-view>
-  </div>
+</div> --}}
   {{!-- <brdiv ng-if='error'>
     <p class='text-danger'>Error: There was a problem submitting your level, please ensure all required information is
       provided.</p>
@@ -46,12 +48,12 @@
   <p class='text-success'>Level was successfully saved!</p>
 </div> --}}
 
-  <div id="editor-controls">
+  {{!-- <div id="editor-controls">
     <a class='btn' ng-show="!testing" ng-click='testTesting()'>Test Level</button>
       <a class='btn' ng-show="testing" ng-click='testTesting()'>Edit Level</button>
         <a class='btn btn-create' ng-show="readyToSave"
           ng-click='submitBeatenLevel(beatenLevel, levelTitle, girdersAllowed, skyColor, false)'>Save Draft</button>
           <a class='btn btn-create' ng-show="beaten && readyToSave"
             ng-click='submitBeatenLevel(beatenLevel, levelTitle, girdersAllowed, skyColor)'>Submit Level</button>
-  </div>
+  </div> --}}
 </div>

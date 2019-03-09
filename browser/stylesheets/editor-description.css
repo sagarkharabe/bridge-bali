@@ -5,7 +5,7 @@
   height: 80%;
   max-width: 33%;
 }
-.editor-description .divider {
+.editor-description.divider {
   width: 1.5em;
   border-top-left-radius: 1.5em;
   border-bottom-left-radius: 1.5em;
@@ -16,7 +16,7 @@
   border-top: 2px solid black;
   border-bottom: 2px solid black;
 }
-.editor-description .description {
+.editor-description.description {
   float: left;
   height: 100%;
   max-width: calc(100% - 1.5em);

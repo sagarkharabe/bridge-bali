@@ -3,7 +3,7 @@
   width: 300px;
   margin: 5px;
 }
-#home #game-view {
+#home#game-view {
   float: right;
 }
 
