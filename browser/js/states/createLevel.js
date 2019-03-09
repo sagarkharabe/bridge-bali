@@ -1,36 +1,19 @@
-const evenEmitter = window.evenEmitter;
+const eventEmitter = window.eventEmitter;
 var nextMapUse = null;
 var unparsedLevelArr = null;
 var parsedLevelArr = [];
 var draftSaveObj;
+var activeToolImg = "/game/assets/images/brick_red.png";
 
-var toolArr = {
-  Eraser: {
-    img: "game/assets/images/eraser.png",
-    tile: null
-  },
-  Gus: {
-    img: "game/assets/images/gus-static.png",
-    tile: "Gus"
-  },
-  "Red Brick": {
-    img: "game/assets/images/brick_red.png",
-    tile: "RedBrickBlock"
-  },
-  "Black Brick": {
-    img: "game/assets/images/brick_black.png",
-    tile: "BlackBrickBlock"
-  },
-  "Break Brick": {
-    img: "game/assets/images/brick_break.png",
-    tile: "BreakBrickBlock"
-  },
-  Spike: {
-    img: "game/assets/images/spike.png",
-    tile: "Spike"
-  },
-  Tool: {
-    img: "game/assets/images/tool.png",
-    tile: "Tool"
-  }
+const changeActiveTool = function(tool) {
+  console.log("##from change tools", tool.tile);
+  eventEmitter.emit("change active tool", tool.tile);
+  activeToolImg = tool.img;
+  console.log(activeToolImg);
+  document.getElementById("level-creator-container").style.cursor =
+    'url("' + activeToolImg + '") 16 16, auto';
 };
+
+eventEmitter.on("I need both the maps!", function() {
+  eventEmitter.emit("found maps!", [unparsedLevelArr, parsedLevelArr]);
+});

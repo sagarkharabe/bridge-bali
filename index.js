@@ -92,3 +92,5 @@ var toolArr = {
     tile: "Tool"
   }
 };
+
+//  const Red Brick = { "img" : "game/assets/images/brick_red.png" }
