@@ -2,28 +2,25 @@ const eventEmitter = window.eventEmitter;
 var nextMapUse = null;
 var unparsedLevelArr = null;
 var parsedLevelArr = [];
+var nextMapUse = null;
 var draftSaveObj;
 var testing = false;
+var beaten, beatenLevel;
 var activeToolImg = "/game/assets/images/brick_red.png";
 
-// document.addEventListener("DOMContentLoaded", function() {
-//   document.getElementById("creatorAndTester").innerHTML =
-//     '<span> <link rel="stylesheet" href="/browser/stylesheets/levelCreator.css"><script type="text/javascript" src="levelCreator/levelCreatorBundle.js"></script><div class="level-creator-view"><div class="game-window"id="level-creator-container></div></div></span> ';
-// });
-
-const changeActiveTool = function(tool) {
-  console.log("##from change tools", tool.tile);
-  eventEmitter.emit("change active tool", tool.tile);
-  activeToolImg = tool.img;
-  console.log(activeToolImg);
-  document.getElementById("level-creator-container").style.cursor =
-    'url("' + activeToolImg + '") 16 16, auto';
-};
 requestParsedTileMap = () => {
   nextMapUse = "log";
   console.log("requesting tile map...");
   eventEmitter.emit("request tile map", "");
 };
+
+eventEmitter.on("game ended", function(data) {
+  console.log(data);
+  beaten = true;
+  beatenLevel = parsedLevelArr;
+  //$scope.$digest();
+});
+
 eventEmitter.on("send tile map", mapArr => {
   if (nextMapUse === "log") {
     console.log("recieved.");
@@ -36,14 +33,12 @@ eventEmitter.on("send tile map", mapArr => {
     console.log("look above");
     unparsedLevelArr = mapArr[1];
     testing = true;
-    console.log(changeCreateToTest());
+    // eventEmitter.emit("what level to play", parsedLevelArr);
+    //console.log(changeCreateToTest());
     // getScreenshot();
   }
 });
-const changeCreateToTest = function() {
-  var newPath = "/testLevel";
-  window.location.pathname = newPath;
-};
+
 eventEmitter.on("I need both the maps!", function() {
   eventEmitter.emit("found maps!", [unparsedLevelArr, parsedLevelArr]);
 });
@@ -51,9 +46,17 @@ eventEmitter.on("I need both the maps!", function() {
 const getScreenshot = function() {
   eventEmitter.emit("request screenshot");
 };
+const submitBeatenLevel = function(levelArrayBeaten) {
+  console.log(levelArrayBeaten);
+};
 
 const testTesting = function() {
   window.game.destroy();
+  // var my_awesome_script = document.createElement("script");
+
+  // my_awesome_script.setAttribute("src", "/game/js/bundle.js");
+
+  // document.head.appendChild(my_awesome_script);
 
   (function checkGameDestroyed() {
     if (window.game.state === null) {
@@ -64,6 +67,8 @@ const testTesting = function() {
         eventEmitter.emit("request tile map", "");
       } else {
         testing = !testing;
+        beatenLevel = null;
+        beaten = false;
       }
     } else {
       setTimeout(checkGameDestroyed, 100);
@@ -79,9 +84,31 @@ eventEmitter.on("send screenshot", screenshot => {
 eventEmitter.on("what level to play", data => {
   console.log(data);
   if (parsedLevelArr) {
-    eventEmitter.emit("play this level", ["levelArr", parsedLevelArr]);
+    eventEmitter.emit("play this level", [
+      "levelArr",
+      {
+        levelArr: parsedLevelArr,
+        skyColor: document.getElementById("color").value,
+
+        girdersAllowed: document.getElementById("girder-count").value
+      }
+    ]);
     console.log("found a parsed level arr");
   } else {
     console.log(parsedLevelArr);
   }
 });
+
+const changeActiveTool = function(tool) {
+  console.log("##from change tools", tool.tile);
+  eventEmitter.emit("change active tool", tool.tile);
+  activeToolImg = tool.img;
+  console.log(activeToolImg);
+  document.getElementById("level-creator-container").style.cursor =
+    'url("' + activeToolImg + '") 16 16, auto';
+};
+
+const changeCreateToTest = function() {
+  var newPath = "/testLevel";
+  window.location.pathname = newPath;
+};

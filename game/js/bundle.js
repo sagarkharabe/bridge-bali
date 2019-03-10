@@ -110,7 +110,8 @@ LevelGenerator.prototype.parseObjects = function() {
   var levelObjects = [];
   var objDefList = this.levelData.objects;
   var blocks = this.blockIds;
-
+  var game = window.game;
+  console.log("sag, ", objDefList);
   objDefList.forEach(function(objDef) {
     // find the object definition function for this id
     var createFunction = undefined;
@@ -1533,10 +1534,10 @@ function initGameState() {
       game.toolsRemaining = game.toolsToCollect.length;
     } else {
       game.toolsRemaining = 1;
-      game.toolsToCollect = []; // needs to be added
+      game.toolsToCollect = [];
       console.error("No tools were included in this level");
     }
-    //---------------------------
+
     console.log("Creating Gus...");
 
     if (game.gusStartPos === undefined) {
@@ -1962,9 +1963,9 @@ function initLoadState() {
         loadText.text = "Creating level...";
 
         game.level = {
-          skyColor: "#FFBB22",
-          startgirders: 12,
-          objects: data[1]
+          skyColor: data[1].skyColor,
+          startGirders: data[1].girdersAllowed,
+          objects: data[1].levelArr
         };
 
         state.gotoStart();

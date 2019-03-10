@@ -21,7 +21,8 @@ LevelGenerator.prototype.parseObjects = function() {
   var levelObjects = [];
   var objDefList = this.levelData.objects;
   var blocks = this.blockIds;
-
+  var game = window.game;
+  console.log("sag, ", objDefList);
   objDefList.forEach(function(objDef) {
     // find the object definition function for this id
     var createFunction = undefined;

@@ -269,9 +269,11 @@ function initCreateState() {
     }
 
     if (game.input.activePointer.isDown) {
+      const cosine = Math.cos(game.dolly.rotation),
+        sine = Math.sin(game.dolly.rotation);
       const clickPoint = new Phaser.Point(
-        game.input.mousePointer.x,
-        game.input.mousePointer.y
+        game.input.mousePointer.x + (16 * cosine + sine),
+        game.input.mousePointer.y + (16 * cosine - sine)
       );
       const targetPoint = game.dolly.screenspaceToWorldspace(clickPoint);
       const x = parseCoordinate(targetPoint.x);

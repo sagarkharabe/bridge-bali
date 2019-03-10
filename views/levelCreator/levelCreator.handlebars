@@ -5,11 +5,11 @@
   <form id='create-level-form' ng-click="stopInputCapture()">
     <div class="level-title">
       <label for='text' name='level-title'>Level Title</label>
-      <input type='text' class='level-title-input' name='level-title' ng-model='levelTitle' />
+      <input type='text' class='level-title-input' name='level-title' />
     </div>
     <div class="girder-count">
       <label for='number' name='girder-count'>Starting Girders</label>
-      <input type='number' class='girder-count-input' name='girder-count' ng-model='girdersAllowed' ng-init=10 />
+      <input type='number' id="girder-count" class='girder-count-input' name='girder-count' value=15 />
     </div>
     <div class="sky-color">
       <label for='color' name='sky-color'>Pick Sky Color</label>
@@ -32,6 +32,10 @@
 
   {{> _level-creator-view}}
 
+  <div id="game-view">
+    <div class="game-window" id="game-container">
+    </div>
+  </div>
 
 
   <div id="editor-controls">
@@ -39,6 +43,9 @@
     <button class='btn' id="test" onclick='testTesting() '>Show Game</button>
     <button class='btn' onclick='requestParsedTileMap()'>GET TILE MAP</button>
   </div>
+
+
+
 
   {{!-- <script>
 

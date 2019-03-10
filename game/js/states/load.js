@@ -200,9 +200,9 @@ function initLoadState() {
         loadText.text = "Creating level...";
 
         game.level = {
-          skyColor: "#FFBB22",
-          startgirders: 12,
-          objects: data[1]
+          skyColor: data[1].skyColor,
+          startGirders: data[1].girdersAllowed,
+          objects: data[1].levelArr
         };
 
         state.gotoStart();

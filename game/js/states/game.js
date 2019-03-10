@@ -39,10 +39,10 @@ function initGameState() {
       game.toolsRemaining = game.toolsToCollect.length;
     } else {
       game.toolsRemaining = 1;
-      game.toolsToCollect = []; // needs to be added
+      game.toolsToCollect = [];
       console.error("No tools were included in this level");
     }
-    //---------------------------
+
     console.log("Creating Gus...");
 
     if (game.gusStartPos === undefined) {
