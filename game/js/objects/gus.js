@@ -19,6 +19,7 @@ function Gus(x, y) {
   this.fallTime = 0;
   this.girders = 0;
   this.isDead = false;
+  this.isDoomed = false;
   this.facingRight = true; // is gus facing right?
   this.rotating = false; // is gus rotating?
   this.canRotate = false; // can gus rotate?
@@ -89,6 +90,9 @@ Gus.prototype.respawn = function() {
 };
 
 Gus.prototype.doom = function() {
+  if (this.isDoomed || this.isDead) return;
+
+  this.isDoomed = true;
   this.sprite.body.clearCollision();
   this.sprite.body.fixedRotation = false;
 

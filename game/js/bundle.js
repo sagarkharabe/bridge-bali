@@ -931,6 +931,7 @@ function Gus(x, y) {
   this.fallTime = 0;
   this.girders = 0;
   this.isDead = false;
+  this.isDoomed = false;
   this.facingRight = true; // is gus facing right?
   this.rotating = false; // is gus rotating?
   this.canRotate = false; // can gus rotate?
@@ -1001,6 +1002,9 @@ Gus.prototype.respawn = function() {
 };
 
 Gus.prototype.doom = function() {
+  if (this.isDoomed || this.isDead) return;
+
+  this.isDoomed = true;
   this.sprite.body.clearCollision();
   this.sprite.body.fixedRotation = false;
 
@@ -1899,7 +1903,7 @@ function initLoadState() {
     game.load.image("Spike", "game/assets/images/spike.png");
     game.load.image("GusHead", "game/assets/images/part_gushead.png");
     game.load.image("Debris", "game/assets/images/part_redblock.png");
-    game.load.image("Select", "/assets/images/selectedBlockOutline.png");
+    game.load.image("Select", "game/assets/images/selectedBlockOutline.png");
     game.load.spritesheet("Gus", "game/assets/images/gus.png", 32, 32);
 
     console.log("Done loading");

@@ -176,7 +176,8 @@ let gusSpawn,
   rightKey,
   rotateCounterKey,
   routateClockwiseKey,
-  grid;
+  grid,
+  selector;
 let wasdCursors, arrowCursors;
 let lastRotTime = 0;
 
@@ -185,6 +186,7 @@ function tileToNum(tile) {
 
   throw new Error("Tile not found!");
 }
+
 function parseCoordinate(n) {
   return Math.floor(n / 32) * 32;
 }
@@ -216,7 +218,8 @@ function initCreateState() {
       if (unparTiMa !== undefined) unparTiMa.sprite.angle = obj.r;
     });
     game.activeTool = "RedBrickBlock";
-    var selector = game.add.sprite("0", "0", "Select");
+    selector = game.add.sprite("0", "0", "Select");
+    selector.anchor.setTo(0.5, 0.5);
   };
 
   state.create = function() {
@@ -307,10 +310,10 @@ function initCreateState() {
         }
       }
       /*if (gusSpawn) parsedTileMap.push({
-				x: gusSpawn.x,
-			y: gusSpawn.y,
-			t: tileToNum('Gus')
-			});*/
+			  x: gusSpawn.x,
+			  y: gusSpawn.y,
+			  t: tileToNum('Gus')
+			  });*/
       eventEmitter.emit("send tile map", [parsedTileMap, unparsedTileMap]);
     };
 
@@ -320,24 +323,34 @@ function initCreateState() {
       var screenshot = game.canvas.toDataURL();
       eventEmitter.emit("send screenshot", screenshot);
     });
-  };
-  eventEmitter.on("stop input capture", function() {
-    game.input.enabled = false;
-    game.input.reset();
-  });
 
-  eventEmitter.on("start input capture", function() {
-    game.input.enabled = true;
-    game.input.reset();
-  });
+    eventEmitter.on("stop input capture", function() {
+      game.input.enabled = false;
+      game.input.reset();
+    });
+
+    eventEmitter.on("start input capture", function() {
+      game.input.enabled = true;
+      game.input.reset();
+    });
+  };
 
   state.update = function() {
+    const cosine = Math.cos(game.dolly.rotation),
+      sine = Math.sin(game.dolly.rotation);
+
+    const mousePoint = new Phaser.Point(
+      game.input.mousePointer.x + (16 * cosine + sine),
+      game.input.mousePointer.y + (16 * cosine - sine)
+    );
+    const convertedMousePoint = game.dolly.screenspaceToWorldspace(mousePoint);
+    selector.x = parseCoordinate(convertedMousePoint.x);
+    selector.y = parseCoordinate(convertedMousePoint.y);
+
     grid.position.x = parseCoordinate(game.dolly.position.x);
     grid.position.y = parseCoordinate(game.dolly.position.y);
 
     if (game.input.activePointer.isDown) {
-      const cosine = Math.cos(game.dolly.rotation),
-        sine = Math.sin(game.dolly.rotation);
       const clickPoint = new Phaser.Point(
         game.input.mousePointer.x + (16 * cosine + sine),
         game.input.mousePointer.y + (16 * cosine - sine)
@@ -475,7 +488,7 @@ function initLoadState() {
     game.load.image("Spike", "game/assets/images/spike.png");
     game.load.image("Tool", "game/assets/images/tool.png");
     game.load.image("Gus", "game/assets/images/gus-static.png");
-    game.load.image("Select", "/assets/images/selectedBlockOutline.png");
+    game.load.image("Select", "game/assets/images/selectedBlockOutline.png");
 
     console.log("Done loading");
   };
