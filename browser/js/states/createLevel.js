@@ -5,6 +5,7 @@ var parsedLevelArr = [];
 var nextMapUse = null;
 var draftSaveObj;
 var testing = false;
+var error = false;
 var beaten, beatenLevel;
 var activeToolImg = "/game/assets/images/brick_red.png";
 

@@ -222,6 +222,47 @@ function initCreateState() {
     selector.anchor.setTo(0.5, 0.5);
   };
 
+  state.drawGrid = function() {
+    // THIS IS TERRIBLE
+    if (PIXI.blendModesWebGL !== undefined)
+      window.__tempBlendModes = PIXI.blendModesWebGL;
+    else if (window.__tempBlendModes) {
+      console.error(
+        "PIXI blend modes were undefined but we restored them from a previous cache"
+      );
+      PIXI.blendModesWebGL = window.__tempBlendModes;
+    } else
+      return game.text.add(
+        0,
+        0,
+        "FATAL: PIXI blend modes are undefined. Tell a programmer."
+      );
+
+    const game = window.game;
+
+    state.grid = game.add.graphics();
+    state.grid.blendMode = PIXI.blendModes.NORMAL;
+    state.grid.lineStyle(2, 0x000, 0.2);
+    var length = game.camera.width * 0.625; // 3:4 res :. a,b,c=3,4,5 :. c=1.25b :. b=0.5*1.25=0.625
+    for (
+      var y = parseCoordinate(game.dolly.position.y - length) - 16;
+      y < game.dolly.position.y + length + 16;
+      y += 32
+    ) {
+      state.grid.moveTo(game.dolly.position.x - length - 32, y);
+      state.grid.lineTo(game.dolly.position.x + length + 32, y);
+    }
+
+    for (
+      var x = parseCoordinate(game.dolly.position.x - length) - 16;
+      x < game.dolly.position.x + length + 16;
+      x += 32
+    ) {
+      state.grid.moveTo(x, game.dolly.position.y - length - 32);
+      state.grid.lineTo(x, game.dolly.position.y + length + 32);
+    }
+  };
+
   state.create = function() {
     const game = window.game;
     gusSpawn = gusSpawn || game.add.sprite("0", "0", "Gus");
