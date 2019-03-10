@@ -33,10 +33,7 @@ const map = {
       }
     }
   ],
-  published: {
-    type: Boolean,
-    default: true
-  },
+
   skyColor: {
     type: String,
     default: "#4428BC"
@@ -53,6 +50,10 @@ const schema = new mongoose.Schema({
   dateCreated: {
     type: Date,
     default: Date.now()
+  },
+  published: {
+    type: Boolean,
+    default: true
   },
   starCount: { type: Number, default: 0 }
 });
