@@ -68,24 +68,23 @@ function initCreateState() {
 
     grid = game.add.graphics();
     grid.lineStyle(2, 0x000, 0.2);
+    var length = game.camera.width * 0.625; // 3:4 res; a,b,c=3,4,5; :. c=1.25b :. b=0.5*1.25=0.625
     for (
-      var y =
-        parseCoordinate(game.dolly.position.y - game.camera.width / 2) - 16;
-      y < game.dolly.position.y + game.camera.width / 2 + 16;
+      var y = parseCoordinate(game.dolly.position.y - length) - 16;
+      y < game.dolly.position.y + length + 16;
       y += 32
     ) {
-      grid.moveTo(game.dolly.position.x - game.camera.width / 2 - 32, y);
-      grid.lineTo(game.dolly.position.x + game.camera.width / 2 + 32, y);
+      grid.moveTo(game.dolly.position.x - length - 32, y);
+      grid.lineTo(game.dolly.position.x + length + 32, y);
     }
 
     for (
-      var x =
-        parseCoordinate(game.dolly.position.x - game.camera.width / 2) - 16;
-      x < game.dolly.position.x + game.camera.width / 2 + 16;
+      var x = parseCoordinate(game.dolly.position.x - length) - 16;
+      x < game.dolly.position.x + length + 16;
       x += 32
     ) {
-      grid.moveTo(x, game.dolly.position.y - game.camera.width / 2 - 32);
-      grid.lineTo(x, game.dolly.position.y + game.camera.width / 2 + 32);
+      grid.moveTo(x, game.dolly.position.y - length - 32);
+      grid.lineTo(x, game.dolly.position.y + length + 32);
     }
 
     // Set Keyboard input
