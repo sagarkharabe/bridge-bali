@@ -8,6 +8,12 @@ function LevelGenerator(levelData) {
   if (blockIds === undefined) console.error("blockIds are undefined (wtf!!)");
   this.blockIds = blockIds;
   this.levelData = levelData;
+  this.spriteBatches = {
+    3: null,
+    4: null,
+    5: null,
+    6: null
+  };
 }
 
 LevelGenerator.prototype.getSkyColor = function() {
@@ -22,6 +28,7 @@ LevelGenerator.prototype.parseObjects = function() {
   var objDefList = this.levelData.objects;
   var blocks = this.blockIds;
   var game = window.game;
+  var spriteBatches = this.spriteBatches;
   console.log("sag, ", objDefList);
   objDefList.forEach(function(objDef) {
     // find the object definition function for this id
@@ -41,11 +48,23 @@ LevelGenerator.prototype.parseObjects = function() {
     }
 
     // create it!
-    levelObjects.push(createFunction(objDef));
+    var newObject = createFunction(objDef);
+    levelObjects.push(newObject);
+    // batch it maybe
+    if (spriteBatches[objDef.t] !== undefined) {
+      if (spriteBatches[objDef.t] === null)
+        spriteBatches[objDef.t] = game.add.spriteBatch();
+      spriteBatches[objDef.t].add(newObject.sprite);
+    }
 
     // account for ghost mode
     if (tilemap[objDef.t] === "BreakBrickBlock") {
-      levelObjects.push(new GhostBreakBrickBlock(objDef.x, objDef.y));
+      var ghostBlock = new GhostBreakBrickBlock(objDef.x, objDef.y);
+      levelObjects.push(ghostBlock);
+
+      if (spriteBatches["GhostBreakBrickBlock"] === undefined)
+        spriteBatches["GhostBreakBrickBlock"] = game.add.spriteBatch();
+      spriteBatches["GhostBreakBrickBlock"].add(ghostBlock.sprite);
     }
   });
 

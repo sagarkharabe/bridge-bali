@@ -97,6 +97,12 @@ function LevelGenerator(levelData) {
   if (blockIds === undefined) console.error("blockIds are undefined (wtf!!)");
   this.blockIds = blockIds;
   this.levelData = levelData;
+  this.spriteBatches = {
+    3: null,
+    4: null,
+    5: null,
+    6: null
+  };
 }
 
 LevelGenerator.prototype.getSkyColor = function() {
@@ -111,6 +117,7 @@ LevelGenerator.prototype.parseObjects = function() {
   var objDefList = this.levelData.objects;
   var blocks = this.blockIds;
   var game = window.game;
+  var spriteBatches = this.spriteBatches;
   console.log("sag, ", objDefList);
   objDefList.forEach(function(objDef) {
     // find the object definition function for this id
@@ -130,11 +137,23 @@ LevelGenerator.prototype.parseObjects = function() {
     }
 
     // create it!
-    levelObjects.push(createFunction(objDef));
+    var newObject = createFunction(objDef);
+    levelObjects.push(newObject);
+    // batch it maybe
+    if (spriteBatches[objDef.t] !== undefined) {
+      if (spriteBatches[objDef.t] === null)
+        spriteBatches[objDef.t] = game.add.spriteBatch();
+      spriteBatches[objDef.t].add(newObject.sprite);
+    }
 
     // account for ghost mode
     if (tilemap[objDef.t] === "BreakBrickBlock") {
-      levelObjects.push(new GhostBreakBrickBlock(objDef.x, objDef.y));
+      var ghostBlock = new GhostBreakBrickBlock(objDef.x, objDef.y);
+      levelObjects.push(ghostBlock);
+
+      if (spriteBatches["GhostBreakBrickBlock"] === undefined)
+        spriteBatches["GhostBreakBrickBlock"] = game.add.spriteBatch();
+      spriteBatches["GhostBreakBrickBlock"].add(ghostBlock.sprite);
     }
   });
 
@@ -989,6 +1008,7 @@ Gus.prototype.respawn = function() {
   this.idleTime = 0;
   this.fallTime = 0;
   this.isDead = false;
+  this.isDoomed = false;
 
   this.sprite.rotation = 0;
   this.sprite.body.rotation = 0;
@@ -1015,7 +1035,7 @@ Gus.prototype.doom = function() {
 Gus.prototype.kill = function() {
   this.sprite.visible = false;
   this.isDead = true;
-
+  this.isDoomed = false;
   this.sprite.body.velocity.x = 0;
   this.sprite.body.velocity.y = 0;
 };

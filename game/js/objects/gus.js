@@ -80,6 +80,7 @@ Gus.prototype.respawn = function() {
   this.idleTime = 0;
   this.fallTime = 0;
   this.isDead = false;
+  this.isDoomed = false;
 
   this.sprite.rotation = 0;
   this.sprite.body.rotation = 0;
@@ -106,7 +107,7 @@ Gus.prototype.doom = function() {
 Gus.prototype.kill = function() {
   this.sprite.visible = false;
   this.isDead = true;
-
+  this.isDoomed = false;
   this.sprite.body.velocity.x = 0;
   this.sprite.body.velocity.y = 0;
 };
