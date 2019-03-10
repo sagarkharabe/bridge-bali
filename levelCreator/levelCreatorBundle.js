@@ -152,13 +152,17 @@ let gusSpawn,
   leftKey,
   rightKey,
   rotateCounterKey,
-  routateClockwiseKey;
+  routateClockwiseKey,
+  grid;
 let lastRotTime = 0;
 
 function tileToNum(tile) {
   for (let n in NUM_TO_TILES) if (NUM_TO_TILES[n] === tile) return +n;
 
   throw new Error("Tile not found!");
+}
+function parseCoordinate(n) {
+  return Math.floor(n / 32) * 32;
 }
 
 function initCreateState() {
@@ -198,6 +202,28 @@ function initCreateState() {
 
     game.dolly = new Dolly(game.camera);
     game.dolly.targetPos = new Phaser.Point(0, 0);
+
+    grid = game.add.graphics();
+    grid.lineStyle(2, 0x000, 0.2);
+    for (
+      var y =
+        parseCoordinate(game.dolly.position.y - game.camera.height / 2) - 16;
+      y < game.dolly.position.y + game.camera.height / 2 + 16;
+      y += 32
+    ) {
+      grid.moveTo(game.dolly.position.x - game.camera.width / 2 - 32, y);
+      grid.lineTo(game.dolly.position.x + game.camera.width / 2 + 32, y);
+    }
+
+    for (
+      var x =
+        parseCoordinate(game.dolly.position.x - game.camera.width / 2) - 16;
+      x < game.dolly.position.x + game.camera.width / 2 + 16;
+      x += 32
+    ) {
+      grid.moveTo(x, game.dolly.position.y - game.camera.height / 2 - 32);
+      grid.lineTo(x, game.dolly.position.y + game.camera.height / 2 + 32);
+    }
 
     // Set Keyboard input
     upKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
@@ -264,9 +290,8 @@ function initCreateState() {
   };
 
   state.update = function() {
-    function parseCoordinate(n) {
-      return Math.floor(n / 32) * 32;
-    }
+    grid.position.x = parseCoordinate(game.dolly.position.x);
+    grid.position.y = parseCoordinate(game.dolly.position.y);
 
     if (game.input.activePointer.isDown) {
       const cosine = Math.cos(game.dolly.rotation),
