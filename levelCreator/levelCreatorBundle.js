@@ -216,6 +216,7 @@ function initCreateState() {
       if (unparTiMa !== undefined) unparTiMa.sprite.angle = obj.r;
     });
     game.activeTool = "RedBrickBlock";
+    var selector = game.add.sprite("0", "0", "Select");
   };
 
   state.create = function() {
@@ -474,6 +475,7 @@ function initLoadState() {
     game.load.image("Spike", "game/assets/images/spike.png");
     game.load.image("Tool", "game/assets/images/tool.png");
     game.load.image("Gus", "game/assets/images/gus-static.png");
+    game.load.image("Select", "/assets/images/selectedBlockOutline.png");
 
     console.log("Done loading");
   };

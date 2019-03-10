@@ -158,6 +158,11 @@ GirderMarker.prototype.placeGirder = function() {
     var newGirder = new Girder(this.sprite.position.x, this.sprite.position.y);
     newGirder.sprite.rotation = this.master.sprite.rotation;
 
+    // add placeGirder action if Gus is recording
+    if (this.master.constructor.name === "RecordingGus") {
+      this.master.uncompressedRecord.push(3); // 3 corresponds to placeGirder
+    }
+
     this.girdersPlaced.push(newGirder);
 
     this.master.girders--;

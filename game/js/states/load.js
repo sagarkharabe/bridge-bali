@@ -15,6 +15,7 @@ function initLoadState() {
     game.load.image("Spike", "game/assets/images/spike.png");
     game.load.image("GusHead", "game/assets/images/part_gushead.png");
     game.load.image("Debris", "game/assets/images/part_redblock.png");
+    game.load.image("Select", "/assets/images/selectedBlockOutline.png");
     game.load.spritesheet("Gus", "game/assets/images/gus.png", 32, 32);
 
     console.log("Done loading");

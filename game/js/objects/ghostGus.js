@@ -18,34 +18,30 @@ class GhostGus extends Gus {
     this.sprite.alpha = 0.5;
 
     this.compressedRecord = [
-      0,
-      175,
       2,
-      116,
-      0,
-      34,
+      173,
       1,
-      78,
+      49,
+      2,
+      79,
+      0,
+      46,
+      2,
+      10,
+      0,
+      14,
+      2,
+      16,
       0,
       39,
-      5,
+      3,
       1,
-      2,
-      23,
-      5,
-      1,
-      2,
-      50,
       0,
+      22,
+      2,
       35,
-      1,
-      68,
       0,
-      33,
-      2,
-      56,
-      0,
-      54
+      129
     ];
 
     this.setCollision();
@@ -103,7 +99,7 @@ class GhostGus extends Gus {
     this.marker.update();
     // clear horizontal movement
     const currentMove = this.uncompressedRecord.pop();
-
+    this.marker.update(currentMove);
     if (Math.abs(Math.cos(this.rotation)) > EPSILON)
       this.sprite.body.velocity.x = 0;
     else this.sprite.body.velocity.y = 0;
@@ -150,7 +146,7 @@ class GhostGus extends Gus {
         this.stop();
       }
       console.log(currentMove);
-      if (currentMove === 5) {
+      if (currentMove === 3) {
         console.log("PLACING GIRDER!\n\n");
         this.marker.placeGirder();
       }

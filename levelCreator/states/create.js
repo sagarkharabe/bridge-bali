@@ -51,6 +51,7 @@ function initCreateState() {
       if (unparTiMa !== undefined) unparTiMa.sprite.angle = obj.r;
     });
     game.activeTool = "RedBrickBlock";
+    var selector = game.add.sprite("0", "0", "Select");
   };
 
   state.create = function() {

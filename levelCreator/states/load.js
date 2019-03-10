@@ -12,6 +12,7 @@ function initLoadState() {
     game.load.image("Spike", "game/assets/images/spike.png");
     game.load.image("Tool", "game/assets/images/tool.png");
     game.load.image("Gus", "game/assets/images/gus-static.png");
+    game.load.image("Select", "/assets/images/selectedBlockOutline.png");
 
     console.log("Done loading");
   };

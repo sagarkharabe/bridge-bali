@@ -496,6 +496,31 @@ class GhostGirderMarker extends GirderMarker {
       );
     }
   }
+
+  update(currentMove) {
+    // if we have a master with girders, try to reposition the marker
+    if (this.master && !this.master.rotating && this.master.girders > 0) {
+      var targetPos = this.getTargetPos();
+
+      // if we found a valid position and our master is on the ground, show the marker
+      if (targetPos && this.master.isTouching("down")) {
+        this.sprite.position = this.roundTargetPos(targetPos);
+        this.sprite.rotation = this.master.rotation;
+
+        this.sprite.visible = true;
+        this.placeable = true;
+
+        // if we're holding space, build a bridge
+        if (targetPos.isBottom && currentMove === 3) {
+          this.placeGirder();
+        }
+      } else {
+        // no legal position found, hide the marker
+        this.sprite.visible = false;
+        this.placeable = false;
+      }
+    }
+  }
 }
 
 module.exports = GhostGirderMarker;
@@ -521,34 +546,30 @@ class GhostGus extends Gus {
     this.sprite.alpha = 0.5;
 
     this.compressedRecord = [
-      0,
-      175,
       2,
-      116,
-      0,
-      34,
+      173,
       1,
-      78,
+      49,
+      2,
+      79,
+      0,
+      46,
+      2,
+      10,
+      0,
+      14,
+      2,
+      16,
       0,
       39,
-      5,
+      3,
       1,
-      2,
-      23,
-      5,
-      1,
-      2,
-      50,
       0,
+      22,
+      2,
       35,
-      1,
-      68,
       0,
-      33,
-      2,
-      56,
-      0,
-      54
+      129
     ];
 
     this.setCollision();
@@ -606,7 +627,7 @@ class GhostGus extends Gus {
     this.marker.update();
     // clear horizontal movement
     const currentMove = this.uncompressedRecord.pop();
-
+    this.marker.update(currentMove);
     if (Math.abs(Math.cos(this.rotation)) > EPSILON)
       this.sprite.body.velocity.x = 0;
     else this.sprite.body.velocity.y = 0;
@@ -653,7 +674,7 @@ class GhostGus extends Gus {
         this.stop();
       }
       console.log(currentMove);
-      if (currentMove === 5) {
+      if (currentMove === 3) {
         console.log("PLACING GIRDER!\n\n");
         this.marker.placeGirder();
       }
@@ -832,6 +853,11 @@ GirderMarker.prototype.placeGirder = function() {
   if (this.placeable) {
     var newGirder = new Girder(this.sprite.position.x, this.sprite.position.y);
     newGirder.sprite.rotation = this.master.sprite.rotation;
+
+    // add placeGirder action if Gus is recording
+    if (this.master.constructor.name === "RecordingGus") {
+      this.master.uncompressedRecord.push(3); // 3 corresponds to placeGirder
+    }
 
     this.girdersPlaced.push(newGirder);
 
@@ -1873,6 +1899,7 @@ function initLoadState() {
     game.load.image("Spike", "game/assets/images/spike.png");
     game.load.image("GusHead", "game/assets/images/part_gushead.png");
     game.load.image("Debris", "game/assets/images/part_redblock.png");
+    game.load.image("Select", "/assets/images/selectedBlockOutline.png");
     game.load.spritesheet("Gus", "game/assets/images/gus.png", 32, 32);
 
     console.log("Done loading");

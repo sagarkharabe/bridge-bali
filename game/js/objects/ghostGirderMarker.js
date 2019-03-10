@@ -46,6 +46,31 @@ class GhostGirderMarker extends GirderMarker {
       );
     }
   }
+
+  update(currentMove) {
+    // if we have a master with girders, try to reposition the marker
+    if (this.master && !this.master.rotating && this.master.girders > 0) {
+      var targetPos = this.getTargetPos();
+
+      // if we found a valid position and our master is on the ground, show the marker
+      if (targetPos && this.master.isTouching("down")) {
+        this.sprite.position = this.roundTargetPos(targetPos);
+        this.sprite.rotation = this.master.rotation;
+
+        this.sprite.visible = true;
+        this.placeable = true;
+
+        // if we're holding space, build a bridge
+        if (targetPos.isBottom && currentMove === 3) {
+          this.placeGirder();
+        }
+      } else {
+        // no legal position found, hide the marker
+        this.sprite.visible = false;
+        this.placeable = false;
+      }
+    }
+  }
 }
 
 module.exports = GhostGirderMarker;
