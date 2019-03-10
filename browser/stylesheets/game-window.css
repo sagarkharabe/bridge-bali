@@ -6,12 +6,12 @@
   background-color: #000000;
 
   box-sizing: border-box;
-  border: 50 solid black;
-  border-top: (50 / 2) solid black;
-  border-bottom: (50 / 2) solid black;
+  border: 4px solid black;
+  border-top: (4px / 2) solid black;
+  border-bottom: (4px / 2) solid black;
   display: flex;
 
-  max-width: 800px + (50 * 2);
-  height: 600px + 50;
+  max-width: 800px + (4px * 2);
+  height: 600px + 4px;
   margin: auto;
 }

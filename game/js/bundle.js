@@ -520,7 +520,32 @@ class GhostGus extends Gus {
 
     this.sprite.alpha = 0.5;
 
-    this.compressedRecord = [2, 165, 1, 57, 2, 90, 2, 167, 0, 36];
+    this.compressedRecord = [
+      0,
+      175,
+      2,
+      116,
+      0,
+      34,
+      1,
+      78,
+      0,
+      39,
+      5,
+      1,
+      2,
+      73,
+      0,
+      35,
+      1,
+      68,
+      0,
+      33,
+      2,
+      56,
+      0,
+      54
+    ];
 
     this.setCollision();
     this.uncompressRecord();
@@ -561,7 +586,9 @@ class GhostGus extends Gus {
 
     const reversedUncompressedRecord = [];
 
-    for (let i = 0; i < compressedRecord.length; i += 2) {
+    const compressedRecordStartLength = compressedRecord.length;
+
+    for (let i = 0; i < compressedRecordStartLength; i += 2) {
       let numTimes = compressedRecord.pop();
       let key = compressedRecord.pop();
 

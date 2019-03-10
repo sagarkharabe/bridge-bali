@@ -48,15 +48,15 @@ nav ul {
 }
 nav ul li {
   display: inline-block;
-  border: (50/ 2) solid black;
+  border: (4px/ 2) solid black;
   border-collapse: collapse;
 }
 
 nav ul li:first-child {
-  border-left: 50 solid black;
+  border-left: 4px solid black;
 }
 nav ul li::last-child {
-  border-right: 50 solid black;
+  border-right: 4px solid black;
 }
 nav ul li a {
   background-color: #e1a51d;
