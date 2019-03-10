@@ -9,7 +9,17 @@ function Spike(x, y) {
 
   game.physics.p2.enable(this.sprite, false);
 
-  this.sprite.body.setRectangle(32, 32);
+  this.sprite.body.addPolygon(
+    {
+      skipSimpleCheck: true
+    },
+    -14,
+    10,
+    0,
+    -19,
+    13,
+    10
+  );
   this.sprite.body.static = true;
   this.sprite.body.fixedRotation = true;
 

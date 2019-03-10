@@ -55,7 +55,11 @@ function addBlockId(id, loadFunction) {
 function generateBlockIdForConstructor(id, constructor) {
   addBlockId(id, function(defObj) {
     var newObj = new constructor(defObj.x, defObj.y);
-    if (defObj.r) newObj.sprite.rotation = (defObj.r / 180) * Math.PI;
+    if (defObj.r) {
+      var rads = (defObj.r / 180) * Math.PI;
+      newObj.sprite.rotation = rads;
+      if (newObj.sprite.body) newObj.sprite.body.rotation = rads;
+    }
     return newObj;
   });
 }
@@ -1449,7 +1453,17 @@ function Spike(x, y) {
 
   game.physics.p2.enable(this.sprite, false);
 
-  this.sprite.body.setRectangle(32, 32);
+  this.sprite.body.addPolygon(
+    {
+      skipSimpleCheck: true
+    },
+    -14,
+    10,
+    0,
+    -19,
+    13,
+    10
+  );
   this.sprite.body.static = true;
   this.sprite.body.fixedRotation = true;
 

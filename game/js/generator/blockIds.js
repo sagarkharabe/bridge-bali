@@ -18,7 +18,11 @@ function addBlockId(id, loadFunction) {
 function generateBlockIdForConstructor(id, constructor) {
   addBlockId(id, function(defObj) {
     var newObj = new constructor(defObj.x, defObj.y);
-    if (defObj.r) newObj.sprite.rotation = (defObj.r / 180) * Math.PI;
+    if (defObj.r) {
+      var rads = (defObj.r / 180) * Math.PI;
+      newObj.sprite.rotation = rads;
+      if (newObj.sprite.body) newObj.sprite.body.rotation = rads;
+    }
     return newObj;
   });
 }
