@@ -1,7 +1,6 @@
 module.exports = {
-  toggleTesting: function(varName, context) {
-    console.log("##", context);
-    context.data.root[varName] = !context.data.root[varName];
-    console.log("##", context.data.root[varName]);
+  toggleTesting: function() {
+    this["testing"] = !this["testing"];
+    console.log("## Toggle Testing", this["testing"]);
   }
 };

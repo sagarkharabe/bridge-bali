@@ -56,6 +56,12 @@ app.get("/createLevel", function(req, res) {
     testing: false
   });
 });
+app.get("/testLevel", function(req, res) {
+  res.render("levelCreator/levelTester", {
+    toolArr: toolArr,
+    testing: false
+  });
+});
 
 app.use("/api/users", require("./routes/users"));
 app.use("/api/levels", require("./routes/levels"));

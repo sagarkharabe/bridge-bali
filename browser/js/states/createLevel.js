@@ -36,9 +36,14 @@ eventEmitter.on("send tile map", mapArr => {
     console.log("look above");
     unparsedLevelArr = mapArr[1];
     testing = true;
+    console.log(changeCreateToTest());
     // getScreenshot();
   }
 });
+const changeCreateToTest = function() {
+  var newPath = "/testLevel";
+  window.location.pathname = newPath;
+};
 eventEmitter.on("I need both the maps!", function() {
   eventEmitter.emit("found maps!", [unparsedLevelArr, parsedLevelArr]);
 });
@@ -49,6 +54,7 @@ const getScreenshot = function() {
 
 const testTesting = function() {
   window.game.destroy();
+
   (function checkGameDestroyed() {
     if (window.game.state === null) {
       window.game = null;
