@@ -14,7 +14,7 @@ const TAU = require("../const").TAU;
 class GhostGus extends Gus {
   constructor(x, y) {
     super(x, y, false);
-
+    console.log("ghosting");
     this.sprite.alpha = 0.5;
 
     this.compressedRecord = [
@@ -31,7 +31,11 @@ class GhostGus extends Gus {
       5,
       1,
       2,
-      73,
+      23,
+      5,
+      1,
+      2,
+      50,
       0,
       35,
       1,

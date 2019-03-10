@@ -252,7 +252,7 @@ function BreakBrickBlock(x, y, setCollisions) {
 BreakBrickBlock.prototype = Object.create(Block.prototype);
 
 BreakBrickBlock.prototype.setCollisions = function() {
-  this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_BREAK);
+  this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_ROTATE);
   this.sprite.body.collides([
     COLLISION_GROUPS.PLAYER_SOLID,
     COLLISION_GROUPS.PLAYER_SENSOR,
@@ -517,7 +517,7 @@ const TAU = require("../const").TAU;
 class GhostGus extends Gus {
   constructor(x, y) {
     super(x, y, false);
-
+    console.log("ghosting");
     this.sprite.alpha = 0.5;
 
     this.compressedRecord = [
@@ -534,7 +534,11 @@ class GhostGus extends Gus {
       5,
       1,
       2,
-      73,
+      23,
+      5,
+      1,
+      2,
+      50,
       0,
       35,
       1,
@@ -1596,6 +1600,7 @@ function initGameState() {
   var gus,
     ghostGus,
     marker,
+    ghostMarker,
     generator,
     restartTimeout,
     hudCounters,
@@ -1607,7 +1612,7 @@ function initGameState() {
   const eventEmitter = window.eventEmitter;
   state.preload = function() {
     console.log("Loading level data...");
-    console.log(game.level);
+    console.log("Game level", game.level);
     generator = new LevelGenerator(game.level);
 
     // set background color

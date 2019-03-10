@@ -50,6 +50,14 @@ const submitBeatenLevel = function(levelArrayBeaten) {
   console.log(levelArrayBeaten);
 };
 
+const stopInputCapture = function() {
+  eventEmitter.emit("stop input capture");
+};
+
+const startInputCapture = function() {
+  eventEmitter.emit("start input capture");
+};
+
 const testTesting = function() {
   window.game.destroy();
   // var my_awesome_script = document.createElement("script");

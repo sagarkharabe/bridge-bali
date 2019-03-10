@@ -320,6 +320,15 @@ function initCreateState() {
       eventEmitter.emit("send screenshot", screenshot);
     });
   };
+  eventEmitter.on("stop input capture", function() {
+    game.input.enabled = false;
+    game.input.reset();
+  });
+
+  eventEmitter.on("start input capture", function() {
+    game.input.enabled = true;
+    game.input.reset();
+  });
 
   state.update = function() {
     grid.position.x = parseCoordinate(game.dolly.position.x);
