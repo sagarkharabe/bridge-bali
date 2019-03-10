@@ -44,7 +44,7 @@ const getDocsAndSend = (ModelStr, selectParams = [], populateParams = []) => (
     // acceptable sort parameters for levels
     if (
       req.query.sort === "title" ||
-      req.query.sort === "dateCreate" ||
+      req.query.sort === "dateCreated" ||
       req.query.sort === "starCount"
     ) {
       if (
@@ -60,7 +60,7 @@ const getDocsAndSend = (ModelStr, selectParams = [], populateParams = []) => (
         sort[req.query.sort] = "desc";
       }
     } else {
-      sort.dateCreate = "desc";
+      sort.dateCreated = "desc";
     }
   }
 
@@ -215,6 +215,39 @@ const getDocAndUpdateIfOwnerOrAdmin = ModelStr => (req, res, next) => {
     .then(null, next);
 };
 
+const getDocAndRunFunction = (ModelStr, func) => (req, res, next) => {
+  const id = req.params.id;
+  const Model = mongoose.model(ModelStr);
+
+  Model.findById(id)
+    .then(document => {
+      if (!document) next();
+      else return document[func](req.body.input);
+    })
+    .then(document => res.status(200).json(document))
+    .then(null, next);
+};
+
+//
+const getDocAndRunFunctionIfOwnerOrAdmin = (ModelStr, func) => (
+  req,
+  res,
+  next
+) => {
+  const id = req.params.id;
+  const Model = mongoose.model(ModelStr);
+
+  Model.findById(id)
+    .then(document => {
+      if (!document) next();
+      if (ownerOrAdmin(document, req.user)) {
+        return document[func](req.body.input);
+      } else res.status(401).end();
+    })
+    .then(document => res.status(200).json(document))
+    .then(null, next);
+};
+
 const getDocs = (ModelStr, refPropName = false) => (req, res, next) => {
   const Model = mongoose.model(ModelStr);
   let query = {};
@@ -251,6 +284,8 @@ module.exports = {
   getDocAndUpdate,
   getDocAndDelete,
   getDocAndSendIfOwnerOrAdmin,
+  getDocAndRunFunction,
+  getDocAndRunFunctionIfOwnerOrAdmin,
   getDocAndUpdateIfOwnerOrAdmin,
   getDocAndDeleteIfOwnerOrAdmin
 };

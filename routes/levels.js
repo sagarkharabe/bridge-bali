@@ -13,7 +13,7 @@ router.get(
   "/",
   getDocsAndSend(
     "Level",
-    ["title", "creator", "dateCreate", "starCount"],
+    ["title", "creator", "dateCreated", "starCount"],
     [{ path: "creator", select: "name" }]
   )
 );

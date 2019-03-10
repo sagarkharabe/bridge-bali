@@ -52,6 +52,16 @@ const schema = new mongoose.Schema({
   },
   starCount: { type: Number, default: 0 }
 });
+
+// sets a levels star count based on how many users have like it
+schema.methods.setStars = function() {
+  var self = this;
+  return User.find({ likedLevels: { $in: [self._id] } }).then(function(users) {
+    self.starCount = users.length;
+    return self.save();
+  });
+};
+
 // note whether level is new before saving
 schema.pre("save", function(next) {
   this.wasNew = this.isNew;
@@ -101,6 +111,15 @@ schema.post("remove", function(doc) {
     .then(function(user) {
       return user.setStars();
     });
+});
+
+schema.virtual("screenshot").get(function() {
+  // game/images ????
+  return "images/screenshots/" + this._id + ".png";
+});
+
+schema.virtual("user").get(function() {
+  return this.creator;
 });
 
 const Level = mongoose.model("Level", schema);

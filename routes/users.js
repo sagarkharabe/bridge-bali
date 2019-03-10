@@ -4,7 +4,9 @@ const {
   getDocAndSend,
   getDocsAndSend,
   getDocAndUpdateIfOwnerOrAdmin,
-  getDocAndDeleteIfOwnerOrAdmin
+  getDocAndDeleteIfOwnerOrAdmin,
+  getDocAndRunFunction,
+  getDocAndRunFunctionIfOwnerOrAdmin
 } = require("./helpers/crud");
 const { mustBeLoggedIn } = require("./helpers/permissions");
 
@@ -23,6 +25,26 @@ router.post("/", createDoc("User"));
 
 // guest can see user
 router.get("/:id", getDocAndSend("User"));
+
+router.post(
+  "/:id/follow",
+  getDocAndRunFunctionIfOwnerOrAdmin("User", "followUser")
+);
+
+router.post(
+  "/:id/unfollow",
+  getDocAndRunFunctionIfOwnerOrAdmin("User", "unfollowUser")
+);
+
+router.post(
+  "/:id/like",
+  getDocAndRunFunctionIfOwnerOrAdmin("User", "likeLevel")
+);
+
+router.post(
+  "/:id/unlike",
+  getDocAndRunFunctionIfOwnerOrAdmin("User", "unlikeLevel")
+);
 
 // guest can see all users with associated created levels
 router.get("/levels", getDocsAndSend("User", null, ["createdLevels"]));
