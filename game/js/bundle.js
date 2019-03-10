@@ -1753,6 +1753,15 @@ function initGameState() {
 
       return counter;
     });
+    eventEmitter.only("stop input capture", function() {
+      game.input.enabled = false;
+      game.input.reset();
+    });
+
+    eventEmitter.only("start input capture", function() {
+      game.input.enabled = true;
+      game.input.reset();
+    });
     levelStarted = game.time.now;
   };
 

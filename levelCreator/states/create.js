@@ -197,6 +197,7 @@ function initCreateState() {
       if (game.activeTool) {
         placedTool = game.add.sprite(x, y, game.activeTool);
         placedTool.anchor.setTo(0.5, 0.5);
+        game.world.sendToBack(placedTool);
       }
 
       if (game.activeTool === "Spike") {
