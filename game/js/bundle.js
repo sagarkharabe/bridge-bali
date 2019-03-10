@@ -783,6 +783,11 @@ GirderMarker.prototype.getTargetPos = function() {
   var bottom = posFactory.bottom();
   bottom.isBottom = true;
 
+  var front = posFactory.front();
+  front.isBottom = false;
+
+  if (game.physics.p2.hitTest(front).length) return undefined;
+
   // test to see if there's anything in the way of this girder
   var hitBoxes = game.physics.p2.hitTest(bottom);
   if (hitBoxes.length) {
@@ -793,15 +798,7 @@ GirderMarker.prototype.getTargetPos = function() {
         hitUnplaceable = true;
     });
     if (hitUnplaceable) return undefined;
-    // check in front of the player instead
-    var front = posFactory.front();
-    front.isBottom = false;
-    // if we hit another thing, return undefined. otherwise, return the position
-    if (game.physics.p2.hitTest(front).length) {
-      return undefined;
-    } else {
-      return front;
-    }
+    return front;
   } else {
     // check to see if there's something underneath Gus
     var hitBelow = [];
