@@ -3,6 +3,8 @@
 const game = window.game;
 
 const Gus = require("./gus");
+const GhostGirderMarker = require("./ghostGirderMarker");
+
 const ParticleBurst = require("../particles/burst");
 
 const COLLISION_GROUPS = require("../const/collisionGroup");
@@ -15,10 +17,13 @@ class GhostGus extends Gus {
 
     this.sprite.alpha = 0.5;
 
-    this.compressedRecord = [0, 174, 1, 85, 2, 195, 0, 68];
+    this.compressedRecord = [2, 165, 1, 57, 2, 90, 2, 167, 0, 36];
 
     this.setCollision();
     this.uncompressRecord();
+
+    this.marker = new GhostGirderMarker();
+    this.marker.setMaster(this);
   }
 
   // diff from Gus's doom: doesn't unlock the dolly
@@ -40,7 +45,7 @@ class GhostGus extends Gus {
       this.rotationSensor
     );
     this.sprite.body.collides([
-      COLLISION_GROUPS.GHOST_BLOCK_BREAK,
+      COLLISION_GROUPS.GHOST_BLOCK_ROTATE,
       COLLISION_GROUPS.BLOCK_SOLID,
       COLLISION_GROUPS.BLOCK_ROTATE,
       COLLISION_GROUPS.ITEM,
@@ -51,19 +56,20 @@ class GhostGus extends Gus {
   uncompressRecord() {
     const compressedRecord = this.compressedRecord;
 
-    const uncompressedRecord = [];
+    const reversedUncompressedRecord = [];
 
     for (let i = 0; i < compressedRecord.length; i += 2) {
       let numTimes = compressedRecord.pop();
       let key = compressedRecord.pop();
 
-      for (let j = 0; j < numTimes; j++) uncompressedRecord.push(key);
+      for (let j = 0; j < numTimes; j++) reversedUncompressedRecord.push(key);
     }
 
-    this.uncompressedRecord = uncompressedRecord;
+    this.uncompressedRecord = reversedUncompressedRecord.reverse();
   }
 
   update() {
+    this.marker.update();
     // clear horizontal movement
     const currentMove = this.uncompressedRecord.pop();
 
@@ -112,7 +118,11 @@ class GhostGus extends Gus {
       } else {
         this.stop();
       }
-
+      console.log(currentMove);
+      if (currentMove === 5) {
+        console.log("PLACING GIRDER!\n\n");
+        this.marker.placeGirder();
+      }
       if (!this.isTouching("down")) {
         this.fallTime += game.time.physicsElapsedMS;
 

@@ -7,7 +7,7 @@ COLLISION_GROUPS.PLAYER_SOLID = true;
 COLLISION_GROUPS.PLAYER_SENSOR = true;
 COLLISION_GROUPS.ITEM = true;
 COLLISION_GROUPS.SPIKES = true;
-COLLISION_GROUPS.GHOST_BLOCK_BREAK = true;
+COLLISION_GROUPS.GHOST_BLOCK_ROTATE = true;
 COLLISION_GROUPS.GHOST_PLAYER_SOLID = true;
 COLLISION_GROUPS.GHOST_PLAYER_SENSOR = true;
 module.exports = COLLISION_GROUPS;
@@ -86,7 +86,7 @@ for (var index in tilemap) {
 
 module.exports = blockIds;
 
-},{"../const/tilemap":4,"../objects":14}],6:[function(require,module,exports){
+},{"../const/tilemap":4,"../objects":15}],6:[function(require,module,exports){
 var blockIds = require("./blockIds");
 var defaultSkyColor = require("../const/colors").DEFAULT_SKY;
 var tilemap = require("../const/tilemap");
@@ -184,7 +184,7 @@ function startGame(Phaser) {
   }
 })(window.Phaser);
 
-},{"./states/boot":19,"./states/game":20,"./states/load":21}],8:[function(require,module,exports){
+},{"./states/boot":20,"./states/game":21,"./states/load":22}],8:[function(require,module,exports){
 var ParticleBurst = require("../particles/burst");
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var TAU = require("../const").TAU;
@@ -322,7 +322,7 @@ module.exports.BlackBrickBlock = BlackBrickBlock;
 module.exports.BreakBrickBlock = BreakBrickBlock;
 module.exports.Girder = Girder;
 
-},{"../const":3,"../const/collisionGroup":1,"../particles/burst":18}],9:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1,"../particles/burst":19}],9:[function(require,module,exports){
 var TAU = require("../const").TAU;
 
 function Dolly(camera) {
@@ -415,7 +415,7 @@ class GhostBreakBrickBlock extends BreakBrickBlock {
     this.sprite.alpha = 0.5;
 
     // set collisions
-    this.sprite.body.setCollisionGroup(COLLISION_GROUPS.GHOST_BLOCK_BREAK);
+    this.sprite.body.setCollisionGroup(COLLISION_GROUPS.GHOST_BLOCK_ROTATE);
     this.sprite.body.collides([
       COLLISION_GROUPS.GHOST_PLAYER_SOLID,
       COLLISION_GROUPS.GHOST_PLAYER_SENSOR
@@ -429,12 +429,12 @@ class GhostBreakBrickBlock extends BreakBrickBlock {
 
 class GhostGirder extends Block {
   constructor(x, y) {
-    super(x, y); // Block constructor does not set collisions
+    super(x, y, "Girder"); // Block constructor does not set collisions
 
     this.sprite.alpha = 0.5;
-
+    console.log("GHOST GIRDER BEING MADED!");
     // set collisions
-    this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_ROTATE);
+    this.sprite.body.setCollisionGroup(COLLISION_GROUPS.GHOST_BLOCK_ROTATE);
     this.sprite.body.collides([
       COLLISION_GROUPS.GHOST_PLAYER_SOLID,
       COLLISION_GROUPS.GHOST_PLAYER_SENSOR
@@ -450,9 +450,64 @@ module.exports = {
 },{"../const/collisionGroup":1,"./blocks":8}],11:[function(require,module,exports){
 "use strict";
 
+const GhostGirder = require("./ghostBlocks").GhostGirder;
+const GirderMarker = require("./girderMarker");
+const ParticleBurst = require("../particles/burst");
+
+class GhostGirderMarker extends GirderMarker {
+  constructor() {
+    super(true); // call GirderMarker constructor with isGhost = true;
+  }
+
+  placeGirder() {
+    // if Gus is out of girders, we can't place a new one
+    if (this.master.girders === 0) return;
+
+    // check that we're placeable
+    if (this.placeable) {
+      // spawn a new girder and set its rotation
+      var newGirder = new GhostGirder(
+        this.sprite.position.x,
+        this.sprite.position.y
+      );
+      console.log("newGirder: ", newGirder);
+      newGirder.sprite.rotation = this.master.sprite.rotation;
+
+      // do a little bookkeeping
+      this.girdersPlaced.push(newGirder);
+      this.master.girders--;
+
+      // stop Gus from rotating onto the new girder immediately
+      this.master.canRotate = false;
+
+      // make some particles!
+      this.debrisBurst = new ParticleBurst(
+        this.sprite.position.x,
+        this.sprite.position.y,
+        "Debris",
+        {
+          lifetime: 500,
+          count: 14,
+          scaleMin: 0.4,
+          scaleMax: 1.0,
+          speed: 200,
+          fadeOut: true
+        }
+      );
+    }
+  }
+}
+
+module.exports = GhostGirderMarker;
+
+},{"../particles/burst":19,"./ghostBlocks":10,"./girderMarker":13}],12:[function(require,module,exports){
+"use strict";
+
 const game = window.game;
 
 const Gus = require("./gus");
+const GhostGirderMarker = require("./ghostGirderMarker");
+
 const ParticleBurst = require("../particles/burst");
 
 const COLLISION_GROUPS = require("../const/collisionGroup");
@@ -465,10 +520,13 @@ class GhostGus extends Gus {
 
     this.sprite.alpha = 0.5;
 
-    this.compressedRecord = [0, 174, 1, 85, 2, 195, 0, 68];
+    this.compressedRecord = [2, 165, 1, 57, 2, 90, 2, 167, 0, 36];
 
     this.setCollision();
     this.uncompressRecord();
+
+    this.marker = new GhostGirderMarker();
+    this.marker.setMaster(this);
   }
 
   // diff from Gus's doom: doesn't unlock the dolly
@@ -490,7 +548,7 @@ class GhostGus extends Gus {
       this.rotationSensor
     );
     this.sprite.body.collides([
-      COLLISION_GROUPS.GHOST_BLOCK_BREAK,
+      COLLISION_GROUPS.GHOST_BLOCK_ROTATE,
       COLLISION_GROUPS.BLOCK_SOLID,
       COLLISION_GROUPS.BLOCK_ROTATE,
       COLLISION_GROUPS.ITEM,
@@ -501,19 +559,20 @@ class GhostGus extends Gus {
   uncompressRecord() {
     const compressedRecord = this.compressedRecord;
 
-    const uncompressedRecord = [];
+    const reversedUncompressedRecord = [];
 
     for (let i = 0; i < compressedRecord.length; i += 2) {
       let numTimes = compressedRecord.pop();
       let key = compressedRecord.pop();
 
-      for (let j = 0; j < numTimes; j++) uncompressedRecord.push(key);
+      for (let j = 0; j < numTimes; j++) reversedUncompressedRecord.push(key);
     }
 
-    this.uncompressedRecord = uncompressedRecord;
+    this.uncompressedRecord = reversedUncompressedRecord.reverse();
   }
 
   update() {
+    this.marker.update();
     // clear horizontal movement
     const currentMove = this.uncompressedRecord.pop();
 
@@ -562,7 +621,11 @@ class GhostGus extends Gus {
       } else {
         this.stop();
       }
-
+      console.log(currentMove);
+      if (currentMove === 5) {
+        console.log("PLACING GIRDER!\n\n");
+        this.marker.placeGirder();
+      }
       if (!this.isTouching("down")) {
         this.fallTime += game.time.physicsElapsedMS;
 
@@ -578,9 +641,10 @@ class GhostGus extends Gus {
 
 module.exports = GhostGus;
 
-},{"../const":3,"../const/collisionGroup":1,"../particles/burst":18,"./gus":13}],12:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1,"../particles/burst":19,"./ghostGirderMarker":11,"./gus":14}],13:[function(require,module,exports){
 var game = window.game;
 var Girder = require("./blocks").Girder;
+var GhostGirder = require("./ghostBlocks").GhostGirder;
 var ParticleBurst = require("../particles/burst");
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var EPSILON = require("../const").EPSILON;
@@ -788,7 +852,7 @@ GirderMarker.prototype.update = function() {
 
 module.exports = GirderMarker;
 
-},{"../const":3,"../const/collisionGroup":1,"../particles/burst":18,"./blocks":8}],13:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1,"../particles/burst":19,"./blocks":8,"./ghostBlocks":10}],14:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var EPSILON = require("../const").EPSILON;
 var TAU = require("../const").TAU;
@@ -1136,7 +1200,7 @@ Gus.prototype.update = function() {
 
 module.exports = Gus;
 
-},{"../const":3,"../const/collisionGroup":1}],14:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1}],15:[function(require,module,exports){
 module.exports = {
   RedBrickBlock: require("./blocks").RedBrickBlock,
   BlackBrickBlock: require("./blocks").BlackBrickBlock,
@@ -1151,7 +1215,7 @@ module.exports = {
   GhostGus: require("./ghostGus")
 };
 
-},{"./blocks":8,"./ghostBlocks":10,"./ghostGus":11,"./girderMarker":12,"./gus":13,"./recordingGus":15,"./spike":16,"./tool":17}],15:[function(require,module,exports){
+},{"./blocks":8,"./ghostBlocks":10,"./ghostGus":12,"./girderMarker":13,"./gus":14,"./recordingGus":16,"./spike":17,"./tool":18}],16:[function(require,module,exports){
 "use strict";
 
 const game = window.game;
@@ -1295,7 +1359,7 @@ class RecordingGus extends Gus {
 
 module.exports = RecordingGus;
 
-},{"../const":3,"../const/collisionGroup":1,"../particles/burst":18,"./gus":13}],16:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1,"../particles/burst":19,"./gus":14}],17:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
 
 function Spike(x, y) {
@@ -1332,7 +1396,7 @@ Spike.prototype.touched = function(spikes, other) {
 
 module.exports = Spike;
 
-},{"../const/collisionGroup":1}],17:[function(require,module,exports){
+},{"../const/collisionGroup":1}],18:[function(require,module,exports){
 var ParticleBurst = require("../particles/burst");
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var TAU = require("../const").TAU;
@@ -1406,7 +1470,7 @@ Tool.prototype.update = function() {
 
 module.exports = Tool;
 
-},{"../const":3,"../const/collisionGroup":1,"../particles/burst":18}],18:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1,"../particles/burst":19}],19:[function(require,module,exports){
 var particleBursts = [];
 function ParticleBurst(x, y, particle, options) {
   options = options || {};
@@ -1462,7 +1526,7 @@ ParticleBurst.update = function() {
 
 module.exports = ParticleBurst;
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
 
 function initBootState() {
@@ -1479,7 +1543,6 @@ function initBootState() {
 
     for (var key in COLLISION_GROUPS) {
       COLLISION_GROUPS[key] = game.physics.p2.createCollisionGroup();
-      console.log("created collision group for", key);
     }
     console.log("Activating ghost state...");
     game.ghost = true;
@@ -1492,7 +1555,7 @@ function initBootState() {
 }
 module.exports = initBootState;
 
-},{"../const/collisionGroup":1}],20:[function(require,module,exports){
+},{"../const/collisionGroup":1}],21:[function(require,module,exports){
 var Gus = require("../objects/gus");
 var Dolly = require("../objects/dolly");
 var GirderMarker = require("../objects/girderMarker");
@@ -1760,7 +1823,7 @@ function initGameState() {
 
 module.exports = initGameState;
 
-},{"../generator":6,"../objects":14,"../objects/dolly":9,"../objects/ghostGus":11,"../objects/girderMarker":12,"../objects/gus":13,"../objects/recordingGus":15,"../particles/burst":18}],21:[function(require,module,exports){
+},{"../generator":6,"../objects":15,"../objects/dolly":9,"../objects/ghostGus":12,"../objects/girderMarker":13,"../objects/gus":14,"../objects/recordingGus":16,"../particles/burst":19}],22:[function(require,module,exports){
 function initLoadState() {
   var state = {};
   var game = window.game;
@@ -2035,7 +2098,7 @@ function initLoadState() {
 
 module.exports = initLoadState;
 
-},{"http":48}],22:[function(require,module,exports){
+},{"http":49}],23:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -2188,9 +2251,9 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],23:[function(require,module,exports){
-
 },{}],24:[function(require,module,exports){
+
+},{}],25:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -2715,7 +2778,7 @@ function functionBindPolyfill(context) {
   };
 }
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -3252,7 +3315,7 @@ function functionBindPolyfill(context) {
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 (function (Buffer){
 /*!
  * The buffer module from node.js, for the browser.
@@ -5033,7 +5096,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"base64-js":22,"buffer":26,"ieee754":29}],27:[function(require,module,exports){
+},{"base64-js":23,"buffer":27,"ieee754":30}],28:[function(require,module,exports){
 module.exports = {
   "100": "Continue",
   "101": "Switching Protocols",
@@ -5099,7 +5162,7 @@ module.exports = {
   "511": "Network Authentication Required"
 }
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -5210,7 +5273,7 @@ function objectToString(o) {
 }
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":31}],29:[function(require,module,exports){
+},{"../../is-buffer/index.js":32}],30:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = (nBytes * 8) - mLen - 1
@@ -5296,7 +5359,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -5321,7 +5384,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -5344,14 +5407,14 @@ function isSlowBuffer (obj) {
   return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -5399,7 +5462,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 
 
 }).call(this,require('_process'))
-},{"_process":34}],34:[function(require,module,exports){
+},{"_process":35}],35:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -5585,7 +5648,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5671,7 +5734,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5758,13 +5821,13 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":35,"./encode":36}],38:[function(require,module,exports){
+},{"./decode":36,"./encode":37}],39:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5896,7 +5959,7 @@ Duplex.prototype._destroy = function (err, cb) {
 
   pna.nextTick(cb, err);
 };
-},{"./_stream_readable":40,"./_stream_writable":42,"core-util-is":28,"inherits":30,"process-nextick-args":33}],39:[function(require,module,exports){
+},{"./_stream_readable":41,"./_stream_writable":43,"core-util-is":29,"inherits":31,"process-nextick-args":34}],40:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -5944,7 +6007,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":41,"core-util-is":28,"inherits":30}],40:[function(require,module,exports){
+},{"./_stream_transform":42,"core-util-is":29,"inherits":31}],41:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -6966,7 +7029,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":38,"./internal/streams/BufferList":43,"./internal/streams/destroy":44,"./internal/streams/stream":45,"_process":34,"core-util-is":28,"events":24,"inherits":30,"isarray":32,"process-nextick-args":33,"safe-buffer":47,"string_decoder/":53,"util":23}],41:[function(require,module,exports){
+},{"./_stream_duplex":39,"./internal/streams/BufferList":44,"./internal/streams/destroy":45,"./internal/streams/stream":46,"_process":35,"core-util-is":29,"events":25,"inherits":31,"isarray":33,"process-nextick-args":34,"safe-buffer":48,"string_decoder/":54,"util":24}],42:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -7181,7 +7244,7 @@ function done(stream, er, data) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":38,"core-util-is":28,"inherits":30}],42:[function(require,module,exports){
+},{"./_stream_duplex":39,"core-util-is":29,"inherits":31}],43:[function(require,module,exports){
 (function (process,global,setImmediate){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -7871,7 +7934,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"./_stream_duplex":38,"./internal/streams/destroy":44,"./internal/streams/stream":45,"_process":34,"core-util-is":28,"inherits":30,"process-nextick-args":33,"safe-buffer":47,"timers":54,"util-deprecate":58}],43:[function(require,module,exports){
+},{"./_stream_duplex":39,"./internal/streams/destroy":45,"./internal/streams/stream":46,"_process":35,"core-util-is":29,"inherits":31,"process-nextick-args":34,"safe-buffer":48,"timers":55,"util-deprecate":59}],44:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -7951,7 +8014,7 @@ if (util && util.inspect && util.inspect.custom) {
     return this.constructor.name + ' ' + obj;
   };
 }
-},{"safe-buffer":47,"util":23}],44:[function(require,module,exports){
+},{"safe-buffer":48,"util":24}],45:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -8026,10 +8089,10 @@ module.exports = {
   destroy: destroy,
   undestroy: undestroy
 };
-},{"process-nextick-args":33}],45:[function(require,module,exports){
+},{"process-nextick-args":34}],46:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":24}],46:[function(require,module,exports){
+},{"events":25}],47:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -8038,7 +8101,7 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":38,"./lib/_stream_passthrough.js":39,"./lib/_stream_readable.js":40,"./lib/_stream_transform.js":41,"./lib/_stream_writable.js":42}],47:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":39,"./lib/_stream_passthrough.js":40,"./lib/_stream_readable.js":41,"./lib/_stream_transform.js":42,"./lib/_stream_writable.js":43}],48:[function(require,module,exports){
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
 var Buffer = buffer.Buffer
@@ -8102,7 +8165,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":26}],48:[function(require,module,exports){
+},{"buffer":27}],49:[function(require,module,exports){
 (function (global){
 var ClientRequest = require('./lib/request')
 var response = require('./lib/response')
@@ -8190,7 +8253,7 @@ http.METHODS = [
 	'UNSUBSCRIBE'
 ]
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./lib/request":50,"./lib/response":51,"builtin-status-codes":27,"url":56,"xtend":52}],49:[function(require,module,exports){
+},{"./lib/request":51,"./lib/response":52,"builtin-status-codes":28,"url":57,"xtend":53}],50:[function(require,module,exports){
 (function (global){
 exports.fetch = isFunction(global.fetch) && isFunction(global.ReadableStream)
 
@@ -8267,7 +8330,7 @@ function isFunction (value) {
 xhr = null // Help gc
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 (function (process,global,Buffer){
 var capability = require('./capability')
 var inherits = require('inherits')
@@ -8598,7 +8661,7 @@ var unsafeHeaders = [
 ]
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"./capability":49,"./response":51,"_process":34,"buffer":26,"inherits":30,"readable-stream":46,"to-arraybuffer":55}],51:[function(require,module,exports){
+},{"./capability":50,"./response":52,"_process":35,"buffer":27,"inherits":31,"readable-stream":47,"to-arraybuffer":56}],52:[function(require,module,exports){
 (function (process,global,Buffer){
 var capability = require('./capability')
 var inherits = require('inherits')
@@ -8826,7 +8889,7 @@ IncomingMessage.prototype._onXHRProgress = function () {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"./capability":49,"_process":34,"buffer":26,"inherits":30,"readable-stream":46}],52:[function(require,module,exports){
+},{"./capability":50,"_process":35,"buffer":27,"inherits":31,"readable-stream":47}],53:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -8847,7 +8910,7 @@ function extend() {
     return target
 }
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9144,7 +9207,7 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":47}],54:[function(require,module,exports){
+},{"safe-buffer":48}],55:[function(require,module,exports){
 (function (setImmediate,clearImmediate){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -9223,7 +9286,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":34,"timers":54}],55:[function(require,module,exports){
+},{"process/browser.js":35,"timers":55}],56:[function(require,module,exports){
 var Buffer = require('buffer').Buffer
 
 module.exports = function (buf) {
@@ -9252,7 +9315,7 @@ module.exports = function (buf) {
 	}
 }
 
-},{"buffer":26}],56:[function(require,module,exports){
+},{"buffer":27}],57:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -9986,7 +10049,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":57,"punycode":25,"querystring":37}],57:[function(require,module,exports){
+},{"./util":58,"punycode":26,"querystring":38}],58:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -10004,7 +10067,7 @@ module.exports = {
   }
 };
 
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 (function (global){
 
 /**

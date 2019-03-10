@@ -11,7 +11,7 @@ class GhostBreakBrickBlock extends BreakBrickBlock {
     this.sprite.alpha = 0.5;
 
     // set collisions
-    this.sprite.body.setCollisionGroup(COLLISION_GROUPS.GHOST_BLOCK_BREAK);
+    this.sprite.body.setCollisionGroup(COLLISION_GROUPS.GHOST_BLOCK_ROTATE);
     this.sprite.body.collides([
       COLLISION_GROUPS.GHOST_PLAYER_SOLID,
       COLLISION_GROUPS.GHOST_PLAYER_SENSOR
@@ -25,12 +25,12 @@ class GhostBreakBrickBlock extends BreakBrickBlock {
 
 class GhostGirder extends Block {
   constructor(x, y) {
-    super(x, y); // Block constructor does not set collisions
+    super(x, y, "Girder"); // Block constructor does not set collisions
 
     this.sprite.alpha = 0.5;
-
+    console.log("GHOST GIRDER BEING MADED!");
     // set collisions
-    this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_ROTATE);
+    this.sprite.body.setCollisionGroup(COLLISION_GROUPS.GHOST_BLOCK_ROTATE);
     this.sprite.body.collides([
       COLLISION_GROUPS.GHOST_PLAYER_SOLID,
       COLLISION_GROUPS.GHOST_PLAYER_SENSOR

@@ -1,5 +1,6 @@
 var game = window.game;
 var Girder = require("./blocks").Girder;
+var GhostGirder = require("./ghostBlocks").GhostGirder;
 var ParticleBurst = require("../particles/burst");
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var EPSILON = require("../const").EPSILON;
