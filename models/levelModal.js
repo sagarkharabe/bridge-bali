@@ -61,10 +61,22 @@ const schema = new mongoose.Schema({
 // sets a levels star count based on how many users have like it
 schema.methods.setStars = function() {
   var self = this;
-  return User.find({ likedLevels: { $in: [self._id] } }).then(function(users) {
-    self.starCount = users.length;
-    return self.save();
-  });
+  return User.find({ likedLevels: { $in: [self._id] } })
+    .then(function(users) {
+      self.starCount = users.length;
+      return self.save();
+    })
+    .then(function(level) {
+      return level.populate("creator");
+    })
+    .then(function(level) {
+      return {
+        starCount: level.starCount,
+        creator: {
+          totalStars: level.creator.totalStars
+        }
+      };
+    });
 };
 
 // note whether level is new before saving

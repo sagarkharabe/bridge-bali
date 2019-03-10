@@ -4,17 +4,9 @@ const NUM_TO_TILES = require("../../game/js/const/tilemap");
 
 var Dolly = require("../../game/js/objects/dolly");
 var Cursors = require("../controls/cursors");
-let gusSpawn,
-  upKey,
-  downKey,
-  leftKey,
-  rightKey,
-  rotateCounterKey,
-  routateClockwiseKey,
-  grid,
-  selector;
-let wasdCursors, arrowCursors;
-let lastRotTime = 0;
+var gusSpawn, rotateCounterKey, routateClockwiseKey, selector;
+var wasdCursors, arrowCursors;
+var lastRotTime = 0;
 
 function tileToNum(tile) {
   for (let n in NUM_TO_TILES) if (NUM_TO_TILES[n] === tile) return +n;
@@ -58,6 +50,7 @@ function initCreateState() {
   };
 
   state.drawGrid = function() {
+    const game = window.game;
     // THIS IS TERRIBLE
     if (PIXI.blendModesWebGL !== undefined)
       window.__tempBlendModes = PIXI.blendModesWebGL;
@@ -72,8 +65,6 @@ function initCreateState() {
         0,
         "FATAL: PIXI blend modes are undefined. Tell a programmer."
       );
-
-    const game = window.game;
 
     state.grid = game.add.graphics();
     state.grid.blendMode = PIXI.blendModes.NORMAL;
@@ -148,16 +139,16 @@ function initCreateState() {
 
         for (let y in unparsedTileMap[x]) {
           if (!unparsedTileMap[x].hasOwnProperty(y)) continue;
-          if (unparsedTileMap[x][y] && unparsedTileMap[x][y]["tile"]) {
-            if (unparsedTileMap[x][y]["tile"] === "Gus") {
-              if (x != gusSpawn.x || y != gusSpawn.y) {
+          if (unparsedTileMap[x][y] && unparsedTileMap[x][y].tile) {
+            if (unparsedTileMap[x][y].tile === "Gus") {
+              if (x !== gusSpawn.x || y !== gusSpawn.y) {
                 continue;
               }
             }
             parsedTileMap.push({
               x: x,
               y: y,
-              t: tileToNum(unparsedTileMap[x][y]["tile"]),
+              t: tileToNum(unparsedTileMap[x][y].tile),
               r: unparsedTileMap[x][y].sprite.angle
                 ? unparsedTileMap[x][y].sprite.angle
                 : undefined
@@ -282,9 +273,9 @@ function initCreateState() {
       if (
         unparsedTileMap[x] &&
         unparsedTileMap[x][y] &&
-        unparsedTileMap[x][y]["sprite"]
+        unparsedTileMap[x][y].sprite
       )
-        unparsedTileMap[x][y]["sprite"].kill();
+        unparsedTileMap[x][y].sprite.kill();
 
       if (!unparsedTileMap[x]) unparsedTileMap[x] = {};
       unparsedTileMap[x][y] = {

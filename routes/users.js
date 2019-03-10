@@ -28,11 +28,13 @@ router.get("/:id", getDocAndSend("User"));
 
 router.post(
   "/:id/follow",
+  mustBeLoggedIn,
   getDocAndRunFunctionIfOwnerOrAdmin("User", "followUser")
 );
 
 router.post(
   "/:id/unfollow",
+  mustBeLoggedIn,
   getDocAndRunFunctionIfOwnerOrAdmin("User", "unfollowUser")
 );
 

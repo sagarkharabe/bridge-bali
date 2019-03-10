@@ -4,8 +4,9 @@ var Promise = require("bluebird");
  * INTERNAL HELPERS
  */
 const ownerOrAdmin = (doc, user) => {
-  if (!user) return;
-  return doc.user === user._id || user.isAdmin;
+  console.log("in ownerOrAdmin", doc, user);
+  if (!user) return false;
+  return doc.user.equals(user._id) || user.isAdmin;
 };
 
 const sendDocIfOwnerOrAdmin = (doc, user, res) => {
@@ -222,7 +223,7 @@ const getDocAndRunFunction = (ModelStr, func) => (req, res, next) => {
   Model.findById(id)
     .then(document => {
       if (!document) next();
-      else return document[func](req.body.input);
+      else return document[func](req.body.args);
     })
     .then(document => res.status(200).json(document))
     .then(null, next);
@@ -241,8 +242,23 @@ const getDocAndRunFunctionIfOwnerOrAdmin = (ModelStr, func) => (
     .then(document => {
       if (!document) next();
       if (ownerOrAdmin(document, req.user)) {
-        return document[func](req.body.input);
+        return document[func](req.body.args);
       } else res.status(401).end();
+    })
+    .then(document => res.status(200).json(document))
+    .then(null, next);
+};
+
+const getUserDocAndRunFunction = func => (req, res, next) => {
+  const id = req.user._id;
+  const User = mongoose.model("User");
+  console.log(req.query);
+  console.log(req.body);
+
+  User.findById(id)
+    .then(document => {
+      if (!document) next();
+      else return document[req.query.func](req.query.args);
     })
     .then(document => res.status(200).json(document))
     .then(null, next);
@@ -287,5 +303,6 @@ module.exports = {
   getDocAndRunFunction,
   getDocAndRunFunctionIfOwnerOrAdmin,
   getDocAndUpdateIfOwnerOrAdmin,
-  getDocAndDeleteIfOwnerOrAdmin
+  getDocAndDeleteIfOwnerOrAdmin,
+  getUserDocAndRunFunction
 };
