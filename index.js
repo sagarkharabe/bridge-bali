@@ -52,8 +52,7 @@ app.get("/", (req, res) => {
 });
 app.get("/createLevel", function(req, res) {
   res.render("levelCreator/levelCreator", {
-    toolArr: toolArr,
-    testing: false
+    toolArr: toolArr
   });
 });
 app.get("/testLevel", function(req, res) {
