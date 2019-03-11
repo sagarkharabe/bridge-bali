@@ -1,6 +1,5 @@
 var game = window.game;
 var Girder = require("./blocks").Girder;
-var GhostGirder = require("./ghostBlocks").GhostGirder;
 var ParticleBurst = require("../particles/burst");
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var EPSILON = require("../const").EPSILON;
@@ -154,11 +153,6 @@ GirderMarker.prototype.placeGirder = function() {
   if (this.placeable) {
     var newGirder = new Girder(this.sprite.position.x, this.sprite.position.y);
     newGirder.sprite.rotation = this.master.sprite.rotation;
-
-    // add placeGirder action if Gus is recording
-    if (this.master.constructor.name === "RecordingGus") {
-      this.master.uncompressedRecord.push(3); // 3 corresponds to placeGirder
-    }
 
     this.girdersPlaced.push(newGirder);
 

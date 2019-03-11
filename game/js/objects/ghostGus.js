@@ -17,38 +17,50 @@ class GhostGus extends Gus {
     console.log("ghosting");
     this.sprite.alpha = 0.5;
 
-    this.compressedRecord = [
-      2,
-      173,
-      1,
-      49,
-      2,
-      79,
-      0,
-      46,
-      2,
-      10,
-      0,
-      14,
-      2,
-      16,
-      0,
-      39,
-      3,
-      1,
-      0,
-      22,
-      2,
-      35,
-      0,
-      129
+    this.startTime = game.time.now;
+
+    console.log(this.startTime);
+
+    this.records = [
+      { INPUT: [], ENDTIME: 9438 },
+      { INPUT: [2], ENDTIME: 8521 },
+      { INPUT: [], ENDTIME: 8421 },
+      { INPUT: [3], ENDTIME: 8321 },
+      { INPUT: [], ENDTIME: 8221 },
+      { INPUT: [2], ENDTIME: 7504 },
+      { INPUT: [1, 2], ENDTIME: 7487 },
+      { INPUT: [1], ENDTIME: 6286 },
+      { INPUT: [], ENDTIME: 6270 },
+      { INPUT: [2], ENDTIME: 5019 },
+      { INPUT: [1, 2], ENDTIME: 5002 },
+      { INPUT: [1], ENDTIME: 3835 },
+      { INPUT: [], ENDTIME: 3819 },
+      { INPUT: [2], ENDTIME: 2735 },
+      { INPUT: [1, 2], ENDTIME: 2718 },
+      { INPUT: [1], ENDTIME: 1701 },
+      { INPUT: [], ENDTIME: 1668 },
+      { INPUT: [2], ENDTIME: 801 },
+      { INPUT: [], ENDTIME: 0 }
     ];
 
+    this.currentRecord = this.records.pop();
+
     this.setCollision();
-    this.uncompressRecord();
 
     this.marker = new GhostGirderMarker();
     this.marker.setMaster(this);
+  }
+  getTime() {
+    return;
+  }
+
+  isRecordExpired() {
+    const tolerance = 10; // in ms
+    const currentTime = game.time.now - this.startTime;
+    const currentRecordEnd = this.currentRecord.ENDTIME;
+    console.log(currentTime, currentRecordEnd);
+
+    return currentTime > currentRecordEnd - tolerance;
   }
 
   // diff from Gus's doom: doesn't unlock the dolly
@@ -78,28 +90,9 @@ class GhostGus extends Gus {
     ]);
   }
 
-  uncompressRecord() {
-    const compressedRecord = this.compressedRecord;
-
-    const reversedUncompressedRecord = [];
-
-    const compressedRecordStartLength = compressedRecord.length;
-
-    for (let i = 0; i < compressedRecordStartLength; i += 2) {
-      let numTimes = compressedRecord.pop();
-      let key = compressedRecord.pop();
-
-      for (let j = 0; j < numTimes; j++) reversedUncompressedRecord.push(key);
-    }
-
-    this.uncompressedRecord = reversedUncompressedRecord.reverse();
-  }
-
   update() {
     this.marker.update();
-    // clear horizontal movement
-    const currentMove = this.uncompressedRecord.pop();
-    this.marker.update(currentMove);
+
     if (Math.abs(Math.cos(this.rotation)) > EPSILON)
       this.sprite.body.velocity.x = 0;
     else this.sprite.body.velocity.y = 0;
@@ -137,19 +130,47 @@ class GhostGus extends Gus {
         this.rotationSensor.needsCollisionData = false;
       }
 
-      // check for input
-      if (currentMove === 1) {
-        this.walk("left");
-      } else if (currentMove === 2) {
-        this.walk("right");
-      } else {
-        this.stop();
+      // evaluate INPUT
+      if (this.currentRecord) {
+        this.currentRecord.INPUT.forEach(action => {
+          this.marker.update(action);
+
+          // movement
+          switch (action) {
+            case 1:
+              this.walk("left");
+              break;
+            case 2:
+              this.walk("right");
+              break;
+            case 3:
+              this.marker.placeGirder(action);
+              break;
+            default:
+              this.stop();
+              break;
+          }
+          if (action === 1) {
+            this.walk("left");
+            // console.log('walking left')
+          } else if (action === 2) {
+            this.walk("right");
+            // console.log('walking right')
+          } else {
+            this.stop();
+          }
+
+          // girder placement
+          if (action === 3) {
+            this.marker.placeGirder();
+          }
+        });
+
+        if (this.isRecordExpired()) {
+          this.currentRecord = this.records.pop();
+        }
       }
-      console.log(currentMove);
-      if (currentMove === 3) {
-        console.log("PLACING GIRDER!\n\n");
-        this.marker.placeGirder();
-      }
+
       if (!this.isTouching("down")) {
         this.fallTime += game.time.physicsElapsedMS;
 

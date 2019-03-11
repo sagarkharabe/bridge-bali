@@ -1,5 +1,6 @@
 "use strict";
 
+const _ = require("lodash");
 const game = window.game;
 
 const Gus = require("./gus");
@@ -12,50 +13,38 @@ const TAU = require("../const").TAU;
 class RecordingGus extends Gus {
   constructor(x, y) {
     super(x, y);
-    this.uncompressedRecord = [];
+    this.startTime = game.time.now;
+    this.records = [];
+    this.currentRecord = {};
+  }
+  getTime() {
+    return game.time.now - this.startTime;
   }
 
-  compressRecord() {
-    const uncompressedRecord = this.uncompressedRecord;
-    const compressedRecord = [];
+  recordInput() {
+    const input = [];
+    const spacebar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
-    let currentNum = uncompressedRecord[0];
-    let currentNumCount = 1;
-
-    for (let i = 1; i < uncompressedRecord.length; i++) {
-      if (uncompressedRecord[i] === currentNum) currentNumCount++;
-      else {
-        compressedRecord.push(currentNum, currentNumCount);
-        currentNum = uncompressedRecord[i];
-        currentNumCount = 1;
-      }
+    // not sure what's supposed to happen if both are held down,
+    // but I'm defaulting to the 'right' action
+    if (game.cursors.left.isDown) input.push(1);
+    if (game.cursors.right.isDown) input.push(2);
+    if (spacebar.isDown) input.push(3);
+    if (!_.isEqual(this.currentRecord.input, input)) {
+      this.currentRecord.input = input;
+      this.records.push({
+        input: input,
+        endTime: this.getTime()
+      });
+      console.log("\n", this.currentRecord, "\n");
     }
-    compressedRecord.push(currentNum, currentNumCount);
-
-    this.compressedRecord = compressedRecord;
-  }
-
-  // accounting for rotation, determines what keyDown the ghost
-  // should simulate (1 for left, 2 for right)
-  recordKeyDown() {
-    let n = 0;
-
-    if (game.cursors.left.isDown) n = 1;
-    else if (game.cursors.right.isDown) n = 2;
-
-    // account for rotation
-    n += Math.floor(this.rotation / (Math.PI / 2));
-
-    // result should only be 1 or 2
-    this.uncompressedRecord.push(n % 3);
   }
 
   kill() {
-    this.uncompressedRecord = this.uncompressedRecord.reverse();
-    this.compressRecord();
-    console.log(this.compressedRecord);
-    // document.getElementById('arr').textContent = this.record;
+    this.records = this.records.reverse();
 
+    document.getElementById("arr").textContent = JSON.stringify(this.records);
+    // document.getElementById('arr').textContent = this.records;
     new ParticleBurst(
       this.sprite.position.x,
       this.sprite.position.y,
@@ -78,7 +67,7 @@ class RecordingGus extends Gus {
   }
 
   update() {
-    this.recordKeyDown();
+    this.recordInput();
     // clear horizontal movement
     if (Math.abs(Math.cos(this.rotation)) > EPSILON)
       this.sprite.body.velocity.x = 0;
