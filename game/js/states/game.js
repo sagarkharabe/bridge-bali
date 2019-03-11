@@ -4,6 +4,7 @@ var GirderMarker = require("../objects/girderMarker");
 var LevelGenerator = require("../generator");
 var ParticleBurst = require("../particles/burst");
 var BreakBrickBlock = require("../objects").BreakBrickBlock;
+var ResultScreen = require("../scenes/resultScreen");
 var Gus = require("../objects/recordingGus");
 function initGameState() {
   var state = {};
@@ -159,12 +160,16 @@ function initGameState() {
     });
     BreakBrickBlock.update();
 
+    // lock camera to player
+    game.dolly.update();
+    ParticleBurst.update();
+
     if (game.toolsRemaining === 0) {
-      if (restartTimeout === undefined)
-        restartTimeout = setTimeout(function() {
-          state.restartLevel();
-          gameEndingEmitted = false;
-        }, 15000);
+      // if (restartTimeout === undefined)
+      //   restartTimeout = setTimeout(function() {
+      //     state.restartLevel();
+      //     gameEndingEmitted = false;
+      //   }, 15000);
 
       gus.isDead = true;
 
@@ -179,13 +184,31 @@ function initGameState() {
       game.camera.scale.y *= 1 + game.time.physicsElapsed / 5;
       game.dolly.rotation = Math.PI * 2 - gus.sprite.rotation;
       game.dolly.unlock();
+
       if (!gameEndingEmitted) {
         gameEndingEmitted = true;
         eventEmitter.emit("game ended", [
           startingGirderCount - gus.girders,
           game.time.now - levelStarted
         ]);
+        console.log("YOU DID IT!");
+        console.log("Girders placed:", startingGirderCount - gus.girders);
+        console.log("Time taken:", game.time.now - levelStarted);
+
+        state.resultScreen = new ResultScreen(
+          startingGirderCount - gus.girders,
+          game.time.now - levelStarted,
+          function() {
+            state.restartLevel();
+          }
+        );
+        state.resultScreen.draw();
+
+        game.input.keyboard
+          .addKey(Phaser.KeyCode.R)
+          .onDown.add(state.restartLevel, this, 0);
       }
+      state.resultScreen.update();
     } else if (gus.isDead && restartTimeout === undefined) {
       game.dolly.unlock();
 
@@ -194,9 +217,6 @@ function initGameState() {
       }, 500);
     }
 
-    // lock camera to player
-    game.dolly.update();
-    ParticleBurst.update();
     // render HUD
     var rate = game.time.fps;
     fpsCounter.position = game.dolly.screenspaceToWorldspace({ x: 0, y: 0 });
@@ -233,6 +253,12 @@ function initGameState() {
 
   // needs to be added
   state.restartLevel = function() {
+    if (this.resultScreen) {
+      this.resultScreen.texture.visible = false;
+      game.input.keyboard
+        .addKey(Phaser.KeyCode.R)
+        .onDown.remove(state.restartLevel, this);
+    }
     game.toolsToCollect.forEach(function(tool) {
       tool.reset();
     });
@@ -250,6 +276,7 @@ function initGameState() {
 
     restartTimeout = undefined;
     levelStarted = game.time.now;
+    gameEndingEmitted = false;
   };
   state.postBroadphase = function(body1, body2) {
     if (
