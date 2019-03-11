@@ -519,10 +519,10 @@ function initLoadState() {
     const eventEmitter = window.eventEmitter;
 
     eventEmitter.only("found maps!", function(maps) {
-      game.unparsedTileMap = maps[0] || {};
+      game.unparsedTileMap = maps[1] || {};
       console.log("about to log out the unparsed tile map");
       console.log(game.unparsedTileMap);
-      game.parsedTileMap = maps[1];
+      game.parsedTileMap = maps[2];
       (function gotoStart() {
         if (game.state) game.state.start("create");
         else setTimeout(gotoStart, 100);

@@ -41,7 +41,11 @@ eventEmitter.only("send tile map", mapArr => {
 });
 
 eventEmitter.only("I need both the maps!", function() {
-  eventEmitter.emit("found maps!", [unparsedLevelArr, parsedLevelArr]);
+  eventEmitter.emit("found maps!", [
+    "levelArr",
+    unparsedLevelArr,
+    parsedLevelArr
+  ]);
 });
 
 const getScreenshot = function() {
@@ -61,6 +65,7 @@ const startInputCapture = function() {
 
 const testTesting = function() {
   window.game.destroy();
+  console.log("%%%%%%%%%%%%%%%%%");
   // var my_awesome_script = document.createElement("script");
 
   // my_awesome_script.setAttribute("src", "/game/js/bundle.js");

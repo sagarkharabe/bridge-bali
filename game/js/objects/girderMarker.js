@@ -150,7 +150,7 @@ GirderMarker.prototype.setPlaceGirderButton = function(key) {
 };
 
 GirderMarker.prototype.placeGirder = function() {
-  if (this.master.girders === 0) return;
+  if (this.master.girders === 0 || this.master.isDead) return;
   if (this.placeable) {
     var newGirder = new Girder(this.sprite.position.x, this.sprite.position.y);
     newGirder.sprite.rotation = this.master.sprite.rotation;
