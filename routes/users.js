@@ -6,7 +6,8 @@ const {
   getDocAndUpdateIfOwnerOrAdmin,
   getDocAndDeleteIfOwnerOrAdmin,
   getDocAndRunFunction,
-  getDocAndRunFunctionIfOwnerOrAdmin
+  getDocAndRunFunctionIfOwnerOrAdmin,
+  getUserDocAndRunFunction
 } = require("./helpers/crud");
 const { mustBeLoggedIn } = require("./helpers/permissions");
 
@@ -16,7 +17,7 @@ router.get(
   getDocsAndSend(
     "User",
     ["name", "followers", "createdLevels", "totalStars", "profilePic"],
-    [{ path: "createdLevels", select: "title dateCreat starCount" }]
+    [{ path: "createdLevels", select: "title dateCreated starCount" }]
   )
 );
 
@@ -26,17 +27,9 @@ router.post("/", createDoc("User"));
 // guest can see user
 router.get("/:id", getDocAndSend("User"));
 
-router.post(
-  "/:id/follow",
-  mustBeLoggedIn,
-  getDocAndRunFunctionIfOwnerOrAdmin("User", "followUser")
-);
+// user can follow other users
 
-router.post(
-  "/:id/unfollow",
-  mustBeLoggedIn,
-  getDocAndRunFunctionIfOwnerOrAdmin("User", "unfollowUser")
-);
+router.post("/follow", mustBeLoggedIn, getUserDocAndRunFunction());
 
 router.post(
   "/:id/like",

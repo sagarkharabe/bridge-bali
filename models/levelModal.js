@@ -67,12 +67,21 @@ schema.methods.setStars = function() {
       return self.save();
     })
     .then(function(level) {
-      return level.populate("creator");
+      return level
+        .populate({
+          path: "creator",
+          select: "totalStars"
+        })
+        .execPopulate();
     })
     .then(function(level) {
       return {
-        starCount: level.starCount,
+        level: {
+          _id: level._id,
+          starCount: level.starCount
+        },
         creator: {
+          _id: level.creator._id,
           totalStars: level.creator.totalStars
         }
       };

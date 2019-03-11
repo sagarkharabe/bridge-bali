@@ -18,13 +18,23 @@ router.get(
     [{ path: "creator", select: "name" }]
   )
 );
-// user can like level
-router.get("/like", mustBeLoggedIn, getUserDocAndRunFunction());
 
 // user can create level
 router.post("/", mustBeLoggedIn, createDoc("Level", "creator"));
 // guest can see level
-router.get("/:id", getDocAndSend("Level", ["-map"], ["creator"]));
+router.get(
+  "/:id",
+  getDocAndSend(
+    "Level",
+    ["-map"],
+    [
+      {
+        path: "creator",
+        select: "name totalStars totalFollowers totalCreatedLevels"
+      }
+    ]
+  )
+);
 
 // mapdata route
 router.get("/:id/map", getDocAndSend("Level", ["map"]));
@@ -42,6 +52,10 @@ router.post(
   },
   createDoc("Level", "creator")
 );
+
+// user can like level
+router.post("/like", mustBeLoggedIn, getUserDocAndRunFunction());
+
 // user can delete own level
 router.delete("/:id", mustBeLoggedIn, getDocAndDeleteIfOwnerOrAdmin("Level"));
 

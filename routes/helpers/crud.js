@@ -155,7 +155,7 @@ const getDocAndSend = (ModelStr, selectParams = [], populateParams = []) => (
   Model.findById(id);
   Model.findById(id)
     .select(selectParams.join(" "))
-    .populate(populateParams.join(" "))
+    .populate(populateParams)
     .then(document => res.status(200).json(document))
     .then(null, next);
 };
@@ -258,7 +258,7 @@ const getUserDocAndRunFunction = func => (req, res, next) => {
   User.findById(id)
     .then(document => {
       if (!document) next();
-      else return document[req.query.func](req.query.args);
+      else return document[req.body.func](req.body.args);
     })
     .then(document => res.status(200).json(document))
     .then(null, next);
