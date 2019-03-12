@@ -229,9 +229,11 @@ function initCreateState() {
     for (var i = 0, e = 1; i < 6; ++i, e *= 16) {
       numSlice.push(Math.floor((hex % (e * 16)) / e));
     }
-    return numSlice.reduce(function(sum, colv, idx) {
-      return sum + (idx % 2 ? colv : colv * 16);
-    }, 0);
+    return (
+      numSlice.reduce(function(avg, colv, idx) {
+        return avg + (idx % 2 ? colv : colv * 16);
+      }, 0) / 3
+    );
   }
   state.drawGrid = function() {
     const game = window.game;
@@ -249,10 +251,12 @@ function initCreateState() {
         "PIXI blend modes are undefined  and we have no previous cache. Tell a programmer."
       );
 
+    if (state.grid) state.grid.destroy();
+
     state.grid = game.add.graphics();
     state.grid.blendMode = PIXI.blendModes.NORMAL;
     var color =
-      intToRGBValue(hexStringToInt(game.stage.backgroundColor)) < 300
+      intToRGBValue(hexStringToInt(game.stage.backgroundColor)) < 100
         ? 0xffffff
         : 0x0;
     state.grid.lineStyle(2, color, 0.2);
@@ -280,10 +284,15 @@ function initCreateState() {
     const game = window.game;
     gusSpawn = gusSpawn || game.add.sprite("0", "0", "Gus");
     gusSpawn.anchor.setTo(0.5, 0.5);
-    game.stage.setBackgroundColor(COLORS.DEFAULT_SKY);
 
     game.dolly = new Dolly(game.camera);
     game.dolly.targetPos = new Phaser.Point(0, 0);
+    game.stage.setBackgroundColor(COLORS.DEFAULT_SKY);
+    eventEmitter.on("here's sky color", function(color) {
+      game.stage.setBackgroundColor(color);
+      state.drawGrid();
+    });
+    eventEmitter.emit("need sky color");
 
     this.drawGrid();
 
