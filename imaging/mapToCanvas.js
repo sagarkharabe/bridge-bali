@@ -1,7 +1,7 @@
 "use strict";
 
 var path = require("path");
-
+var fs = require("fs");
 var Canvas = require("canvas");
 var Image = Canvas.Image;
 
@@ -15,13 +15,13 @@ var spriteNames = {
   6: "spike.png"
 };
 
-function getMapObjectsInBounds(objs, xmin, ymin, xmax, ymax) {
+function getMapObjectsInBounds(objs, xmin, ymin, xmax, ymax, margin) {
   return objs.filter(function(objDef) {
     return (
-      objDef.x - 16 > xmin &&
-      objDef.x + 16 < xmax &&
-      objDef.y - 16 > ymin &&
-      objDef.y + 16 < ymax
+      objDef.x + margin > xmin &&
+      objDef.x - margin < xmax &&
+      objDef.y + margin > ymin &&
+      objDef.y - margin < ymax
     );
   });
 }
@@ -42,7 +42,8 @@ function mapToCanvas(mapData, xCenter, yCenter, width, height, scale) {
     xCenter - halfWidth,
     yCenter - halfHeight,
     xCenter + halfWidth,
-    yCenter + halfHeight
+    yCenter + halfHeight,
+    16 / scale
   );
 
   // initialize our canvas
@@ -50,11 +51,12 @@ function mapToCanvas(mapData, xCenter, yCenter, width, height, scale) {
   var ctx = canvas.getContext("2d");
   ctx.antialias = "none";
 
-  // fill the background with the sky color
-  ctx.fillStyle = mapData.skyColor | "#000000";
-  ctx.fillRect(0, 0, width, height);
   ctx.scale(scale, scale);
   ctx.translate(-xCenter, -yCenter);
+
+  // fill the background with the sky color
+  ctx.fillStyle = mapData.skyColor.toString() || "#000000";
+  ctx.fillRect(0, 0, width * 2, height * 2);
 
   var spriteBuffers = {};
 
