@@ -34,16 +34,21 @@ function initCreateState() {
   state.preload = function() {
     eventEmitter.emit("loaded", () => {});
     unparsedTileMap = game.unparsedTileMap;
-    game.parsedTileMap.forEach(function(obj) {
-      var unparTiMa = unparsedTileMap[obj.x][obj.y];
-      var sprite = game.add.sprite(obj.x, obj.y, unparTiMa.tile);
-      if (unparTiMa.tile === "Gus") {
-        gusSpawn = sprite;
-      }
-      sprite.anchor.setTo(0.5, 0.5);
-      unparTiMa.sprite = sprite;
-      if (unparTiMa !== undefined) unparTiMa.sprite.angle = obj.r;
-    });
+
+    if (game.parsedTileMap !== null) {
+      game.parsedTileMap.forEach(function(obj) {
+        var unparTiMa = unparsedTileMap[obj.x][obj.y];
+        var sprite = game.add.sprite(obj.x, obj.y, unparTiMa.tile);
+
+        if (unparTiMa.tile === "Gus") {
+          gusSpawn = sprite;
+        }
+
+        sprite.anchor.setTo(0.5, 0.5);
+        unparTiMa.sprite = sprite;
+        if (unparTiMa !== undefined) unparTiMa.sprite.angle = obj.r;
+      });
+    }
     game.activeTool = "RedBrickBlock";
     selector = game.add.sprite("0", "0", "Select");
     selector.anchor.setTo(0.5, 0.5);
