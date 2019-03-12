@@ -318,7 +318,8 @@ function initGameState() {
       body1.sprite.name === "Gus" &&
       body2.sprite.name === "Tool" &&
       body1.fixedRotation &&
-      gus.isDead === false
+      gus.isDead === false &&
+      body1.gameObject.constructor.name !== "GhostGus"
     ) {
       body2.sprite.owner.collect();
       return false;
@@ -326,7 +327,8 @@ function initGameState() {
       body1.sprite.name === "Tool" &&
       body2.sprite.name === "Gus" &&
       body2.fixedRotation &&
-      gus.isDead === false
+      gus.isDead === false &&
+      body2.gameObject.constructor.name !== "GhostGus"
     ) {
       body1.sprite.owner.collect();
       return false;
