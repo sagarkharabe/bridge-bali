@@ -10,16 +10,16 @@ const {
 const { mustBeLoggedIn } = require("./helpers/permissions");
 
 // guest can see all levels
-router.get(
-  "/",
+router.get("/", function(req, res, next) {
+  var q = { published: { $in: [null, true] } };
   getDocsAndSend(
     "Level",
     ["title", "creator", "dateCreated", "starCount"],
     [{ path: "creator", select: "name" }],
     // change { $in: [null, true] } to just true to drop malformed docs
-    { published: { $in: [null, true] } }
-  )
-);
+    q
+  )(req, res, next);
+});
 router.get("/drafts/", function(req, res, next) {
   getDocsAndSend("Level", ["title", "dateCreated", "starCount"], [], {
     published: false,
