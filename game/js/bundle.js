@@ -187,7 +187,7 @@ function startGame(Phaser) {
     false
   );
   //game.ghostMode = process.env.GHOST_MODE;
-  game.ghostMode = true;
+  game.ghostMode = false;
   //no process.env variables in the browser, nice try yustynn
   game.recordingMode = process.env.RECORDING_MODE;
 
@@ -313,7 +313,7 @@ BreakBrickBlock.prototype.setCollisions = function() {
   );
 };
 
-BreakBrickBlock.prototype.startCollapsing = function() {
+BreakBrickBlock.prototype.startCollapsing = function(target) {
   var targetConstructorName = target.sprite.body.gameObject.constructor.name;
   if (targetConstructorName !== "GhostGus") {
     this.countCollapseTime =
@@ -404,7 +404,11 @@ Dolly.prototype.update = function() {
   if (this.lockTarget && !game.freeLookKey.isDown) {
     this.targetPos = this.lockTarget.position;
     this.targetAng = this.lockTarget.rotation;
-  } else if (game.freeLookKey.isDown) {
+  } else if (
+    game.freeLookKey.isDown &&
+    game.toolsRemaining > 0 &&
+    game.freeLookKey
+  ) {
     if (!this.targetPos.safeToMove) {
       this.targetPos = new Phaser.Point(this.targetPos.x, this.targetPos.y);
       this.targetPos.safeToMove = true;
@@ -1251,7 +1255,7 @@ Gus.prototype.respawn = function() {
 };
 
 Gus.prototype.doom = function() {
-  if (this.isDoomed || this.isDead) return;
+  if (this.isDoomed || this.isDead || this.rotating) return;
 
   this.isDoomed = true;
   this.sprite.body.clearCollision();
@@ -1351,7 +1355,7 @@ Gus.prototype.isTouching = function(side) {
 };
 
 Gus.prototype.rotate = function(dir) {
-  if (this.rotating) return;
+  if (this.rotating || this.isDoomed) return;
 
   // find the angle to rotate by
   var rot = 0;

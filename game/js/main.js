@@ -17,7 +17,7 @@ function startGame(Phaser) {
     false
   );
   //game.ghostMode = process.env.GHOST_MODE;
-  game.ghostMode = true;
+  game.ghostMode = false;
   //no process.env variables in the browser, nice try yustynn
   game.recordingMode = process.env.RECORDING_MODE;
 

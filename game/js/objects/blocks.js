@@ -81,7 +81,7 @@ BreakBrickBlock.prototype.setCollisions = function() {
   );
 };
 
-BreakBrickBlock.prototype.startCollapsing = function() {
+BreakBrickBlock.prototype.startCollapsing = function(target) {
   var targetConstructorName = target.sprite.body.gameObject.constructor.name;
   if (targetConstructorName !== "GhostGus") {
     this.countCollapseTime =
