@@ -12,18 +12,22 @@ function initGameState() {
   var gus,
     ghostGus,
     marker,
-    ghostMarker,
     generator,
     restartTimeout,
     hudCounters,
     levelStarted,
     startingGirderCount;
+
+  var fpsCounter;
   var gameEndingEmitted = false;
   const game = window.game;
   const eventEmitter = window.eventEmitter;
+  // Choose between Gus & Recording Gus
+  if (game.recordingMode) Gus = require("../objects/recordingGus");
+  else Gus = require("../objects/gus");
+
   state.preload = function() {
     console.log("Loading level data...");
-    console.log("Game level", game.level);
     generator = new LevelGenerator(game.level);
 
     // set background color
@@ -35,7 +39,6 @@ function initGameState() {
     console.log("Generating level from level data...");
     generator.parseObjects();
 
-    // needs to be added girder-gus-test
     if (game.toolsToCollect !== undefined) {
       game.toolsRemaining = game.toolsToCollect.length;
     } else {
@@ -50,18 +53,25 @@ function initGameState() {
       game.gusStartPos = { x: 0, y: 0 };
     }
 
-    const GhostGus = require("../objects/ghostGus");
-    ghostGus = new GhostGus(game.gusStartPos.x, game.gusStartPos.y);
-    ghostGus.girders = generator.getStartingGirders();
-
     gus = new Gus(game.gusStartPos.x, game.gusStartPos.y);
     gus.girders = generator.getStartingGirders();
     startingGirderCount = gus.girders;
     marker = new GirderMarker();
     marker.setMaster(gus);
 
+    // create ghost if ghostMode
+    if (game.ghostMode) {
+      console.log("Creating Ghost Gus...");
+
+      var GhostGus = require("../objects/ghostGus");
+
+      ghostGus = new GhostGus(game.gusStartPos.x, game.gusStartPos.y);
+      ghostGus.girders = generator.getStartingGirders();
+    }
+
     game.dolly = new Dolly(game.camera);
     game.dolly.lockTo(gus.sprite);
+
     game.physics.p2.setPostBroadphaseCallback(state.postBroadphase, state);
 
     console.log("Binding to keys...");
@@ -70,7 +80,6 @@ function initGameState() {
     marker.setPlaceGirderButton(
       game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
     );
-    // needs to be added
     game.input.keyboard.addKey(Phaser.KeyCode.R).onDown.add(
       function() {
         gus.doom();
@@ -78,7 +87,9 @@ function initGameState() {
       this,
       0
     );
+
     // make hud icons
+    fpsCounter = game.add.text(0, 0, "60 FPS", { font: "9pt mono" });
     hudCounters = [
       {
         icon: game.add.sprite(41, 41, "Tool"),
@@ -113,6 +124,7 @@ function initGameState() {
         y: counter.icon.position.y
       };
       counter.icon.anchor = new Phaser.Point(0.5, 0.5);
+
       counter.shadow = game.add.text(
         counter.icon.position.x + 4,
         counter.icon.position.y + 4,
@@ -131,11 +143,12 @@ function initGameState() {
           fill: "#F2F2F2"
         }
       );
+
       counter.text.anchor = new Phaser.Point(0, 0.5);
       counter.shadow.anchor = new Phaser.Point(0, 0.5);
-
       return counter;
     });
+
     eventEmitter.only("stop input capture", function() {
       game.input.enabled = false;
       game.input.reset();
@@ -145,17 +158,19 @@ function initGameState() {
       game.input.enabled = true;
       game.input.reset();
     });
+
     levelStarted = game.time.now;
   };
 
   state.update = function() {
     // update actors
     gus.update();
-    ghostGus.update();
+    if (game.ghostMode) ghostGus.update();
     marker.update();
     game.toolsToCollect.forEach(function(tool) {
       tool.update();
     });
+
     BreakBrickBlock.update();
 
     // lock camera to player
@@ -163,11 +178,7 @@ function initGameState() {
     ParticleBurst.update();
 
     if (game.toolsRemaining === 0) {
-      // if (restartTimeout === undefined)
-      //   restartTimeout = setTimeout(function() {
-      //     state.restartLevel();
-      //     gameEndingEmitted = false;
-      //   }, 15000);
+      //if ( restartTimeout === undefined ) restartTimeout = setTimeout( function() { state.restartLevel(); gameEndingEmitted = false; }, 15000 );
 
       gus.isDead = true;
 
@@ -189,6 +200,7 @@ function initGameState() {
           startingGirderCount - gus.girders,
           game.time.now - levelStarted
         ]);
+
         console.log("YOU DID IT!");
         console.log("Girders placed:", startingGirderCount - gus.girders);
         console.log("Time taken:", game.time.now - levelStarted);
@@ -206,6 +218,7 @@ function initGameState() {
           .addKey(Phaser.KeyCode.R)
           .onDown.add(state.restartLevel, this, 0);
       }
+
       state.resultScreen.update();
     } else if (gus.isDead && restartTimeout === undefined) {
       game.dolly.unlock();
@@ -216,13 +229,16 @@ function initGameState() {
     }
 
     // render HUD
+    var rate = game.time.fps;
+    fpsCounter.position = game.dolly.screenspaceToWorldspace({ x: 0, y: 0 });
+    fpsCounter.rotation = game.dolly.rotation;
+    fpsCounter.text = rate + " FPS" + (rate < 30 ? "!!!!" : " :)");
 
     hudCounters.forEach(function(counter) {
       counter.icon.bringToTop();
       counter.icon.position = game.dolly.screenspaceToWorldspace(
         counter.icon.initPos
       );
-
       counter.icon.rotation = game.dolly.rotation;
 
       var textpos = {
@@ -245,7 +261,6 @@ function initGameState() {
     });
   };
 
-  // needs to be added
   state.restartLevel = function() {
     if (this.resultScreen) {
       this.resultScreen.texture.visible = false;
@@ -253,6 +268,14 @@ function initGameState() {
         .addKey(Phaser.KeyCode.R)
         .onDown.remove(state.restartLevel, this);
     }
+
+    gus.sprite.position = new Phaser.Point(
+      game.gusStartPos.x,
+      game.gusStartPos.y
+    );
+    //gus.sprite.body.clearCollision();
+    gus.sprite.visible = false;
+
     game.toolsToCollect.forEach(function(tool) {
       tool.reset();
     });
@@ -260,30 +283,48 @@ function initGameState() {
       girder.sprite.destroy();
     });
     BreakBrickBlock.reset();
-    gus.respawn();
-    gus.rotationSpeed = 0;
-    game.dolly.lockTo(gus.sprite);
-    gus.girders = generator.getStartingGirders();
 
     game.camera.scale.x = 1;
     game.camera.scale.y = 1;
 
-    restartTimeout = undefined;
-    levelStarted = game.time.now;
-    gameEndingEmitted = false;
+    game.dolly.lockTarget = null;
+    game.dolly.targetPos = new Phaser.Point(
+      game.gusStartPos.x,
+      game.gusStartPos.y
+    );
+    game.dolly.targetAng = 0;
+
+    (function checkRestart() {
+      setTimeout(function() {
+        if (game.dolly.targetPos.distance(game.dolly.position) > 100)
+          return checkRestart();
+
+        gus.respawn();
+        gus.rotationSpeed = 0;
+        game.dolly.lockTo(gus.sprite);
+        gus.girders = generator.getStartingGirders();
+
+        restartTimeout = undefined;
+        levelStarted = game.time.now;
+        gameEndingEmitted = false;
+      }, 100);
+    })();
   };
+
   state.postBroadphase = function(body1, body2) {
     if (
       body1.sprite.name === "Gus" &&
       body2.sprite.name === "Tool" &&
-      body1.fixedRotation
+      body1.fixedRotation &&
+      gus.isDead === false
     ) {
       body2.sprite.owner.collect();
       return false;
     } else if (
       body1.sprite.name === "Tool" &&
       body2.sprite.name === "Gus" &&
-      body2.fixedRotation
+      body2.fixedRotation &&
+      gus.isDead === false
     ) {
       body1.sprite.owner.collect();
       return false;
@@ -291,6 +332,7 @@ function initGameState() {
 
     return true;
   };
+
   return state;
 }
 

@@ -1,7 +1,7 @@
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var EPSILON = require("../const").EPSILON;
 var TAU = require("../const").TAU;
-
+var ParticleBurst = require("../particles/burst");
 var game = window.game;
 
 function Gus(x, y) {
@@ -88,6 +88,22 @@ Gus.prototype.respawn = function() {
   this.setCollision();
 
   this.sprite.reset(game.gusStartPos.x, game.gusStartPos.y);
+
+  var respawnBurst = new ParticleBurst(
+    game.gusStartPos.x,
+    game.gusStartPos.y,
+    "GusHead",
+    {
+      lifetime: 3000,
+      count: 14,
+      scaleMin: 0.2,
+      scaleMax: 1.0,
+      rotMin: 0,
+      rotMax: 360,
+      speed: 100,
+      fadeOut: true
+    }
+  );
 };
 
 Gus.prototype.doom = function() {
