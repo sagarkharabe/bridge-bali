@@ -32,10 +32,25 @@ Dolly.prototype.update = function() {
       this.targetPos.safeToMove = true;
     }
 
-    if (game.cursors.left.isDown) this.targetPos.x -= this.freeLookSpeed;
-    if (game.cursors.up.isDown) this.targetPos.y -= this.freeLookSpeed;
-    if (game.cursors.right.isDown) this.targetPos.x += this.freeLookSpeed;
-    if (game.cursors.down.isDown) this.targetPos.y += this.freeLookSpeed;
+    if (game.cursors.left.isDown) {
+      this.targetPos.x += Math.cos(this.rotation) * -this.freeLookSpeed;
+      this.targetPos.y += Math.sin(this.rotation) * -this.freeLookSpeed;
+    }
+
+    if (game.cursors.up.isDown) {
+      this.targetPos.x += Math.sin(this.rotation) * this.freeLookSpeed;
+      this.targetPos.y += Math.cos(this.rotation) * -this.freeLookSpeed;
+    }
+
+    if (game.cursors.right.isDown) {
+      this.targetPos.x += Math.cos(this.rotation) * this.freeLookSpeed;
+      this.targetPos.y += Math.sin(this.rotation) * this.freeLookSpeed;
+    }
+
+    if (game.cursors.down.isDown) {
+      this.targetPos.x += Math.sin(this.rotation) * -this.freeLookSpeed;
+      this.targetPos.y += Math.cos(this.rotation) * this.freeLookSpeed;
+    }
   }
 
   if (this.targetPos !== null) {
