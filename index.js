@@ -8,6 +8,7 @@ const exphbs = require("express-handlebars");
 require("./models");
 const app = express();
 const { toggleTesting } = require("./hbshelpers/createLevel");
+const favicon = require("serve-favicon");
 //require("./config/app-variables")(app);
 
 MONGOURI = "mongodb://sagar:sagar5544@ds259820.mlab.com:59820/new-mario-db";
@@ -47,6 +48,7 @@ app.use("/public", express.static(path.join(__dirname, "public")));
 app.use("/game", express.static(path.join(__dirname, "game")));
 app.use("/levelCreator", express.static(path.join(__dirname, "levelCreator")));
 app.use(express.static(path.join(__dirname, "node_modules")));
+//app.use(favicon(app.getValue('faviconPath')));
 
 app.get("/", (req, res) => {
   res.render("home");
