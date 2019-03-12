@@ -2,6 +2,7 @@
 var FULLSCREEN = false;
 var WIDTH = FULLSCREEN ? window.innerWidth * window.devicePixelRatio : 800,
   HEIGHT = FULLSCREEN ? window.innerHeight * window.devicePixelRatio : 600;
+if (!window.PIXI) window.PIXI = require("pixi");
 
 function startGame(phaser) {
   // initialize the game

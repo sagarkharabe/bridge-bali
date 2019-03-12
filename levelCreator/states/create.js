@@ -48,7 +48,20 @@ function initCreateState() {
     selector = game.add.sprite("0", "0", "Select");
     selector.anchor.setTo(0.5, 0.5);
   };
+  function hexStringToInt(hex) {
+    if (typeof hex === "number") return hex;
+    else return parseInt(hex, 16);
+  }
 
+  function intToRGBValue(hex) {
+    var numSlice = [];
+    for (var i = 0, e = 1; i < 6; ++i, e *= 16) {
+      numSlice.push(Math.floor((hex % (e * 16)) / e));
+    }
+    return numSlice.reduce(function(sum, colv, idx) {
+      return sum + (idx % 2 ? colv : colv * 16);
+    }, 0);
+  }
   state.drawGrid = function() {
     const game = window.game;
     // THIS IS TERRIBLE
@@ -69,7 +82,11 @@ function initCreateState() {
 
     state.grid = game.add.graphics();
     state.grid.blendMode = PIXI.blendModes.NORMAL;
-    state.grid.lineStyle(2, 0x000, 0.2);
+    var color =
+      intToRGBValue(hexStringToInt(game.stage.backgroundColor)) < 300
+        ? 0xffffff
+        : 0x0;
+    state.grid.lineStyle(2, color, 0.2);
     var length = game.camera.width * 0.625; // 3:4 res :. a,b,c=3,4,5 :. c=1.25b :. b=0.5*1.25=0.625
     for (
       var y = parseCoordinate(game.dolly.position.y - length) - 16;

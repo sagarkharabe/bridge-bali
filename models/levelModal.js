@@ -5,6 +5,8 @@ const User = mongoose.model("User");
 const path = require("path");
 const convert = require("../imaging/convert");
 const mapToCanvas = require("../imaging/mapToCanvas");
+// const uploadMapThumb = require("../imaging/upload");
+// const removeLocalMapThumb = require("../imaging/delete");
 // part of level schema
 const map = {
   startGirders: {
@@ -136,13 +138,21 @@ schema.post("save", function(doc, next) {
   }, undefined);
 
   // now let's start making beautiful pictures
-  var outName =
+  var outPath =
     path.join(__dirname, "../public/images/mapthumbs/") + doc._id + ".png";
   mapToCanvas(doc.map, gusDef.x, gusDef.y, 250, 150, 0.5)
     .then(function(canvas) {
       var pngStream = convert.canvasToPNG(canvas);
 
-      convert.streamToFile(pngStream, outName).then(next);
+      convert
+        .streamToFile(pngStream, outPath)
+        .then(() => {
+          return uploadMapThumb(outPath, doc._id);
+        })
+        .then(() => {
+          return removeLocalMapThumb(outPath);
+        })
+        .then(next, console.error.bind(console));
     })
     .then(null, next);
 });
