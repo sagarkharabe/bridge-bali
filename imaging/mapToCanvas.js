@@ -56,7 +56,8 @@ function mapToCanvas(mapData, xCenter, yCenter, width, height, scale) {
 
   // fill the background with the sky color
   ctx.fillStyle = mapData.skyColor.toString() || "#000000";
-  ctx.fillRect(0, 0, width * 2, height * 2);
+
+  ctx.fillRect(-400, -300, 800, 800);
 
   var spriteBuffers = {};
 
