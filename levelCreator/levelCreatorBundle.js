@@ -153,7 +153,23 @@ function startGame(phaser) {
 }
 
 (function checkPhaserExists(phaser) {
-  if (phaser && (window.game === null || window.game === undefined)) {
+  if (phaser) {
+    console.log("Checking existence of previous games...");
+    var oldGameStillRunning = window.game ? window.game.isBooted : false;
+    console.log(phaser.GAMES, window.game);
+
+    for (var game in phaser.GAMES) {
+      if (phaser.GAMES[game] !== null) oldGameStillRunning = true;
+    }
+
+    if (oldGameStillRunning) {
+      console.log("Waiting for cleanup to finish...");
+      setTimeout(function() {
+        checkPhaserExists(window.Phaser);
+      }, 300);
+      return;
+    }
+
     console.log("Phaser runtime initialized, starting...");
     startGame(phaser);
   } else {
