@@ -481,7 +481,7 @@ class GhostBreakBrickBlock extends BreakBrickBlock {
 
 class GhostGirder extends Block {
   constructor(x, y) {
-    super(x, y, "Girder"); // Block constructor does not set collisions
+    super(x, y, "GhostGirder"); // Block constructor does not set collisions
 
     this.sprite.alpha = 0.5;
     console.log("GHOST GIRDER BEING MADED!");
@@ -506,9 +506,83 @@ const GhostGirder = require("./ghostBlocks").GhostGirder;
 const GirderMarker = require("./girderMarker");
 const ParticleBurst = require("../particles/burst");
 
+const COLLISION_GROUPS = require("../const/collisionGroup");
+
 class GhostGirderMarker extends GirderMarker {
   constructor() {
     super(true); // call GirderMarker constructor with isGhost = true;
+  }
+
+  getTargetPos() {
+    var playerSensor = this.ghost
+      ? COLLISION_GROUPS.GHOST_PLAYER_SENSOR
+      : COLLISION_GROUPS.PLAYER_SENSOR;
+
+    // get our position factory based on the player's facing
+    var posFactory = this.masterPos();
+    if (this.master.facingRight) posFactory = posFactory.right();
+    else posFactory = posFactory.left();
+
+    // start at the bottom
+    var bottom = posFactory.bottom();
+    bottom.isBottom = true;
+
+    var front = posFactory.front();
+    front.isBottom = false;
+
+    var frontTarget = game.physics.p2.hitTest(front);
+
+    if (frontTarget.length) {
+      if (
+        frontTarget.length > 1 ||
+        frontTarget[0].parent.sprite.key !== "Girder"
+      ) {
+        return undefined;
+      }
+    }
+
+    // test to see if there's anything in the way of this girder
+    var hitBoxes = game.physics.p2.hitTest(bottom);
+    if (hitBoxes.length) {
+      // there is! is it an unplaceable object?
+      var hitUnplaceable = false;
+      hitBoxes.forEach(function(box) {
+        if (box.parent.collidesWith.indexOf(playerSensor) === -1)
+          hitUnplaceable = true;
+      });
+      if (hitUnplaceable) return undefined; // yes, return undefined
+
+      return front;
+    } else {
+      // check to see if there's something underneath Gus
+      var hitBelow = [];
+      if (this.master.facingRight)
+        hitBelow = game.physics.p2.hitTest(
+          this.masterPos()
+            .left()
+            .bottom()
+        );
+      else
+        hitBelow = game.physics.p2.hitTest(
+          this.masterPos()
+            .right()
+            .bottom()
+        );
+
+      if (hitBelow.length) {
+        // Gus is standing on something, check to see if we can place on it
+        var standingOnUnplaceable = false;
+        hitBelow.forEach(function(box) {
+          if (box.parent.collidesWith.indexOf(playerSensor) === -1)
+            standingOnUnplaceable = true;
+        });
+        if (standingOnUnplaceable) return undefined;
+
+        return bottom;
+      } else {
+        return undefined;
+      }
+    }
   }
 
   placeGirder() {
@@ -577,7 +651,7 @@ class GhostGirderMarker extends GirderMarker {
 
 module.exports = GhostGirderMarker;
 
-},{"../particles/burst":19,"./ghostBlocks":10,"./girderMarker":13}],12:[function(require,module,exports){
+},{"../const/collisionGroup":1,"../particles/burst":19,"./ghostBlocks":10,"./girderMarker":13}],12:[function(require,module,exports){
 "use strict";
 
 const game = window.game;
@@ -914,7 +988,16 @@ GirderMarker.prototype.getTargetPos = function() {
   var front = posFactory.front();
   front.isBottom = false;
 
-  if (game.physics.p2.hitTest(front).length) return undefined;
+  var frontTarget = game.physics.p2.hitTest(front);
+
+  if (frontTarget.length) {
+    if (
+      frontTarget.length > 1 ||
+      frontTarget[0].parent.sprite.key !== "GhostGirder"
+    ) {
+      return undefined;
+    }
+  }
 
   // test to see if there's anything in the way of this girder
   var hitBoxes = game.physics.p2.hitTest(bottom);
@@ -2260,6 +2343,7 @@ function initLoadState() {
     game.load.image("BrickBlack", "game/assets/images/brick_black.png");
     game.load.image("BrickBreak", "game/assets/images/brick_break.png");
     game.load.image("BrickRed", "game/assets/images/brick_red.png");
+    game.load.image("GhostGirder", "game/assets/images/girder.png");
     game.load.image("Girder", "game/assets/images/girder.png");
     game.load.image("Tool", "game/assets/images/tool.png");
     game.load.image("Spike", "game/assets/images/spike.png");

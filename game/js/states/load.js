@@ -10,6 +10,7 @@ function initLoadState() {
     game.load.image("BrickBlack", "game/assets/images/brick_black.png");
     game.load.image("BrickBreak", "game/assets/images/brick_break.png");
     game.load.image("BrickRed", "game/assets/images/brick_red.png");
+    game.load.image("GhostGirder", "game/assets/images/girder.png");
     game.load.image("Girder", "game/assets/images/girder.png");
     game.load.image("Tool", "game/assets/images/tool.png");
     game.load.image("Spike", "game/assets/images/spike.png");
