@@ -26,13 +26,14 @@ const createDoc = (ModelStr, tieToUser = false) => {
   };
 };
 
-const getDocsAndSend = (ModelStr, selectParams = [], populateParams = []) => (
-  req,
-  res,
-  next
-) => {
+const getDocsAndSend = (
+  ModelStr,
+  selectParams = [],
+  populateParams = [],
+  q
+) => (req, res, next) => {
   const Model = mongoose.model(ModelStr);
-  const query = {};
+  const query = q || {};
   let sort = {};
 
   if (ModelStr === "Level") {
@@ -145,16 +146,17 @@ const getDocsAndSend = (ModelStr, selectParams = [], populateParams = []) => (
   });
 };
 
-const getDocAndSend = (ModelStr, selectParams = [], populateParams = []) => (
-  req,
-  res,
-  next
-) => {
+const getDocAndSend = (
+  ModelStr,
+  selectParams = [],
+  populateParams = [],
+  query
+) => (req, res, next) => {
   const id = req.params.id;
   const Model = mongoose.model(ModelStr);
 
-  Model.findById(id);
   Model.findById(id)
+    .and(query || {})
     .select(selectParams.join(" "))
     .populate(populateParams)
     .then(document => res.status(200).json(document))

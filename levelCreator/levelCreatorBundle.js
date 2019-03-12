@@ -288,7 +288,7 @@ function initCreateState() {
     game.dolly = new Dolly(game.camera);
     game.dolly.targetPos = new Phaser.Point(0, 0);
     game.stage.setBackgroundColor(COLORS.DEFAULT_SKY);
-    eventEmitter.on("here's sky color", function(color) {
+    eventEmitter.only("here's sky color", function(color) {
       game.stage.setBackgroundColor(color);
       state.drawGrid();
     });
