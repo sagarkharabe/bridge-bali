@@ -1916,8 +1916,9 @@ function initGameState() {
 
   var fpsCounter;
   var gameEndingEmitted = false;
-  const game = window.game;
-  const eventEmitter = window.eventEmitter;
+  var game = window.game;
+  var eventEmitter = window.eventEmitter;
+
   // Choose between Gus & Recording Gus
   if (game.recordingMode) Gus = require("../objects/recordingGus");
   else Gus = require("../objects/gus");
@@ -2083,6 +2084,7 @@ function initGameState() {
 
       gus.rotationSpeed = gus.rotationSpeed || 0;
       gus.rotationSpeed += game.time.physicsElapsed;
+      if (gus.rotationSpeed > Math.PI) gus.rotationSpeed = Math.PI;
       gus.sprite.rotation += gus.rotationSpeed * game.time.physicsElapsed;
 
       game.camera.scale.x *= 1 + game.time.physicsElapsed / 5;

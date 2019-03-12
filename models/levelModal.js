@@ -131,6 +131,10 @@ schema.post("save", function(doc, next) {
 
 // post-save hook to save a screenshot of the level
 schema.post("save", function(doc, next) {
+  if (!doc.wasNew) {
+    console.log("Updating already existing map, skipping screenshot");
+    return next();
+  }
   // find gus's position in the map
   var gusDef = doc.map.objects.reduce(function(gus, objDef) {
     if (objDef.t === 1) return objDef;

@@ -24,6 +24,7 @@ function uploadMapThumb(imagePath, levelId) {
 
   return new Promise((resolve, reject) => {
     uploader.on("error", function(err) {
+      console.error("unable to upload:", JSON.stringify(err));
       console.error("unable to upload:", err.stack);
       reject();
     });

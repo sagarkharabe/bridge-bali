@@ -179,12 +179,12 @@ schema.methods.likeLevel = function(levelId) {
   return Level.findById(levelId)
     .then(function(level) {
       if (level === null) {
-        var err = new Error();
+        var err = new Error("Cannot like level: Level does not exist");
         err.status = 404;
         throw err;
       }
       if (self.likedLevels.indexOf(level._id) !== -1) {
-        err = new Error();
+        err = new Error("Cannot like level: Level has already been liked");
         err.status = 400;
         throw err;
       } else {
