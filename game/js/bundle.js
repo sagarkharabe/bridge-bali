@@ -534,9 +534,9 @@ class GhostGirderMarker extends GirderMarker {
         this.placeable = true;
 
         // if we're holding space, build a bridge
-        if (targetPos.isBottom && currentMove === 3) {
-          this.placeGirder();
-        }
+        // if (targetPos.isBottom && currentMove === 3) {
+        //   this.placeGirder();
+        // }
       } else {
         // no legal position found, hide the marker
         this.sprite.visible = false;
@@ -568,50 +568,79 @@ class GhostGus extends Gus {
     console.log("ghosting");
     this.sprite.alpha = 0.5;
 
-    this.startTime = game.time.now;
-
-    console.log(this.startTime);
+    this.startTime = game.time.now + 500;
+    this.timingTolerance = -20; // in ms
 
     this.records = [
-      { INPUT: [], ENDTIME: 9438 },
-      { INPUT: [2], ENDTIME: 8521 },
-      { INPUT: [], ENDTIME: 8421 },
-      { INPUT: [3], ENDTIME: 8321 },
-      { INPUT: [], ENDTIME: 8221 },
-      { INPUT: [2], ENDTIME: 7504 },
-      { INPUT: [1, 2], ENDTIME: 7487 },
-      { INPUT: [1], ENDTIME: 6286 },
-      { INPUT: [], ENDTIME: 6270 },
-      { INPUT: [2], ENDTIME: 5019 },
-      { INPUT: [1, 2], ENDTIME: 5002 },
-      { INPUT: [1], ENDTIME: 3835 },
-      { INPUT: [], ENDTIME: 3819 },
-      { INPUT: [2], ENDTIME: 2735 },
-      { INPUT: [1, 2], ENDTIME: 2718 },
-      { INPUT: [1], ENDTIME: 1701 },
-      { INPUT: [], ENDTIME: 1668 },
-      { INPUT: [2], ENDTIME: 801 },
-      { INPUT: [], ENDTIME: 0 }
+      { INPUT: [2], ENDTIME: 10867 },
+      { INPUT: [1], ENDTIME: 9817 },
+      { INPUT: [0], ENDTIME: 9517 },
+      { INPUT: [2], ENDTIME: 9167 },
+      { INPUT: [1], ENDTIME: 8667 },
+      { INPUT: [0], ENDTIME: 8367 },
+      { INPUT: [1], ENDTIME: 7634 },
+      { INPUT: [2], ENDTIME: 7317 },
+      { INPUT: [0], ENDTIME: 6867 },
+      { INPUT: [1], ENDTIME: 6667 },
+      { INPUT: [0], ENDTIME: 6317 },
+      { INPUT: [2], ENDTIME: 6284 },
+      { INPUT: [0], ENDTIME: 5817 },
+      { INPUT: [2], ENDTIME: 5550 },
+      { INPUT: [1], ENDTIME: 4967 },
+      { INPUT: [0], ENDTIME: 4667 },
+      { INPUT: [2], ENDTIME: 4267 },
+      { INPUT: [1], ENDTIME: 3817 },
+      { INPUT: [0], ENDTIME: 3367 },
+      { INPUT: [2], ENDTIME: 2734 },
+      { INPUT: [0], ENDTIME: 800 }
     ];
-
     this.currentRecord = this.records.pop();
+    this.currentRecord.hasBeenExecuted = false;
 
     this.setCollision();
 
     this.marker = new GhostGirderMarker();
     this.marker.setMaster(this);
   }
+  evaluateRecord() {
+    if (this.currentRecord) {
+      if (this.isRecordExpired() && this.currentRecord.hasBeenExecuted) {
+        this.currentRecord = this.records.pop();
+      }
+
+      if (!this.currentRecord) return;
+
+      this.currentRecord.INPUT.forEach(action => {
+        switch (action) {
+          case 1:
+            this.walk("left");
+            break;
+          case 2:
+            this.walk("right");
+            break;
+          case 3:
+            // debugger;
+            this.marker.placeGirder();
+            break;
+          default:
+            this.stop();
+            break;
+        }
+      });
+
+      this.currentRecord.hasBeenExecuted = true;
+    }
+  }
   getTime() {
-    return;
+    return game.time.now - this.startTime;
   }
 
   isRecordExpired() {
-    const tolerance = 10; // in ms
-    const currentTime = game.time.now - this.startTime;
+    const currentTime = this.getTime();
     const currentRecordEnd = this.currentRecord.ENDTIME;
-    console.log(currentTime, currentRecordEnd);
+    //console.log(currentTime, currentRecordEnd);
 
-    return currentTime > currentRecordEnd - tolerance;
+    return currentTime >= currentRecordEnd - this.timingTolerance;
   }
 
   // diff from Gus's doom: doesn't unlock the dolly
@@ -642,11 +671,10 @@ class GhostGus extends Gus {
   }
 
   update() {
-    this.marker.update();
-
     if (Math.abs(Math.cos(this.rotation)) > EPSILON)
       this.sprite.body.velocity.x = 0;
     else this.sprite.body.velocity.y = 0;
+    this.evaluateRecord();
 
     // check to see if we're rotating
     if (this.rotating) {
@@ -681,46 +709,7 @@ class GhostGus extends Gus {
         this.rotationSensor.needsCollisionData = false;
       }
 
-      // evaluate INPUT
-      if (this.currentRecord) {
-        this.currentRecord.INPUT.forEach(action => {
-          this.marker.update(action);
-
-          // movement
-          switch (action) {
-            case 1:
-              this.walk("left");
-              break;
-            case 2:
-              this.walk("right");
-              break;
-            case 3:
-              this.marker.placeGirder(action);
-              break;
-            default:
-              this.stop();
-              break;
-          }
-          if (action === 1) {
-            this.walk("left");
-            // console.log('walking left')
-          } else if (action === 2) {
-            this.walk("right");
-            // console.log('walking right')
-          } else {
-            this.stop();
-          }
-
-          // girder placement
-          if (action === 3) {
-            this.marker.placeGirder();
-          }
-        });
-
-        if (this.isRecordExpired()) {
-          this.currentRecord = this.records.pop();
-        }
-      }
+      this.marker.update();
 
       if (!this.isTouching("down")) {
         this.fallTime += game.time.physicsElapsedMS;
@@ -862,9 +851,7 @@ GirderMarker.prototype.getTargetPos = function() {
       // Gus is standing on something, check to see if we can place on it
       var standingOnUnplaceable = false;
       hitBelow.forEach(function(box) {
-        if (
-          box.parent.collidesWith.indexOf(COLLISION_GROUPS.PLAYER_SENSOR) === -1
-        )
+        if (box.parent.collidesWith.indexOf(playerSensor) === -1)
           standingOnUnplaceable = true;
       });
       if (standingOnUnplaceable) return undefined;
@@ -1330,7 +1317,7 @@ class RecordingGus extends Gus {
     super(x, y);
     this.startTime = game.time.now;
     this.records = [];
-    this.currentRecord = {};
+    this.currentRecord = { input: [0] };
   }
   getTime() {
     return game.time.now - this.startTime;
@@ -1345,12 +1332,13 @@ class RecordingGus extends Gus {
     if (game.cursors.left.isDown) input.push(1);
     if (game.cursors.right.isDown) input.push(2);
     if (spacebar.isDown) input.push(3);
+    if (!input.length) input.push(0);
     if (!_.isEqual(this.currentRecord.input, input)) {
-      this.currentRecord.input = input;
       this.records.push({
-        input: input,
+        input: this.currentRecord.input,
         endTime: this.getTime()
       });
+      this.currentRecord.input = input;
       console.log("\n", this.currentRecord, "\n");
     }
   }

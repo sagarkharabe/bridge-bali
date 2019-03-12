@@ -15,7 +15,7 @@ class RecordingGus extends Gus {
     super(x, y);
     this.startTime = game.time.now;
     this.records = [];
-    this.currentRecord = {};
+    this.currentRecord = { input: [0] };
   }
   getTime() {
     return game.time.now - this.startTime;
@@ -30,12 +30,13 @@ class RecordingGus extends Gus {
     if (game.cursors.left.isDown) input.push(1);
     if (game.cursors.right.isDown) input.push(2);
     if (spacebar.isDown) input.push(3);
+    if (!input.length) input.push(0);
     if (!_.isEqual(this.currentRecord.input, input)) {
-      this.currentRecord.input = input;
       this.records.push({
-        input: input,
+        input: this.currentRecord.input,
         endTime: this.getTime()
       });
+      this.currentRecord.input = input;
       console.log("\n", this.currentRecord, "\n");
     }
   }

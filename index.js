@@ -46,6 +46,7 @@ app.use(
 app.use("/public", express.static(path.join(__dirname, "public")));
 app.use("/game", express.static(path.join(__dirname, "game")));
 app.use("/levelCreator", express.static(path.join(__dirname, "levelCreator")));
+app.use(express.static(path.join(__dirname, "node_modules")));
 
 app.get("/", (req, res) => {
   res.render("home");

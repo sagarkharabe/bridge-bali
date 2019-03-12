@@ -27,6 +27,7 @@
     "body-parser": "^1.18.3",
     "bootstrap": "^4.3.1",
     "browserify": "^16.2.3",
+    "canvas": "^2.3.1",
     "chalk": "^2.4.2",
     "dotenv": "^6.2.0",
     "events": "^3.0.0",

@@ -2,7 +2,9 @@ const mongoose = require("mongoose");
 const TILE_MAP = require("../game/js/const/tilemap");
 const numTiles = Object.keys(TILE_MAP).length;
 const User = mongoose.model("User");
-
+const path = require("path");
+const convert = require("../imaging/convert");
+const mapToCanvas = require("../imaging/mapToCanvas");
 // part of level schema
 const map = {
   startGirders: {
