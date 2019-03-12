@@ -580,11 +580,12 @@ const TAU = require("../const").TAU;
 class GhostGus extends Gus {
   constructor(x, y) {
     super(x, y, false);
-    console.log("ghosting");
     this.sprite.alpha = 0.5;
 
     this.startTime = game.time.now + 500;
     this.timingTolerance = -20; // in ms
+
+    console.log(this.startTime);
 
     this.records = [
       { INPUT: [2], ENDTIME: 10867 },
@@ -609,18 +610,27 @@ class GhostGus extends Gus {
       { INPUT: [2], ENDTIME: 2734 },
       { INPUT: [0], ENDTIME: 800 }
     ];
+
     this.currentRecord = this.records.pop();
+
     this.currentRecord.hasBeenExecuted = false;
 
     this.setCollision();
 
     this.marker = new GhostGirderMarker();
     this.marker.setMaster(this);
+
+    console.log("Ghost Gus (a.k.a girder ghost) created.");
   }
+
   evaluateRecord() {
     if (this.currentRecord) {
       if (this.isRecordExpired() && this.currentRecord.hasBeenExecuted) {
+        console.log("current: ", this.currentRecord);
         this.currentRecord = this.records.pop();
+        console.log("time: ", this.getTime());
+
+        console.log("new: ", this.currentRecord);
       }
 
       if (!this.currentRecord) return;
@@ -629,15 +639,21 @@ class GhostGus extends Gus {
         switch (action) {
           case 1:
             this.walk("left");
+            console.log("LEFT");
+            console.log(this.getTime());
             break;
           case 2:
             this.walk("right");
+            console.log("RIGHT");
+            console.log(this.getTime());
             break;
           case 3:
             // debugger;
             this.marker.placeGirder();
+            console.log(this.getTime());
             break;
           default:
+            console.log("nothing");
             this.stop();
             break;
         }
@@ -646,6 +662,7 @@ class GhostGus extends Gus {
       this.currentRecord.hasBeenExecuted = true;
     }
   }
+
   getTime() {
     return game.time.now - this.startTime;
   }
@@ -653,7 +670,7 @@ class GhostGus extends Gus {
   isRecordExpired() {
     const currentTime = this.getTime();
     const currentRecordEnd = this.currentRecord.ENDTIME;
-    //console.log(currentTime, currentRecordEnd);
+    // console.log(currentTime, currentRecordEnd);
 
     return currentTime >= currentRecordEnd - this.timingTolerance;
   }
@@ -693,6 +710,8 @@ class GhostGus extends Gus {
 
     // check to see if we're rotating
     if (this.rotating) {
+      console.log("hey");
+
       // stop all movement
       this.stop();
       this.sprite.body.velocity.y = 0;

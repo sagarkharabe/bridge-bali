@@ -20,7 +20,7 @@ router.get("/", function(req, res, next) {
     q
   )(req, res, next);
 });
-router.get("/drafts/", function(req, res, next) {
+router.get("/drafts/", mustBeLoggedIn, function(req, res, next) {
   getDocsAndSend("Level", ["title", "dateCreated", "starCount"], [], {
     published: false,
     creator: req.user._id

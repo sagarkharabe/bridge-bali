@@ -30,7 +30,7 @@ const schema = new mongoose.Schema({
     default: 0
   },
   likedLevels: [{ type: mongoose.Schema.Types.ObjectId, ref: "Level" }],
-  totallikedLevels: {
+  totalLikedLevels: {
     type: Number,
     default: 0
   },
