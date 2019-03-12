@@ -38,6 +38,7 @@ function initGameState() {
   state.create = function() {
     // generate the rest of the fucking level
     console.log("Generating level from level data...");
+    game.toolsToCollect = [];
     generator.parseObjects();
 
     if (game.toolsToCollect !== undefined) {
@@ -81,6 +82,7 @@ function initGameState() {
     marker.setPlaceGirderButton(
       game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
     );
+    game.freeLookKey = game.input.keyboard.addKey(Phaser.KeyCode.SHIFT);
     game.input.keyboard.addKey(Phaser.KeyCode.R).onDown.add(
       function() {
         gus.doom();
@@ -161,6 +163,8 @@ function initGameState() {
     });
 
     levelStarted = game.time.now;
+    game.camera.scale.x = 1;
+    game.camera.scale.y = 1;
   };
 
   state.update = function() {
@@ -203,10 +207,6 @@ function initGameState() {
           game.time.now - levelStarted
         ]);
 
-        console.log("YOU DID IT!");
-        console.log("Girders placed:", startingGirderCount - gus.girders);
-        console.log("Time taken:", game.time.now - levelStarted);
-
         state.resultScreen = new ResultScreen(
           startingGirderCount - gus.girders,
           game.time.now - levelStarted,
@@ -219,6 +219,9 @@ function initGameState() {
         game.input.keyboard
           .addKey(Phaser.KeyCode.R)
           .onDown.add(state.restartLevel, this, 0);
+        game.input.keyboard
+          .addKey(Phaser.KeyCode.SPACEBAR)
+          .onDown.add(state.goToNextLevel, this, 0);
       }
 
       state.resultScreen.update();
@@ -269,6 +272,9 @@ function initGameState() {
       game.input.keyboard
         .addKey(Phaser.KeyCode.R)
         .onDown.remove(state.restartLevel, this);
+      game.input.keyboard
+        .addKey(Phaser.KeyCode.SPACE)
+        .onDown.remove(state.goToNextLevel, this);
     }
 
     gus.sprite.position = new Phaser.Point(
@@ -313,13 +319,32 @@ function initGameState() {
     })();
   };
 
+  state.goToNextLevel = function() {
+    if (window.playlist === undefined) return;
+
+    console.log("TIME FOR THE NEXT LEVEL");
+    gameEndingEmitted = false;
+    eventEmitter.emit("goto next level");
+
+    game.dolly.unlock();
+    game.dolly.position = new Phaser.Point(0, 0);
+    game.dolly.rotation = 0;
+    game.camera.displayObject.position = game.dolly.position;
+    game.camera.displayObject.rotation = game.dolly.rotation;
+
+    //game.world.destroy();
+    game.state.clearCurrentState();
+    game.stage.setBackgroundColor("#000");
+
+    game.state.start("boot");
+  };
+
   state.postBroadphase = function(body1, body2) {
     if (
       body1.sprite.name === "Gus" &&
       body2.sprite.name === "Tool" &&
       body1.fixedRotation &&
-      gus.isDead === false &&
-      body1.gameObject.constructor.name !== "GhostGus"
+      gus.isDead === false
     ) {
       body2.sprite.owner.collect();
       return false;
@@ -327,8 +352,7 @@ function initGameState() {
       body1.sprite.name === "Tool" &&
       body2.sprite.name === "Gus" &&
       body2.fixedRotation &&
-      gus.isDead === false &&
-      body2.gameObject.constructor.name !== "GhostGus"
+      gus.isDead === false
     ) {
       body1.sprite.owner.collect();
       return false;

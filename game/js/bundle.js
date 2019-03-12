@@ -292,6 +292,10 @@ function BreakBrickBlock(x, y, setCollisions) {
 
   if (setCollisions) this.setCollisions();
 
+  breakingBlocks = breakingBlocks.filter(function(block) {
+    return block.sprite.body !== null;
+  });
+
   breakingBlocks.push(this);
 }
 BreakBrickBlock.prototype = Object.create(Block.prototype);
@@ -377,7 +381,7 @@ var TAU = require("../const").TAU;
 function Dolly(camera) {
   this.movementFactor = 2;
   this.rotationFactor = 4;
-
+  this.freeLookSpeed = 5;
   this.camera = camera;
   this.position = camera.displayObject.position;
   this.rotation = camera.displayObject.rotation;
@@ -397,9 +401,19 @@ function midpoint(p1, p2) {
 }
 
 Dolly.prototype.update = function() {
-  if (this.lockTarget) {
+  if (this.lockTarget && !game.freeLookKey.isDown) {
     this.targetPos = this.lockTarget.position;
     this.targetAng = this.lockTarget.rotation;
+  } else if (game.freeLookKey.isDown) {
+    if (!this.targetPos.safeToMove) {
+      this.targetPos = new Phaser.Point(this.targetPos.x, this.targetPos.y);
+      this.targetPos.safeToMove = true;
+    }
+
+    if (game.cursors.left.isDown) this.targetPos.x -= this.freeLookSpeed;
+    if (game.cursors.up.isDown) this.targetPos.y -= this.freeLookSpeed;
+    if (game.cursors.right.isDown) this.targetPos.x += this.freeLookSpeed;
+    if (game.cursors.down.isDown) this.targetPos.y += this.freeLookSpeed;
   }
 
   if (this.targetPos !== null) {
@@ -1384,6 +1398,8 @@ Gus.prototype.applyGravity = function() {
 };
 
 Gus.prototype.walk = function(dir) {
+  if (game.freeLookKey.isDown) return this.stop();
+
   this.idleTime = 0;
 
   // determine speed and flip the sprite if necessary
@@ -1862,7 +1878,7 @@ ParticleBurst.update = function() {
   particleBursts.forEach(function(burst, idx) {
     if (game.time.now - burst.startTime > burst.emitter.lifespan) {
       particleBursts.splice(idx, 1);
-      burst.emitter.destroy();
+      if (burst.emitter.game) burst.emitter.destroy();
       return;
     }
 
@@ -1898,11 +1914,12 @@ ResultScreen.prototype.draw = function() {
   });
   this.headerText.anchor = middle;
 
+  var textStyle = { font: "bold 18pt Arial, sans-serif", fill: "#FFFFFF" };
   this.girderCount = game.make.text(
     0,
     0,
     "Girders Placed: " + this.girdersPlaced.toString(),
-    { font: "bold 18pt Arial, sans-serif", fill: "#FFFFFF" }
+    textStyle
   );
   this.girderCount.anchor = middle;
 
@@ -1911,17 +1928,24 @@ ResultScreen.prototype.draw = function() {
     Math.floor(this.timeTaken / 60000) +
     ":" +
     (seconds < 10 ? "0" + seconds : seconds);
-  this.timerCount = game.make.text(0, 0, "Time Taken: " + time.toString(), {
-    font: "bold 18pt Arial, sans-serif",
-    fill: "#FFFFFF"
-  });
+  this.timerCount = game.make.text(
+    0,
+    0,
+    "Time Taken: " + time.toString(),
+    textStyle
+  );
   this.timerCount.anchor = middle;
 
-  this.pressAnyKey = game.make.text(0, 0, "Press R to restart", {
-    font: "bold 18pt Arial, sans-serif",
-    fill: "#FFFFFF"
-  });
+  this.pressAnyKey = game.make.text(0, 0, "Press R to restart", textStyle);
   this.pressAnyKey.anchor = middle;
+
+  this.nextLevel = game.make.text(
+    0,
+    0,
+    "Press SPACE to go to the next level",
+    textStyle
+  );
+  this.nextLevel.anchor = middle;
 
   this.bitmapData.draw(this.headerText, game.width / 2, 150);
 
@@ -1952,7 +1976,10 @@ ResultScreen.prototype.update = function() {
   }
 
   if (this.lifespan > 4 && this.pressAnyKey.blitted === undefined) {
-    this.bitmapData.draw(this.pressAnyKey, game.width / 2, 414);
+    this.bitmapData.draw(this.pressAnyKey, game.width / 2, 446);
+    // TODO: change this to use whatever playlist logic
+    if (window.playlist)
+      this.bitmapData.draw(this.nextLevel, game.width / 2, 478);
     this.pressAnyKey.blitted = true;
   }
 };
@@ -2028,6 +2055,7 @@ function initGameState() {
   state.create = function() {
     // generate the rest of the fucking level
     console.log("Generating level from level data...");
+    game.toolsToCollect = [];
     generator.parseObjects();
 
     if (game.toolsToCollect !== undefined) {
@@ -2071,6 +2099,7 @@ function initGameState() {
     marker.setPlaceGirderButton(
       game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR)
     );
+    game.freeLookKey = game.input.keyboard.addKey(Phaser.KeyCode.SHIFT);
     game.input.keyboard.addKey(Phaser.KeyCode.R).onDown.add(
       function() {
         gus.doom();
@@ -2151,6 +2180,8 @@ function initGameState() {
     });
 
     levelStarted = game.time.now;
+    game.camera.scale.x = 1;
+    game.camera.scale.y = 1;
   };
 
   state.update = function() {
@@ -2193,10 +2224,6 @@ function initGameState() {
           game.time.now - levelStarted
         ]);
 
-        console.log("YOU DID IT!");
-        console.log("Girders placed:", startingGirderCount - gus.girders);
-        console.log("Time taken:", game.time.now - levelStarted);
-
         state.resultScreen = new ResultScreen(
           startingGirderCount - gus.girders,
           game.time.now - levelStarted,
@@ -2209,6 +2236,9 @@ function initGameState() {
         game.input.keyboard
           .addKey(Phaser.KeyCode.R)
           .onDown.add(state.restartLevel, this, 0);
+        game.input.keyboard
+          .addKey(Phaser.KeyCode.SPACEBAR)
+          .onDown.add(state.goToNextLevel, this, 0);
       }
 
       state.resultScreen.update();
@@ -2259,6 +2289,9 @@ function initGameState() {
       game.input.keyboard
         .addKey(Phaser.KeyCode.R)
         .onDown.remove(state.restartLevel, this);
+      game.input.keyboard
+        .addKey(Phaser.KeyCode.SPACE)
+        .onDown.remove(state.goToNextLevel, this);
     }
 
     gus.sprite.position = new Phaser.Point(
@@ -2303,13 +2336,32 @@ function initGameState() {
     })();
   };
 
+  state.goToNextLevel = function() {
+    if (window.playlist === undefined) return;
+
+    console.log("TIME FOR THE NEXT LEVEL");
+    gameEndingEmitted = false;
+    eventEmitter.emit("goto next level");
+
+    game.dolly.unlock();
+    game.dolly.position = new Phaser.Point(0, 0);
+    game.dolly.rotation = 0;
+    game.camera.displayObject.position = game.dolly.position;
+    game.camera.displayObject.rotation = game.dolly.rotation;
+
+    //game.world.destroy();
+    game.state.clearCurrentState();
+    game.stage.setBackgroundColor("#000");
+
+    game.state.start("boot");
+  };
+
   state.postBroadphase = function(body1, body2) {
     if (
       body1.sprite.name === "Gus" &&
       body2.sprite.name === "Tool" &&
       body1.fixedRotation &&
-      gus.isDead === false &&
-      body1.gameObject.constructor.name !== "GhostGus"
+      gus.isDead === false
     ) {
       body2.sprite.owner.collect();
       return false;
@@ -2317,8 +2369,7 @@ function initGameState() {
       body1.sprite.name === "Tool" &&
       body2.sprite.name === "Gus" &&
       body2.fixedRotation &&
-      gus.isDead === false &&
-      body2.gameObject.constructor.name !== "GhostGus"
+      gus.isDead === false
     ) {
       body1.sprite.owner.collect();
       return false;

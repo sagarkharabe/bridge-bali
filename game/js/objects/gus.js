@@ -269,6 +269,8 @@ Gus.prototype.applyGravity = function() {
 };
 
 Gus.prototype.walk = function(dir) {
+  if (game.freeLookKey.isDown) return this.stop();
+
   this.idleTime = 0;
 
   // determine speed and flip the sprite if necessary

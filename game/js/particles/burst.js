@@ -39,7 +39,7 @@ ParticleBurst.update = function() {
   particleBursts.forEach(function(burst, idx) {
     if (game.time.now - burst.startTime > burst.emitter.lifespan) {
       particleBursts.splice(idx, 1);
-      burst.emitter.destroy();
+      if (burst.emitter.game) burst.emitter.destroy();
       return;
     }
 
