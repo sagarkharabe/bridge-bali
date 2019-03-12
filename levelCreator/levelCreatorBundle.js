@@ -352,11 +352,11 @@ function initCreateState() {
         for (let y in unparsedTileMap[x]) {
           if (!unparsedTileMap[x].hasOwnProperty(y)) continue;
           if (unparsedTileMap[x][y] && unparsedTileMap[x][y].tile) {
-            if (unparsedTileMap[x][y].tile === "Gus") {
-              if (x !== gusSpawn.x || y !== gusSpawn.y) {
-                continue;
-              }
-            }
+            // if (unparsedTileMap[x][y].tile === "Gus") {
+            //   if (x !== gusSpawn.x || y !== gusSpawn.y) {
+            //     continue;
+            //   }
+            // }
             parsedTileMap.push({
               x: x,
               y: y,
