@@ -16,7 +16,15 @@ router.get(
   "/",
   getDocsAndSend(
     "User",
-    ["name", "followers", "createdLevels", "totalStars", "profilePic"],
+    [
+      "name",
+      "followers",
+      "createdLevels",
+      "totalStars",
+      "totalFollowers",
+      "totalCreatedLevels",
+      "profilePic"
+    ],
     [{ path: "createdLevels", select: "title dateCreated starCount" }]
   )
 );

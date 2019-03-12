@@ -96,6 +96,7 @@ const getDocsAndSend = (ModelStr, selectParams = [], populateParams = []) => (
       sort.name = "asc";
     }
   }
+  console.log(sort);
   // allow users to specify results per page and to step through
   //   results by pages number
   let page = !isNaN(req.query.page) ? parseInt(req.query.page) - 1 : 0;

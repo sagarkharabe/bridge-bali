@@ -224,12 +224,13 @@ function initCreateState() {
         "PIXI blend modes were undefined but we restored them from a previous cache"
       );
       PIXI.blendModesWebGL = window.__tempBlendModes;
-    } else
-      return game.text.add(
-        0,
-        0,
-        "FATAL: PIXI blend modes are undefined. Tell a programmer."
-      );
+    }
+    //else
+    //   return game.text.add(
+    //     0,
+    //     0,
+    //     "FATAL: PIXI blend modes are undefined. Tell a programmer."
+    //   );
 
     state.grid = game.add.graphics();
     state.grid.blendMode = PIXI.blendModes.NORMAL;
@@ -495,6 +496,7 @@ function initLoadState() {
   var state = {};
   var game = window.game;
   const http = require("http");
+  const NUM_TO_TILES = require("../../game/js/const/tilemap");
   state.preload = function() {
     console.log("Loading assets...");
 
@@ -566,11 +568,33 @@ function initLoadState() {
               } else if (levelData.map) {
                 // check checksum here
                 console.log(levelData.map);
+                // translate parsed map array to unparsed map obj
+                game.parsedTileMap = levelData.map.objects;
+                game.unparsedTileMap = levelData.map.objects.reduce(function(
+                  prev,
+                  obj
+                ) {
+                  if (!prev[String(obj.x)]) prev[String(obj.x)] = {};
+                  prev[String(obj.x)][String(obj.y)] =
+                    obj.r === undefined
+                      ? {
+                          tile: NUM_TO_TILES[obj.t]
+                        }
+                      : {
+                          tile: NUM_TO_TILES[obj.t],
+                          r: obj.r
+                        };
+                  return prev;
+                },
+                {});
+                console.log(game.unparsedTileMap);
+                (function gotoStart() {
+                  if (game.state) game.state.start("create");
+                  else setTimeout(gotoStart, 100);
+                })();
               } else {
                 console.log("Mapdata invalid!");
               }
-
-              //(function gotoStart() { if ( game.state ) game.state.start( "create" ); else setTimeout( gotoStart, 100 ) })();
             });
           }
         );
@@ -590,7 +614,7 @@ function initLoadState() {
 
 module.exports = initLoadState;
 
-},{"http":35}],9:[function(require,module,exports){
+},{"../../game/js/const/tilemap":3,"http":35}],9:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
