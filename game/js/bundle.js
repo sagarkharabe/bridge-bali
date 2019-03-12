@@ -186,7 +186,9 @@ function startGame(Phaser) {
     undefined,
     false
   );
-  game.ghostMode = process.env.GHOST_MODE;
+  //game.ghostMode = process.env.GHOST_MODE;
+  game.ghostMode = true;
+  //no process.env variables in the browser, nice try yustynn
   game.recordingMode = process.env.RECORDING_MODE;
 
   var bootState = require("./states/boot");
