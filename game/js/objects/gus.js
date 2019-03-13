@@ -107,7 +107,7 @@ Gus.prototype.respawn = function() {
 };
 
 Gus.prototype.doom = function() {
-  if (this.isDoomed || this.isDead || this.rotating) return;
+  if (!this.canRotate || this.isDoomed || this.isDead || this.rotating) return;
 
   this.isDoomed = true;
   this.sprite.body.clearCollision();

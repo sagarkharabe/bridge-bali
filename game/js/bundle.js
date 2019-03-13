@@ -316,9 +316,9 @@ BreakBrickBlock.prototype.setCollisions = function() {
 };
 
 BreakBrickBlock.prototype.startCollapsing = function(target) {
-  var targetConstructorName = target.sprite.body.gameObject.constructor.name;
+  // can be Gus || Recording Gus
 
-  if (targetConstructorName !== "GhostGus") {
+  if (target.sprite.name !== "GhostGus") {
     this.countCollapseTime =
       this.countCollapseTime || game.time.physicsElapsedMS;
   }
@@ -1258,7 +1258,7 @@ Gus.prototype.respawn = function() {
 };
 
 Gus.prototype.doom = function() {
-  if (this.isDoomed || this.isDead || this.rotating) return;
+  if (!this.canRotate || this.isDoomed || this.isDead || this.rotating) return;
 
   this.isDoomed = true;
   this.sprite.body.clearCollision();
@@ -2217,8 +2217,6 @@ function initGameState() {
     ParticleBurst.update();
 
     if (game.toolsRemaining === 0) {
-      //if ( restartTimeout === undefined ) restartTimeout = setTimeout( function() { state.restartLevel(); gameEndingEmitted = false; }, 15000 );
-
       if (game.recordingMode) gus.finalizeRecords();
 
       gus.isDead = true;
@@ -2326,6 +2324,8 @@ function initGameState() {
     marker.girdersPlaced.forEach(function(girder) {
       girder.sprite.destroy();
     });
+    marker.girdersPlaced = [];
+
     BreakBrickBlock.reset();
 
     game.camera.scale.x = 1;
@@ -2339,41 +2339,22 @@ function initGameState() {
     game.dolly.targetAng = 0;
 
     (function checkRestart() {
-      setTimeout(function() {
-        if (game.dolly.targetPos.distance(game.dolly.position) > 100)
+      restartTimeout = setTimeout(function() {
+        if (restartTimeout === undefined) return;
+        if (game.dolly.targetPos.distance(game.dolly.position) > 100) {
           return checkRestart();
-
-        // ghost logic
-        if (game.recordingMode) {
-          // hacky solution. On win -> 'R', checkRestart gets called twice. Dunno why.
-          if (!inputRecords || gus.timeSinceSpawn() > 500) {
-            inputRecords = gus.inputRecords;
-            courseCorrectionRecords = gus.courseCorrectionRecords;
-          }
-
-          game.ghostMode = true;
-          if (ghostGus && !ghostGus.isDestroyed) ghostGus.destroy(); // destroys ghost girders too
-
-          ghostGus = new GhostGus(game.gusStartPos.x, game.gusStartPos.y);
-
-          ghostGus.girders = generator.getStartingGirders();
-          ghostGus.setInputRecords(inputRecords.slice());
-          ghostGus.setCourseCorrectionRecords(courseCorrectionRecords);
-          ghostGus.respawn();
-
-          GhostBreakBrickBlock.reset();
         }
 
-        //gus logic
         gus.respawn();
         gus.rotationSpeed = 0;
         game.dolly.lockTo(gus.sprite);
         gus.girders = generator.getStartingGirders();
 
         restartTimeout = undefined;
+        state.resultScreen = undefined;
         levelStarted = game.time.now;
         gameEndingEmitted = false;
-      }, 100);
+      }, 1);
     })();
   };
 
@@ -2396,23 +2377,23 @@ function initGameState() {
 
     game.state.start("boot");
   };
-
+  // BUG WHERE REC GUS & GHOST GUS & TOOL ALL COLLIDE
   state.postBroadphase = function(body1, body2) {
+    if (!body1.sprite || !body2.sprite) return true;
+
     if (
-      body1.sprite.name === "Gus" &&
+      body1.sprite.name !== "Ghost Gus" &&
       body2.sprite.name === "Tool" &&
       body1.fixedRotation &&
-      gus.isDead === false &&
-      body1.gameObject.constructor.name !== "GhostGus"
+      gus.isDead === false
     ) {
       body2.sprite.owner.collect();
       return false;
     } else if (
       body1.sprite.name === "Tool" &&
-      body2.sprite.name === "Gus" &&
+      body2.sprite.name !== "Ghost Gus" &&
       body2.fixedRotation &&
-      gus.isDead === false &&
-      body2.gameObject.constructor.name !== "GhostGus"
+      gus.isDead === false
     ) {
       body1.sprite.owner.collect();
       return false;
