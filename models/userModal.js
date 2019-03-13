@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-const schema = new mongoose.Schema({
+const Promise = require("bluebird");
+var schema = new mongoose.Schema({
   name: {
     type: String,
     required: true
@@ -15,27 +16,45 @@ const schema = new mongoose.Schema({
       ref: "User"
     }
   ],
+  totalFollowing: {
+    type: Number,
+    default: 0
+  },
   followers: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User"
     }
   ],
-  totalFollowing: {
-    type: Number,
-    default: 0
-  },
   totalFollowers: {
     type: Number,
     default: 0
   },
-  likedLevels: [{ type: mongoose.Schema.Types.ObjectId, ref: "Level" }],
+  likedLevels: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Level"
+    }
+  ],
   totalLikedLevels: {
     type: Number,
     default: 0
   },
-  createdLevels: [{ type: mongoose.Schema.Types.ObjectId, ref: "Level" }],
+  createdLevels: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Level"
+    }
+  ],
   totalCreatedLevels: {
+    type: Number,
+    default: 0
+  },
+  // drafts: [{
+  //     type: mongoose.Schema.Types.ObjectId,
+  //     ref: 'Level'
+  // }],
+  totalDrafts: {
     type: Number,
     default: 0
   },
@@ -48,6 +67,7 @@ const schema = new mongoose.Schema({
     default: false
   }
 });
+
 // sets user's totalStars based on sum of stars for user's createdLevels
 schema.methods.setStars = function() {
   var that = this;
@@ -58,23 +78,11 @@ schema.methods.setStars = function() {
     that.totalStars = usersLevels.reduce(function(prev, level) {
       return prev + level.starCount;
     }, 0);
-    console.log("did a reduce");
-    return this.save();
+    return that.save();
   });
-
-  // this.populate("createdLevels", "starCount").then(function(user) {
-  //   user.totalStars = user.createdLevels.reduce(function(
-  //     previousValue,
-  //     currentLevel
-  //   ) {
-  //     return previousValue + currentLevel.starCount;
-  //   },
-  //   0);
-
-  //   return user.save();
-  // });
 };
 
+//
 schema.methods.followUser = function(userId) {
   var self = this;
   if (self._id === userId) {
@@ -86,7 +94,10 @@ schema.methods.followUser = function(userId) {
     .findById(userId)
     .then(function(user) {
       // throw error if no user has userId
-      if (user === null) throw new Error("User #" + userId + " not found");
+      if (user === null) {
+        var err = new Error("User #" + userId + " not found");
+        throw err;
+      }
       // throw error if user is already following userId
       if (self.following.indexOf(user._id) !== -1) {
         err = new Error("Already following user #" + user._id);
@@ -167,12 +178,33 @@ schema.methods.removeFollower = function(userId) {
   return this.save();
 };
 
+schema.methods.setLevelCounts = function() {
+  return this.populate({
+    path: "createdLevels",
+    select: "published"
+  })
+    .execPopulate()
+    .then(function(user) {
+      var createdLevels = user.createdLevels.filter(function(level) {
+        return level.published;
+      });
+      var drafts = user.createdLevels.filter(function(level) {
+        return !level.published;
+      });
+      user.totalCreatedLevels = createdLevels.length;
+      user.totalDrafts = drafts.length;
+      return user.save();
+    });
+};
+
 // adds levelId to user's createdLevels array
 schema.methods.addLevel = function(levelId) {
   if (this.createdLevels.indexOf(levelId) === -1) {
     this.createdLevels.push(levelId);
-    this.totalCreatedLevels = this.createdLevels.length;
-    return this.save();
+
+    return this.save().then(function(user) {
+      return user.setLevelCounts();
+    });
   }
 };
 
@@ -183,7 +215,9 @@ schema.methods.removeLevel = function(levelId) {
   });
   this.totalCreatedLevels = this.createdLevels.length;
 
-  return this.save();
+  return this.save().then(function(user) {
+    return user.setLevelCounts();
+  });
 };
 
 schema.methods.likeLevel = function(levelId) {
@@ -204,7 +238,6 @@ schema.methods.likeLevel = function(levelId) {
       if (level.creator.equals(self._id)) {
         err = new Error("Cannot like own level");
         err.status = 400;
-        console.log(err);
         throw err;
       }
 

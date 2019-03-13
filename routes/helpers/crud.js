@@ -26,17 +26,23 @@ const getLevelsByType = (userPromise, levelType, page) => {
     skip: page * 8
   };
 
-  if (levelType === "created") {
+  if (levelType === "created" || levelType === "drafts") {
     levelPromise = userPromise
       .then(user => {
-        var count = user.createdLevels.length;
-        user = user
-          .populate({
-            path: "createdLevels",
-            select: "title dateCreated starCount",
-            options: options
-          })
-          .execPopulate();
+        var count;
+        var params = {
+          path: "createdLevels",
+          select: "title dateCreated starCount",
+          options: options
+        };
+        if (levelType === "created") {
+          params.match = { published: true };
+          count = user.totalCreatedLevels;
+        } else if (levelType === "drafts") {
+          params.match = { published: false };
+          count = user.totalDrafts;
+        }
+        user = user.populate(params).execPopulate();
 
         return Promise.all([user, count]);
       })
@@ -338,7 +344,7 @@ const getDocAndRunFunctionIfOwnerOrAdmin = (ModelStr, func) => (
 };
 
 const getUserLevelsByTypeAndSend = () => (req, res, next) => {
-  const id = req.user !== undefined ? req.user._id : "56b0cccbd629fe4c81b15d54";
+  const id = req.user._id;
   const page = req.query.page !== undefined ? req.query.page - 1 : 0;
   var userPromise = User.findById(id);
 
@@ -355,16 +361,16 @@ const getUserProfileAndSend = () => (req, res, next) => {
   var created = getLevelsByType(userPromise, "created", 0);
   var following = getLevelsByType(userPromise, "following", 0);
   var liked = getLevelsByType(userPromise, "liked", 0);
-
-  Promise.all([userPromise, created, following, liked])
+  var drafts = getLevelsByType(userPromise, "drafts", 0);
+  Promise.all([userPromise, created, following, liked, drafts])
     .spread((user, created, following, liked) => {
       user = user
         .populate({ path: "followers", select: "name", options: { limit: 5 } })
         .populate({ path: "following", select: "name", options: { limit: 5 } })
         .execPopulate();
-      return Promise.all([user, created, following, liked]);
+      return Promise.all([user, created, following, liked, drafts]);
     })
-    .spread((user, created, following, liked) => {
+    .spread((user, created, following, liked, drafts) => {
       res.json({
         user: {
           name: user.name,
@@ -379,7 +385,8 @@ const getUserProfileAndSend = () => (req, res, next) => {
         },
         createdLevels: created,
         followingLevels: following,
-        likedLevels: liked
+        likedLevels: liked,
+        draftLevels: drafts
       });
     })
     .then(null, next);
