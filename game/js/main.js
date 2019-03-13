@@ -16,7 +16,7 @@ function startGame(Phaser) {
     undefined,
     false
   );
-  //game.ghostMode = process.env.GHOST_MODE;
+
   game.ghostMode = false;
   game.recordingMode = true;
 

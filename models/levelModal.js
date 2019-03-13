@@ -9,6 +9,7 @@ const convert = require("../imaging/convert");
 // const uploadMapThumb = require("../imaging/upload");
 // const removeLocalMapThumb = require("../imaging/delete");
 //const deleteServerThumb = require('../../imaging/deleteServerThumb');
+const post = require("../helpers/promisifiedPost"); // only has post and put
 // part of level schema
 const map = {
   startGirders: {
@@ -63,7 +64,8 @@ const schema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  starCount: { type: Number, default: 0 }
+  starCount: { type: Number, default: 0 },
+  datasetId: String
 });
 
 /*
@@ -193,7 +195,27 @@ schema.post("remove", function(doc) {
 /*
  * DEMOGRAPHY INTEGRATION LOGIC
  */
+// tell demography about newly-published levels
+schema.post("save", (doc, next) => {
+  if (!doc.published || doc.datasetId) return next();
 
+  const data = {
+    id: doc._id,
+    title: doc.title,
+    token: env.DEMOGRAPHY.ACCESS_KEY
+  };
+
+  post(env.DEMOGRAPHY.API_URL, data)
+    .then(res => {
+      console.log("Saved to demography!");
+      doc.datasetId = res.datasetId;
+      return doc.save();
+    })
+    .then(() => {
+      console.log("Updated with demography id");
+      next();
+    }, next);
+});
 /*
  * MISCELLENOUS
  */

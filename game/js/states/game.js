@@ -8,6 +8,7 @@ var GhostBreakBrickBlock = require("../objects").GhostBreakBrickBlock;
 var ResultScreen = require("../scenes/resultScreen");
 var GhostGus = require("../objects/ghostGus");
 var Gus = require("../objects/recordingGus");
+var eventEmitter = window.eventEmitter;
 function initGameState() {
   var state = {};
 
@@ -184,6 +185,12 @@ function initGameState() {
       if (game.recordingMode && !gus.isDead) {
         gus.recordInput("win");
         gus.finalizeRecords();
+        var playData = {
+          girdersPlaced: generator.getStartingGirders() - gus.girders,
+          timeToComplete: Math.floor((game.time.now - levelStarted) / 10) / 100
+        };
+
+        eventEmitter.emit("submit win play data", playData);
       }
 
       gus.isDead = true;
