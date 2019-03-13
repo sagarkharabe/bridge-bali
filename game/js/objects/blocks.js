@@ -28,6 +28,7 @@ function RedBrickBlock(x, y) {
   ]);
 }
 RedBrickBlock.prototype = Block;
+
 function Girder(x, y) {
   Block.call(this, x, y, "Girder");
 
@@ -53,6 +54,7 @@ BlackBrickBlock.prototype = Block;
 var breakingBlocks = [];
 function BreakBrickBlock(x, y, setCollisions) {
   if (setCollisions === undefined) setCollisions = true;
+
   Block.call(this, x, y, "BrickBreak");
 
   this.collapseTime = 1000;
@@ -69,6 +71,7 @@ function BreakBrickBlock(x, y, setCollisions) {
 BreakBrickBlock.prototype = Object.create(Block.prototype);
 
 BreakBrickBlock.prototype.setCollisions = function() {
+  this.sprite.body.setRectangle(32, 32);
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_ROTATE);
   this.sprite.body.collides([
     COLLISION_GROUPS.PLAYER_SOLID,
@@ -83,6 +86,7 @@ BreakBrickBlock.prototype.setCollisions = function() {
 
 BreakBrickBlock.prototype.startCollapsing = function(target) {
   var targetConstructorName = target.sprite.body.gameObject.constructor.name;
+
   if (targetConstructorName !== "GhostGus") {
     this.countCollapseTime =
       this.countCollapseTime || game.time.physicsElapsedMS;

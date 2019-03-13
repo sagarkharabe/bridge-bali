@@ -3,6 +3,7 @@ const TILE_MAP = require("../game/js/const/tilemap");
 const numTiles = Object.keys(TILE_MAP).length;
 const User = mongoose.model("User");
 const path = require("path");
+const deepPopulate = require("mongoose-deep-populate")(mongoose);
 const convert = require("../imaging/convert");
 const mapToCanvas = require("../imaging/mapToCanvas");
 // const uploadMapThumb = require("../imaging/upload");
@@ -183,6 +184,8 @@ schema.virtual("screenshot").get(function() {
 schema.virtual("user").get(function() {
   return this.creator;
 });
+
+schema.plugin(deepPopulate);
 
 const Level = mongoose.model("Level", schema);
 

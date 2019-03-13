@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const deepPopulate = require("mongoose-deep-populate")(mongoose);
 const schema = new mongoose.Schema({
   name: {
     type: String,
@@ -260,29 +261,11 @@ schema.methods.unlikeLevel = function(levelId) {
     });
 };
 
-// schema.virtual('totalFollowers').get(function() {
-//     return this.followers.length;
-// });
-
-// schema.virtual('totalFollowed').get(function() {
-//     return this.following.length;
-// });
-
-// schema.virtual('totalCreatedLevels').get(function() {
-//     return this.createdLevels.length;
-// });
-
-// schema.virtual('totalLikedLevels').get(function() {
-//     return this.likedLevels.length;
-// });
-
-// schema.virtual('profilePic').get(function() {
-//     return 'images/user_imgs/'+this._id+'.png';
-// });
-
 schema.virtual("user").get(function() {
   return this._id;
 });
+
+schema.plugin(deepPopulate);
 
 var User = mongoose.model("User", schema);
 module.exports = User;

@@ -20,7 +20,9 @@ LevelGenerator.prototype.getSkyColor = function() {
   return this.levelData.skyColor || defaultSkyColor;
 };
 LevelGenerator.prototype.getStartingGirders = function() {
-  return this.levelData.startGirders || 10;
+  return this.levelData.startGirders !== undefined
+    ? this.levelData.startGirders
+    : 10;
 };
 
 LevelGenerator.prototype.parseObjects = function() {

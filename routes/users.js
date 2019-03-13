@@ -7,7 +7,9 @@ const {
   getDocAndDeleteIfOwnerOrAdmin,
   getDocAndRunFunction,
   getDocAndRunFunctionIfOwnerOrAdmin,
-  getUserDocAndRunFunction
+  getUserDocAndRunFunction,
+  getUserProfileAndSend,
+  getUserLevelsByTypeAndSend
 } = require("./helpers/crud");
 const { mustBeLoggedIn } = require("./helpers/permissions");
 
@@ -28,6 +30,11 @@ router.get(
     [{ path: "createdLevels", select: "title dateCreated starCount" }]
   )
 );
+
+router.get("/profile", mustBeLoggedIn, getUserProfileAndSend());
+
+// user can get levels from own profile
+router.get("/profile/levels", mustBeLoggedIn, getUserLevelsByTypeAndSend());
 
 // guest can create user
 router.post("/", createDoc("User"));

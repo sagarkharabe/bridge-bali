@@ -113,7 +113,9 @@ LevelGenerator.prototype.getSkyColor = function() {
   return this.levelData.skyColor || defaultSkyColor;
 };
 LevelGenerator.prototype.getStartingGirders = function() {
-  return this.levelData.startGirders || 10;
+  return this.levelData.startGirders !== undefined
+    ? this.levelData.startGirders
+    : 10;
 };
 
 LevelGenerator.prototype.parseObjects = function() {
@@ -260,6 +262,7 @@ function RedBrickBlock(x, y) {
   ]);
 }
 RedBrickBlock.prototype = Block;
+
 function Girder(x, y) {
   Block.call(this, x, y, "Girder");
 
@@ -285,6 +288,7 @@ BlackBrickBlock.prototype = Block;
 var breakingBlocks = [];
 function BreakBrickBlock(x, y, setCollisions) {
   if (setCollisions === undefined) setCollisions = true;
+
   Block.call(this, x, y, "BrickBreak");
 
   this.collapseTime = 1000;
@@ -301,6 +305,7 @@ function BreakBrickBlock(x, y, setCollisions) {
 BreakBrickBlock.prototype = Object.create(Block.prototype);
 
 BreakBrickBlock.prototype.setCollisions = function() {
+  this.sprite.body.setRectangle(32, 32);
   this.sprite.body.setCollisionGroup(COLLISION_GROUPS.BLOCK_ROTATE);
   this.sprite.body.collides([
     COLLISION_GROUPS.PLAYER_SOLID,
@@ -315,6 +320,7 @@ BreakBrickBlock.prototype.setCollisions = function() {
 
 BreakBrickBlock.prototype.startCollapsing = function(target) {
   var targetConstructorName = target.sprite.body.gameObject.constructor.name;
+
   if (targetConstructorName !== "GhostGus") {
     this.countCollapseTime =
       this.countCollapseTime || game.time.physicsElapsedMS;
@@ -2309,7 +2315,7 @@ function initGameState() {
         .addKey(Phaser.KeyCode.R)
         .onDown.remove(state.restartLevel, this);
       game.input.keyboard
-        .addKey(Phaser.KeyCode.SPACE)
+        .addKey(Phaser.KeyCode.SPACEBAR)
         .onDown.remove(state.goToNextLevel, this);
     }
 
@@ -2380,7 +2386,8 @@ function initGameState() {
       body1.sprite.name === "Gus" &&
       body2.sprite.name === "Tool" &&
       body1.fixedRotation &&
-      gus.isDead === false
+      gus.isDead === false &&
+      body1.gameObject.constructor.name !== "GhostGus"
     ) {
       body2.sprite.owner.collect();
       return false;
@@ -2388,7 +2395,8 @@ function initGameState() {
       body1.sprite.name === "Tool" &&
       body2.sprite.name === "Gus" &&
       body2.fixedRotation &&
-      gus.isDead === false
+      gus.isDead === false &&
+      body2.gameObject.constructor.name !== "GhostGus"
     ) {
       body1.sprite.owner.collect();
       return false;
