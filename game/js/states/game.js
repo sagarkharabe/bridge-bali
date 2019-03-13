@@ -79,6 +79,7 @@ function initGameState() {
     game.freeLookKey = game.input.keyboard.addKey(Phaser.KeyCode.SHIFT);
     game.input.keyboard.addKey(Phaser.KeyCode.R).onDown.add(
       function() {
+        if (ghostGus && !ghostGus.isDestroyed) ghostGus.destroy();
         gus.doom();
       },
       this,
@@ -164,7 +165,7 @@ function initGameState() {
   state.update = function() {
     // update actors
     gus.update();
-    if (game.ghostMode) ghostGus.update();
+    if (ghostGus && !ghostGus.isDestroyed) ghostGus.update();
     marker.update();
     game.toolsToCollect.forEach(function(tool) {
       tool.update();
@@ -309,7 +310,7 @@ function initGameState() {
           courseCorrectionRecords = gus.courseCorrectionRecords;
 
           game.ghostMode = true;
-          if (ghostGus) ghostGus.destroy(); // destroys ghost girders too
+          if (ghostGus && !ghostGus.isDestroyed) ghostGus.destroy(); // destroys ghost girders too
 
           ghostGus = new GhostGus(game.gusStartPos.x, game.gusStartPos.y);
 
