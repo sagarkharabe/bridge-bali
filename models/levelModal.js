@@ -66,10 +66,146 @@ const schema = new mongoose.Schema({
   starCount: { type: Number, default: 0 }
 });
 
+/*
+ * SCREENSHOT LOGIC
+ */
+
+// post-save hook to save a screenshot of the level
+schema.post("save", function(doc, next) {
+  if (!doc.shouldSaveScreenshot) {
+    console.log("Updating already existing map, skipping screenshot");
+    return next();
+  }
+
+  // find gus's position in the map
+  var gusDef = doc.map.objects.reduce(function(gus, objDef) {
+    if (objDef.t === 1) return objDef;
+    return gus;
+  }, undefined);
+
+  if (gusDef === undefined) {
+    console.log("Could not find gusDef in saved level, skipping screenshot");
+    return next();
+  }
+
+  // now let's start making beautiful pictures
+  var outPath = path.join(__dirname, "../../../public/") + doc._id + ".png";
+  mapToCanvas(doc.map, gusDef.x, gusDef.y, 250, 150, 0.5)
+    .then(function(canvas) {
+      var pngStream = convert.canvasToPNG(canvas);
+
+      convert
+        .streamToFile(pngStream, outPath)
+        .then(() => {
+          return uploadMapThumb(outPath, doc._id);
+        })
+        .then(() => {
+          return removeLocalMapThumb(outPath);
+        })
+        .then(next, console.error.bind(console));
+    })
+    .then(null, next);
+});
+
+// delete thumbnail from S3
+schema.post("remove", function(doc) {
+  deleteServerThumb(doc._id);
+});
+
+/*
+ * CREATOR LOGIC
+ */
+
+// add level to creator's createdLevels if level is new
+schema.post("save", function(doc, next) {
+  if (doc.wasNew) {
+    User.findById(doc.creator)
+      .then(function(user) {
+        return user.addLevel(doc._id);
+      })
+      .then(function(user) {
+        next();
+      });
+  } else {
+    next();
+  }
+});
+
+// post-save hook to set total star count of associated user
+schema.post("save", function(doc, next) {
+  User.findById(doc.creator)
+    .populate("createdLevels", "starCount")
+    .then(function(user) {
+      return user.setStars();
+    })
+    .then(function(user) {
+      next();
+    })
+    .then(null, function(error) {
+      console.error(error);
+      next();
+    });
+});
+
+// post-remove hook to delete level from creator's
+//   createdLevels list and update creator's star count
+schema.post("remove", function(doc) {
+  // remove level from creator's list
+  User.findById(doc.creator)
+    .then(function(user) {
+      return user.removeLevel(doc._id);
+    })
+    // set creator's total star count
+    .then(function(user) {
+      return user.setStars();
+    })
+    .then(null, function(err) {
+      console.error(err);
+    });
+});
+
+/*
+ * PLAYERS LOGIC
+ */
+
+// find all users who have liked deleted level and remove
+//    level from their likedLevels array
+schema.post("remove", function(doc) {
+  User.find({
+    likedLevels: doc._id
+  })
+    .then(function(users) {
+      var usersPromises = users.map(function(user) {
+        user.likedLevels = user.likedLevels.filter(function(level) {
+          return !doc._id.equals(level);
+        });
+
+        return user.save();
+      });
+
+      return Promise.all(usersPromises);
+    })
+    .then(null, function(err) {
+      console.error(err);
+    });
+});
+
+/*
+ * DEMOGRAPHY INTEGRATION LOGIC
+ */
+
+/*
+ * MISCELLENOUS
+ */
+
 // sets a levels star count based on how many users have like it
 schema.methods.setStars = function() {
   var self = this;
-  return User.find({ likedLevels: { $in: [self._id] } })
+  return User.find({
+    likedLevels: {
+      $in: [self._id]
+    }
+  })
     .then(function(users) {
       self.starCount = users.length;
       return self.save();
@@ -107,114 +243,6 @@ schema.pre("update", function(next) {
   console.log("pre update");
   console.log(this);
   next();
-});
-
-// add level to creator's createdLevels if level is new
-schema.post("save", function(doc, next) {
-  if (doc.wasNew) {
-    User.findById(doc.creator)
-      .then(function(user) {
-        return user.addLevel(doc._id);
-      })
-      .then(function(user) {
-        next();
-      });
-  } else {
-    next();
-  }
-});
-
-// post-save hook to set total star count of associated user
-schema.post("save", function(doc, next) {
-  User.findById(doc.creator)
-    .populate("createdLevels", "starCount")
-    .then(function(user) {
-      return user.setStars();
-    })
-    .then(function(user) {
-      next();
-    })
-    .then(null, function(error) {
-      console.error(error);
-      next();
-    });
-});
-
-// post-save hook to save a screenshot of the level
-schema.post("save", function(doc, next) {
-  if (!doc.shouldSaveScreenshot) {
-    console.log("Updating already existing map, skipping screenshot");
-    return next();
-  }
-
-  // find gus's position in the map
-  var gusDef = doc.map.objects.reduce(function(gus, objDef) {
-    if (objDef.t === 1) return objDef;
-    return gus;
-  }, undefined);
-  if (gusDef === undefined) {
-    console.log("Could not find gusDef in saved level, skipping screenshot");
-    return next();
-  }
-  // now let's start making beautiful pictures
-  var outPath = path.join(__dirname, "../public/") + doc._id + ".png";
-  mapToCanvas(doc.map, gusDef.x, gusDef.y, 250, 150, 0.5)
-    .then(function(canvas) {
-      var pngStream = convert.canvasToPNG(canvas);
-
-      convert
-        .streamToFile(pngStream, outPath)
-        .then(() => {
-          return uploadMapThumb(outPath, doc._id);
-        })
-        .then(() => {
-          return removeLocalMapThumb(outPath);
-        })
-        .then(next, console.error.bind(console));
-    })
-    .then(null, next);
-});
-
-// post-remove hook to delete level from creator's
-//    createdLevels list and update creator's star count
-schema.post("remove", function(doc) {
-  // remove level from creator's list
-  User.findById(doc.creator)
-    .then(function(user) {
-      return user.removeLevel(doc._id);
-    })
-    // set creator's total star count
-    .then(function(user) {
-      return user.setStars();
-    })
-    .then(null, function(err) {
-      console.error(err);
-    });
-});
-
-// find all users who have liked deleted level and remove
-//    level from their likedLevels array
-schema.post("remove", function(doc) {
-  User.find({ likedLevels: doc._id })
-    .then(function(users) {
-      var usersPromises = users.map(function(user) {
-        user.likedLevels = user.likedLevels.filter(function(level) {
-          return !doc._id.equals(level);
-        });
-
-        return user.save();
-      });
-
-      return Promise.all(usersPromises);
-    })
-    .then(null, function(err) {
-      console.error(err);
-    });
-});
-
-// delete thumbnail from S3
-schema.post("remove", function(doc) {
-  deleteServerThumb(doc._id);
 });
 
 schema.virtual("screenshot").get(function() {
