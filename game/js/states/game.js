@@ -38,7 +38,7 @@ function initGameState() {
   state.create = function() {
     // generate the rest of the fucking level
     console.log("Generating level from level data...");
-    game.toolsToCollect = [];
+    game.toolsToCollect = undefined;
     generator.parseObjects();
 
     if (game.toolsToCollect !== undefined) {

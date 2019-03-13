@@ -616,9 +616,9 @@ function initLoadState() {
         // construct our HTTP request
         var req = http.request(
           {
-            hostname: "localhost", // change this to our actual hostname
+            hostname: window.location.hostname, // change this to our actual hostname
             path: "/api/levels/" + id + "/map",
-            port: 5000
+            port: window.location.port || 5000
           },
           function(res) {
             // get data from the response

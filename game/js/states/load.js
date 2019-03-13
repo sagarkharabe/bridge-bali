@@ -227,9 +227,9 @@ function initLoadState() {
         console.log("Getting level " + id);
         var req = http.request(
           {
-            hostname: "localhost",
+            hostname: window.location.hostname,
             path: "/api/levels/" + id + "/map",
-            port: 5000,
+            port: window.location.port || 5000,
             headers: {
               Origin: "localhost"
             }
