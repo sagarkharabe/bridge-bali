@@ -1,0 +1,17 @@
+.game-view {
+  background-image: url("../../../images/gus.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 32px 32px;
+  background-color: #000000;
+
+  box-sizing: border-box;
+  border: 4px solid black;
+  border-top: (4px / 2) solid black;
+  border-bottom: (4px / 2) solid black;
+  display: flex;
+
+  width: 800px + 8px;
+  height: 600px + 4px;
+  margin: auto;
+}

@@ -1,0 +1,114 @@
+@import url(https://fonts.googleapis.com/css?family=Press+Start+2P|Maven+Pro);
+
+body {
+  background: url("./images/escheresque_ste_@2X.png");
+  color: white;
+  font-family: "Maven Pro", sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+a {
+  color: black;
+  cursor: pointer;
+}
+a:hover,
+a:visited {
+  color: black;
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Press Start 2P", cursive;
+  text-shadow: 4px 4px 0px black;
+}
+h2 {
+  font-size: 16pt;
+}
+h3 {
+  font-size: 12pt;
+}
+.row {
+  margin: auto;
+}
+disabled {
+  cursor: default;
+}
+.btn {
+  background: #e1a51d;
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 0;
+  border: (4px / 2) solid black;
+  color: white;
+  font-weight: bold;
+  font-size: 110%;
+}
+.btn:visited {
+  color: white;
+}
+.btn:hover {
+  color: black;
+}
+.btn.btn-star {
+  background-color: #e1a51d;
+}
+.btn.btn-follow {
+  background-color: royalblue;
+}
+
+.btn.btn-delete {
+  background-color: darken(red, 10%);
+  float: right;
+  margin-top: 0;
+  font-size: 100%;
+  padding: 5px 10px;
+}
+.btn.btn-create {
+  background-color: darken(#8ad835, 20%);
+}
+.btn.btn-disabled {
+  background-color: grey;
+}
+.btn.btn-star-hollow {
+  background-color: rgba(0, 0, 0, 0);
+}
+.btn.btn-star-hollow:hover {
+  background-color: #e1a51d;
+}
+.btn.btn-follow-hollow {
+  background-color: rgba(0, 0, 0, 0);
+}
+.btn.btn-follow-hollow:hover {
+  background-color: royalblue;
+}
+nav ul {
+  list-style: none;
+  padding: 0;
+}
+nav ul li {
+  display: inline-block;
+  border: (4px/ 2) solid black;
+  border-collapse: collapse;
+}
+
+nav ul li:first-child {
+  border-left: 4px solid black;
+}
+nav ul li::last-child {
+  border-right: 4px solid black;
+}
+nav ul li a {
+  background-color: #e1a51d;
+  display: inline-block;
+  padding: 10px 40px;
+
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+nav ul li a:hover {
+  background-color: lighten(#e1a51d, 10%);
+}

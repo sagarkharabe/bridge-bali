@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "server": "nodemon index.js",
+    "client": "cd client && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
     "watch": "watchify game/js/main.js -o game/js/bundle.js",
     "watchlevel": "watchify levelCreator/main.js -o levelCreator/levelCreatorBundle.js",
     "watchbrowser": "watchify browser/js/app.js -o browser/js/browserbundle.js"
@@ -29,6 +31,7 @@
     "browserify": "^16.2.3",
     "canvas": "^2.3.1",
     "chalk": "^2.4.2",
+    "concurrently": "^4.1.0",
     "dotenv": "^6.2.0",
     "events": "^3.0.0",
     "express": "^4.16.4",

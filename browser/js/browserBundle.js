@@ -9,9 +9,9 @@ eventEmitter.only = function(event, callback) {
 eventEmitter.on("loaded", () => {
   console.log("\n\n##creator loaded\n\n");
 });
-// eventEmitter.on("what level to play", () => {
-//   eventEmitter.emit("play this level", ["default"]);
-// });
+eventEmitter.on("what level to play", () => {
+  eventEmitter.emit("play this level", ["default"]);
+});
 
 window.eventEmitter = eventEmitter;
 
