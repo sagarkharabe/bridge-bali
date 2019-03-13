@@ -292,9 +292,12 @@ const getDocAndUpdateIfOwnerOrAdmin = ModelStr => (req, res, next) => {
     .then(document => {
       if (!document) next();
       if (ownerOrAdmin(document, req.user)) {
-        return Model.findByIdAndUpdate(document, req.body, {
-          new: true
-        });
+        // return Model.findByIdAndUpdate(document, req.body, {
+        //   new: true
+        // });
+        document = Object.assign(document, req.body);
+        document.save();
+        return document;
       } else res.status(401).end();
     })
     .then(document => res.status(200).json(document))
