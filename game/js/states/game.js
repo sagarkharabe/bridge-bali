@@ -11,6 +11,8 @@ var Gus = require("../objects/recordingGus");
 function initGameState() {
   var state = {};
 
+  var state = {};
+
   var gus,
     ghostGus,
     marker,
@@ -45,6 +47,8 @@ function initGameState() {
     game.toolsToCollect = undefined;
     generator.parseObjects();
 
+    // if ( !game.ghostMode ) GhostBreakBrickBlock.hideAll();
+
     if (game.toolsToCollect !== undefined) {
       game.toolsRemaining = game.toolsToCollect.length;
     } else {
@@ -64,7 +68,6 @@ function initGameState() {
     startingGirderCount = gus.girders;
     marker = new GirderMarker();
     marker.setMaster(gus);
-
     game.dolly = new Dolly(game.camera);
     game.dolly.lockTo(gus.sprite);
 
@@ -178,7 +181,10 @@ function initGameState() {
     ParticleBurst.update();
 
     if (game.toolsRemaining === 0) {
-      if (game.recordingMode) gus.finalizeRecords();
+      if (game.recordingMode && !gus.isDead) {
+        gus.recordInput("win");
+        gus.finalizeRecords();
+      }
 
       gus.isDead = true;
 
@@ -262,6 +268,7 @@ function initGameState() {
   };
 
   state.restartLevel = function() {
+    console.log("RESTARTING!");
     if (this.resultScreen) {
       this.resultScreen.texture.visible = false;
       game.input.keyboard
@@ -276,7 +283,6 @@ function initGameState() {
       game.gusStartPos.x,
       game.gusStartPos.y
     );
-    //gus.sprite.body.clearCollision();
     gus.sprite.visible = false;
 
     game.toolsToCollect.forEach(function(tool) {
@@ -286,8 +292,10 @@ function initGameState() {
       girder.sprite.destroy();
     });
     marker.girdersPlaced = [];
-
     BreakBrickBlock.reset();
+
+    GhostBreakBrickBlock.reset();
+    GhostBreakBrickBlock.showAll();
 
     game.camera.scale.x = 1;
     game.camera.scale.y = 1;
@@ -306,11 +314,34 @@ function initGameState() {
           return checkRestart();
         }
 
+        // ghost logic
+        if (game.recordingMode) {
+          // hacky solution. On win -> 'R', checkRestart gets called twice. Dunno why. David?
+          if (!inputRecords || gus.timeSinceSpawn() > 1000) {
+            inputRecords = gus.inputRecords;
+            courseCorrectionRecords = gus.courseCorrectionRecords;
+          }
+
+          game.ghostMode = true;
+          if (ghostGus && !ghostGus.isDestroyed) ghostGus.destroy(); // destroys ghost girders too
+
+          ghostGus = new GhostGus(game.gusStartPos.x, game.gusStartPos.y);
+
+          ghostGus.girders = generator.getStartingGirders();
+
+          // this is ridiculous (and only applies to Win -> 'R'). Restart fn for whatever reason gets called twice, resulting in loss of inputRecords's first record. This forces movement in whatever initial direction Gus goes in since the first record is always the player not doing anything for however long. TEMPORARY SOLUTION: send in copy of array to avoid mutation of shared array.
+          ghostGus.setInputRecords(inputRecords.slice());
+          ghostGus.setCourseCorrectionRecords(courseCorrectionRecords.slice());
+          // ghostGus.respawn();
+        }
+
+        // gus logic
         gus.respawn();
         gus.rotationSpeed = 0;
         game.dolly.lockTo(gus.sprite);
         gus.girders = generator.getStartingGirders();
 
+        // game logic
         restartTimeout = undefined;
         state.resultScreen = undefined;
         levelStarted = game.time.now;
@@ -332,15 +363,18 @@ function initGameState() {
     game.camera.displayObject.position = game.dolly.position;
     game.camera.displayObject.rotation = game.dolly.rotation;
 
+    this.resultScreen = undefined;
+
     //game.world.destroy();
     game.state.clearCurrentState();
     game.stage.setBackgroundColor("#000");
 
     game.state.start("boot");
   };
+
   // BUG WHERE REC GUS & GHOST GUS & TOOL ALL COLLIDE
   state.postBroadphase = function(body1, body2) {
-    if (!body1.sprite || !body2.sprite) return true;
+    if (!body1.sprite || !body2.sprite) return true; // to stop destroyed ghost sprite from interfering
 
     if (
       body1.sprite.name !== "Ghost Gus" &&
@@ -348,7 +382,8 @@ function initGameState() {
       body1.fixedRotation &&
       gus.isDead === false
     ) {
-      body2.sprite.owner.collect();
+      if (body1.sprite.position.distance(body2.sprite.position) < 32)
+        body2.sprite.owner.collect();
       return false;
     } else if (
       body1.sprite.name === "Tool" &&
@@ -356,7 +391,8 @@ function initGameState() {
       body2.fixedRotation &&
       gus.isDead === false
     ) {
-      body1.sprite.owner.collect();
+      if (body1.sprite.position.distance(body2.sprite.position) < 32)
+        body1.sprite.owner.collect();
       return false;
     }
 

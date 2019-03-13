@@ -47,6 +47,7 @@ const getLevelsByType = (userPromise, levelType, page) => {
   } else if (levelType === "following") {
     levelPromise = userPromise.then(user => {
       if (!user) return next();
+      if (user.likedLevels.length === 0) return [[], 0];
       var following = user.following.map(function(creator) {
         return { creator: creator };
       });

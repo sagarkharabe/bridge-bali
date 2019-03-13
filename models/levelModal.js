@@ -4,7 +4,7 @@ const numTiles = Object.keys(TILE_MAP).length;
 const User = mongoose.model("User");
 const path = require("path");
 const convert = require("../imaging/convert");
-const mapToCanvas = require("../imaging/mapToCanvas");
+// const mapToCanvas = require("../imaging/mapToCanvas");
 // const uploadMapThumb = require("../imaging/upload");
 // const removeLocalMapThumb = require("../imaging/delete");
 // part of level schema
@@ -53,7 +53,9 @@ const schema = new mongoose.Schema({
   map: map,
   dateCreated: {
     type: Date,
-    default: Date.now()
+    default: function() {
+      return Date.now();
+    }
   },
   published: {
     type: Boolean,

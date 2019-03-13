@@ -7,9 +7,13 @@ const COLLISION_GROUPS = require("../const/collisionGroup");
 class GhostBreakBrickBlock extends BreakBrickBlock {
   constructor(x, y) {
     super(x, y, false); // false argument calls BreakBrickBlock constructor without it setting collisions
-
+    this.isGhost = true;
     this.sprite.alpha = 0.5;
 
+    this.setCollisions();
+  }
+
+  setCollisions() {
     // set collisions
     this.sprite.body.setCollisionGroup(COLLISION_GROUPS.GHOST_BLOCK_ROTATE);
     this.sprite.body.collides([
@@ -19,12 +23,26 @@ class GhostBreakBrickBlock extends BreakBrickBlock {
     this.sprite.body.onBeginContact.add(this.startCollapsing, this);
   }
   startCollapsing(target) {
-    var targetConstructorName = target.sprite.body.gameObject.constructor.name;
-
-    if (targetConstructorName === "GhostGus") {
+    if (target.sprite.name === "Ghost Gus") {
+      console.log("do collapse");
       this.countCollapseTime =
         this.countCollapseTime || game.time.physicsElapsedMS;
     }
+  }
+  static hideAll() {
+    const ghostBricks = BreakBrickBlock.bricks().filter(brick => brick.isGhost);
+
+    ghostBricks.forEach(brick => {
+      brick.sprite.alpha = 0;
+    });
+  }
+
+  static showAll() {
+    const ghostBricks = BreakBrickBlock.bricks().filter(brick => brick.isGhost);
+
+    ghostBricks.forEach(brick => {
+      brick.sprite.alpha = 0.5;
+    });
   }
 }
 
