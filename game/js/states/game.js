@@ -12,8 +12,6 @@ var eventEmitter = window.eventEmitter;
 function initGameState() {
   var state = {};
 
-  var state = {};
-
   var gus,
     ghostGus,
     marker,
@@ -25,7 +23,6 @@ function initGameState() {
     courseCorrectionRecords,
     inputRecords;
 
-  var fpsCounter;
   var gameEndingEmitted = false;
   var game = window.game;
   var eventEmitter = window.eventEmitter;
@@ -48,7 +45,7 @@ function initGameState() {
     game.toolsToCollect = undefined;
     generator.parseObjects();
 
-    // if ( !game.ghostMode ) GhostBreakBrickBlock.hideAll();
+    if (!game.ghostMode) GhostBreakBrickBlock.hideAll();
 
     if (game.toolsToCollect !== undefined) {
       game.toolsRemaining = game.toolsToCollect.length;
@@ -91,7 +88,6 @@ function initGameState() {
     );
 
     // make hud icons
-    fpsCounter = game.add.text(0, 0, "60 FPS", { font: "9pt mono" });
     hudCounters = [
       {
         icon: game.add.sprite(41, 41, "Tool"),
@@ -185,10 +181,12 @@ function initGameState() {
       if (game.recordingMode && !gus.isDead) {
         gus.recordInput("win");
         gus.finalizeRecords();
+
         var playData = {
           girdersPlaced: generator.getStartingGirders() - gus.girders,
           timeToComplete: Math.floor((game.time.now - levelStarted) / 10) / 100
         };
+
         console.log("Player won. Emitting playData.");
         eventEmitter.emit("submit win play data", playData);
       }
@@ -242,10 +240,6 @@ function initGameState() {
     }
 
     // render HUD
-    var rate = game.time.fps;
-    fpsCounter.position = game.dolly.screenspaceToWorldspace({ x: 0, y: 0 });
-    fpsCounter.rotation = game.dolly.rotation;
-    fpsCounter.text = rate + " FPS" + (rate < 30 ? "!!!!" : " :)");
 
     hudCounters.forEach(function(counter) {
       counter.icon.bringToTop();

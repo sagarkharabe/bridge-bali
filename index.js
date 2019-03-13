@@ -9,6 +9,7 @@ require("./models");
 const app = express();
 const { toggleTesting } = require("./hbshelpers/createLevel");
 const favicon = require("serve-favicon");
+app.use(require("prerender-node"));
 //require("./config/app-variables")(app);
 
 MONGOURI = "mongodb://sagar:sagar5544@ds259820.mlab.com:59820/new-mario-db";
@@ -65,9 +66,9 @@ app.get("/testLevel", function(req, res) {
   });
 });
 
-app.use("/users", require("./routes/users"));
-app.use("/statistics", require("./routes/statistics"));
-app.use("/levels", require("./routes/levels"));
+app.use("/api/users", require("./routes/users"));
+app.use("/api/statistics", require("./routes/statistics"));
+app.use("/api/levels", require("./routes/levels"));
 
 const port = 5000;
 app.listen(port, () => {

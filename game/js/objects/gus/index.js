@@ -248,6 +248,7 @@ Gus.prototype.finishRotation = function() {
 };
 
 Gus.prototype.applyGravity = function() {
+  if (!(this.sprite && this.sprite.body)) return;
   this.sprite.body.velocity.x += Math.floor(
     this.math.sin() * (-this.gravity * game.time.physicsElapsed)
   );
@@ -257,6 +258,7 @@ Gus.prototype.applyGravity = function() {
 };
 
 Gus.prototype.walk = function(dir) {
+  if (!(this.sprite && this.sprite.body)) return;
   if (game.freeLookKey.isDown) return this.stop();
 
   this.idleTime = 0;
