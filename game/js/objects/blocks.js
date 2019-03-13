@@ -87,7 +87,7 @@ BreakBrickBlock.prototype.setCollisions = function() {
 BreakBrickBlock.prototype.startCollapsing = function(target) {
   // can be Gus || Recording Gus
 
-  if (target.sprite.name !== "GhostGus") {
+  if (target.sprite.name !== "Ghost Gus") {
     this.countCollapseTime =
       this.countCollapseTime || game.time.physicsElapsedMS;
   }

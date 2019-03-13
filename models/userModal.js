@@ -179,7 +179,7 @@ schema.methods.addLevel = function(levelId) {
 // removes levelId from user's createdLevels array
 schema.methods.removeLevel = function(levelId) {
   this.createdLevels = this.createdLevels.filter(function(level) {
-    return level !== levelId;
+    return !level.equals(levelId);
   });
   this.totalCreatedLevels = this.createdLevels.length;
 

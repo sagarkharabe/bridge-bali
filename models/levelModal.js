@@ -3,10 +3,12 @@ const TILE_MAP = require("../game/js/const/tilemap");
 const numTiles = Object.keys(TILE_MAP).length;
 const User = mongoose.model("User");
 const path = require("path");
+const Promise = require("bluebird");
 const convert = require("../imaging/convert");
 // const mapToCanvas = require("../imaging/mapToCanvas");
 // const uploadMapThumb = require("../imaging/upload");
 // const removeLocalMapThumb = require("../imaging/delete");
+//const deleteServerThumb = require('../../imaging/deleteServerThumb');
 // part of level schema
 const map = {
   startGirders: {
@@ -103,7 +105,6 @@ schema.pre("save", function(next) {
 // add level to creator's createdLevels if level is new
 schema.post("save", function(doc, next) {
   if (doc.wasNew) {
-    console.log("this doc is new");
     User.findById(doc.creator)
       .then(function(user) {
         return user.addLevel(doc._id);
@@ -115,8 +116,9 @@ schema.post("save", function(doc, next) {
     next();
   }
 });
+
+// post-save hook to set total star count of associated user
 schema.post("save", function(doc, next) {
-  console.log("hitting post save");
   User.findById(doc.creator)
     .populate("createdLevels", "starCount")
     .then(function(user) {
@@ -137,6 +139,7 @@ schema.post("save", function(doc, next) {
     console.log("Updating already existing map, skipping screenshot");
     return next();
   }
+
   // find gus's position in the map
   var gusDef = doc.map.objects.reduce(function(gus, objDef) {
     if (objDef.t === 1) return objDef;
@@ -144,8 +147,7 @@ schema.post("save", function(doc, next) {
   }, undefined);
 
   // now let's start making beautiful pictures
-  var outPath =
-    path.join(__dirname, "../public/images/mapthumbs/") + doc._id + ".png";
+  var outPath = path.join(__dirname, "../public/") + doc._id + ".png";
   mapToCanvas(doc.map, gusDef.x, gusDef.y, 250, 150, 0.5)
     .then(function(canvas) {
       var pngStream = convert.canvasToPNG(canvas);
@@ -163,23 +165,50 @@ schema.post("save", function(doc, next) {
     .then(null, next);
 });
 
-// hook to remove deleted level from creator's level list and
-//   set users's new total star count
+// post-remove hook to delete level from creator's
+//    createdLevels list and update creator's star count
 schema.post("remove", function(doc) {
+  // remove level from creator's list
   User.findById(doc.creator)
     .then(function(user) {
-      // remove level from creator's list
       return user.removeLevel(doc._id);
     })
-    // set user's total star count
+    // set creator's total star count
     .then(function(user) {
       return user.setStars();
+    })
+    .then(null, function(err) {
+      console.error(err);
     });
 });
 
+// find all users who have liked deleted level and remove
+//    level from their likedLevels array
+schema.post("remove", function(doc) {
+  User.find({ likedLevels: doc._id })
+    .then(function(users) {
+      var usersPromises = users.map(function(user) {
+        user.likedLevels = user.likedLevels.filter(function(level) {
+          return !doc._id.equals(level);
+        });
+
+        return user.save();
+      });
+
+      return Promise.all(usersPromises);
+    })
+    .then(null, function(err) {
+      console.error(err);
+    });
+});
+
+// delete thumbnail from S3
+schema.post("remove", function(doc) {
+  deleteServerThumb(doc._id);
+});
+
 schema.virtual("screenshot").get(function() {
-  // game/images ????
-  return "images/screenshots/" + this._id + ".png";
+  return "https://s3.amazonaws.com/girder-gus/" + this._id + ".png";
 });
 
 schema.virtual("user").get(function() {

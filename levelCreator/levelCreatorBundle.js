@@ -260,10 +260,12 @@ function initCreateState() {
         if (unparTiMa !== undefined) unparTiMa.sprite.angle = obj.r;
       });
     }
+
     game.activeTool = "RedBrickBlock";
     selector = game.add.sprite("0", "0", "Select");
     selector.anchor.setTo(0.5, 0.5);
   };
+
   function hexStringToInt(hex) {
     if (typeof hex === "number") return hex;
     else return parseInt(hex, 16);
@@ -280,8 +282,10 @@ function initCreateState() {
       }, 0) / 3
     );
   }
+
   state.drawGrid = function() {
     const game = window.game;
+
     // THIS IS TERRIBLE
     if (PIXI.blendModesWebGL !== undefined)
       window.__tempBlendModes = PIXI.blendModesWebGL;
@@ -293,7 +297,7 @@ function initCreateState() {
       PIXI.blendModesWebGL = window.__tempBlendModes;
     } else
       return console.error(
-        "PIXI blend modes are undefined  and we have no previous cache. Tell a programmer."
+        "PIXI blend modes are undefined and we have no previous cache. Tell a programmer."
       );
 
     if (state.grid) state.grid.destroy();
@@ -329,9 +333,9 @@ function initCreateState() {
     const game = window.game;
     gusSpawn = gusSpawn || game.add.sprite("0", "0", "Gus");
     gusSpawn.anchor.setTo(0.5, 0.5);
-
     game.dolly = new Dolly(game.camera);
     game.dolly.targetPos = new Phaser.Point(0, 0);
+
     game.stage.setBackgroundColor(COLORS.DEFAULT_SKY);
     eventEmitter.only("here's sky color", function(color) {
       game.stage.setBackgroundColor(color);
@@ -364,7 +368,7 @@ function initCreateState() {
       game.activeTool = tool;
     });
 
-    var handleTileMapRequest = function() {
+    var handleTileMapRequest = function(need) {
       const parsedTileMap = [];
 
       if (!unparsedTileMap[gusSpawn.x]) {
@@ -381,11 +385,12 @@ function initCreateState() {
         for (let y in unparsedTileMap[x]) {
           if (!unparsedTileMap[x].hasOwnProperty(y)) continue;
           if (unparsedTileMap[x][y] && unparsedTileMap[x][y].tile) {
-            // if (unparsedTileMap[x][y].tile === "Gus") {
-            //   if (x !== gusSpawn.x || y !== gusSpawn.y) {
-            //     continue;
-            //   }
+            // if(unparsedTileMap[x][y].tile === 'Gus') {
+            // 	if(gusSpawn === undefined || x !== gusSpawn.position.x || y !== gusSpawn.position.y) {
+            // 		continue;
+            // 	}
             // }
+
             parsedTileMap.push({
               x: x,
               y: y,
@@ -397,15 +402,24 @@ function initCreateState() {
           }
         }
       }
-      /*if (gusSpawn) parsedTileMap.push({
-			  x: gusSpawn.x,
-			  y: gusSpawn.y,
-			  t: tileToNum('Gus')
-			  });*/
-      eventEmitter.emit("send tile map", [parsedTileMap, unparsedTileMap]);
+      // if (gusSpawn) parsedTileMap.push({
+      //   x: gusSpawn.x,
+      //   y: gusSpawn.y,
+      //   t: tileToNum('Gus')
+      // });
+      if (need === "draft save") {
+        console.log("draft map sending now");
+        eventEmitter.emit("map for draft save", parsedTileMap);
+      } else {
+        eventEmitter.emit("send tile map", [parsedTileMap, unparsedTileMap]);
+      }
     };
 
     eventEmitter.only("request tile map", handleTileMapRequest);
+    eventEmitter.only("request tile map for draft save", function() {
+      console.log("phaser got request for a draft map");
+      handleTileMapRequest("draft save");
+    });
 
     eventEmitter.only("request screenshot", function() {
       var screenshot = game.canvas.toDataURL();
@@ -524,16 +538,16 @@ function initCreateState() {
         tile: game.activeTool
         // r: game.activeTool === 'Spike' ? placedTool.angle : undefined
       };
+
       if (state.grid) game.world.bringToTop(state.grid);
       selector.bringToTop();
     }
 
     function move(xDiff, yDiff) {
-      const clickPoint = new Phaser.Point(
-        game.camera.width / 2 - xDiff,
-        game.camera.height / 2 - yDiff
-      );
-      game.dolly.targetPos = game.dolly.screenspaceToWorldspace(clickPoint);
+      const clickPoint = new Phaser.Point(xDiff, yDiff);
+      //game.dolly.targetPos = game.dolly.screenspaceToWorldspace( clickPoint );
+      game.dolly.targetPos.x -= clickPoint.x * game.time.physicsElapsed;
+      game.dolly.targetPos.y -= clickPoint.y * game.time.physicsElapsed;
     }
 
     function rotate(dir) {
@@ -544,14 +558,18 @@ function initCreateState() {
       }
     }
 
-    const moveAmount = 64;
+    const moveAmount = 128;
 
     var vec;
     if (arrowCursors.isDown()) {
       vec = arrowCursors.getVector();
-      move(vec.x * moveAmount, vec.y * moveAmount);
+      //move( vec.x * moveAmount, vec.y * moveAmount );
     } else if (wasdCursors.isDown()) {
       vec = wasdCursors.getVector();
+      //move( vec.x * moveAmount, vec.y * moveAmount );
+    }
+
+    if (vec !== undefined) {
       move(vec.x * moveAmount, vec.y * moveAmount);
     }
 
