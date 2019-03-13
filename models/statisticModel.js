@@ -31,17 +31,36 @@ const schema = new mongoose.Schema({
 schema.post("save", (doc, next) => {
   if (!doc.datasetId) return next();
 
-  const url = env.DEMOGRAPHY.API_URL + doc.datasetId + "/entries";
+  let url;
 
-  const data = {
-    girdersPlaced: doc.girdersPlaced,
-    timeToComplete: doc.timeToComplete
+  const postData = {
+    data: [
+      {
+        id: doc._id,
+        girdersPlaced: doc.girdersPlaced,
+        timeToComplete: doc.timeToComplete
+      }
+    ],
+    token: env.DEMOGRAPHY.ACCESS_KEY
   };
 
-  User.findById(doc.player)
+  // retrieve datasetId from level
+  Level.findById(doc.level)
+    .then(level => {
+      if (!level || !level.datasetId) {
+        console.log("level", level.title, level.datasetId);
+        throw new Error("Level not on Demography! Stats will not be saved.");
+      }
+
+      url = env.DEMOGRAPHY.API_URL + level.datasetId + "/entries";
+      console.log(url);
+
+      return User.findById(doc.player);
+    })
     .then(player => {
-      data.playerName = doc.name;
-      return post(url, data);
+      postData.playerName = player.name;
+      console.dir(postData);
+      return post(url, postData);
     })
     .then(res => {
       console.dir(res);

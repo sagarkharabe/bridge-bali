@@ -65,8 +65,9 @@ app.get("/testLevel", function(req, res) {
   });
 });
 
-app.use("/api/users", require("./routes/users"));
-app.use("/api/levels", require("./routes/levels"));
+app.use("/users", require("./routes/users"));
+app.use("/statistics", require("./routes/statistics"));
+app.use("/levels", require("./routes/levels"));
 
 const port = 5000;
 app.listen(port, () => {
