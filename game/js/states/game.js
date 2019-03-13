@@ -4,7 +4,9 @@ var GirderMarker = require("../objects/girderMarker");
 var LevelGenerator = require("../generator");
 var ParticleBurst = require("../particles/burst");
 var BreakBrickBlock = require("../objects").BreakBrickBlock;
+var GhostBreakBrickBlock = require("../objects").GhostBreakBrickBlock;
 var ResultScreen = require("../scenes/resultScreen");
+var GhostGus = require("../objects/ghostGus");
 var Gus = require("../objects/recordingGus");
 function initGameState() {
   var state = {};
@@ -16,7 +18,9 @@ function initGameState() {
     restartTimeout,
     hudCounters,
     levelStarted,
-    startingGirderCount;
+    startingGirderCount,
+    courseCorrectionRecords,
+    inputRecords;
 
   var fpsCounter;
   var gameEndingEmitted = false;
@@ -60,16 +64,6 @@ function initGameState() {
     startingGirderCount = gus.girders;
     marker = new GirderMarker();
     marker.setMaster(gus);
-
-    // create ghost if ghostMode
-    if (game.ghostMode) {
-      console.log("Creating Ghost Gus...");
-
-      var GhostGus = require("../objects/ghostGus");
-
-      ghostGus = new GhostGus(game.gusStartPos.x, game.gusStartPos.y);
-      ghostGus.girders = generator.getStartingGirders();
-    }
 
     game.dolly = new Dolly(game.camera);
     game.dolly.lockTo(gus.sprite);
@@ -306,7 +300,28 @@ function initGameState() {
       setTimeout(function() {
         if (game.dolly.targetPos.distance(game.dolly.position) > 100)
           return checkRestart();
+        if (gameEndingEmitted) {
+        }
 
+        // ghost logic
+        if (game.recordingMode) {
+          inputRecords = gus.inputRecords;
+          courseCorrectionRecords = gus.courseCorrectionRecords;
+
+          game.ghostMode = true;
+          if (ghostGus) ghostGus.destroy(); // destroys ghost girders too
+
+          ghostGus = new GhostGus(game.gusStartPos.x, game.gusStartPos.y);
+
+          ghostGus.girders = generator.getStartingGirders();
+          ghostGus.setInputRecords(inputRecords);
+          ghostGus.setCourseCorrectionRecords(courseCorrectionRecords);
+          ghostGus.respawn();
+
+          GhostBreakBrickBlock.reset();
+        }
+
+        //gus logic
         gus.respawn();
         gus.rotationSpeed = 0;
         game.dolly.lockTo(gus.sprite);
