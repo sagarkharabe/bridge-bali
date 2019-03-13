@@ -90,7 +90,7 @@ for (var index in tilemap) {
 
 module.exports = blockIds;
 
-},{"../const/tilemap":4,"../objects":15}],6:[function(require,module,exports){
+},{"../const/tilemap":4,"../objects":17}],6:[function(require,module,exports){
 var blockIds = require("./blockIds");
 var defaultSkyColor = require("../const/colors").DEFAULT_SKY;
 var tilemap = require("../const/tilemap");
@@ -228,7 +228,7 @@ function startGame(Phaser) {
   }
 })(window.Phaser);
 
-},{"./states/boot":21,"./states/game":22,"./states/load":23}],8:[function(require,module,exports){
+},{"./states/boot":23,"./states/game":24,"./states/load":25}],8:[function(require,module,exports){
 var ParticleBurst = require("../particles/burst");
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var TAU = require("../const").TAU;
@@ -382,7 +382,7 @@ module.exports.BlackBrickBlock = BlackBrickBlock;
 module.exports.BreakBrickBlock = BreakBrickBlock;
 module.exports.Girder = Girder;
 
-},{"../const":3,"../const/collisionGroup":1,"../particles/burst":19}],9:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1,"../particles/burst":21}],9:[function(require,module,exports){
 var TAU = require("../const").TAU;
 
 function Dolly(camera) {
@@ -717,7 +717,7 @@ class GhostGirderMarker extends GirderMarker {
 
 module.exports = GhostGirderMarker;
 
-},{"../const/collisionGroup":1,"../particles/burst":19,"./ghostBlocks":10,"./girderMarker":13}],12:[function(require,module,exports){
+},{"../const/collisionGroup":1,"../particles/burst":21,"./ghostBlocks":10,"./girderMarker":13}],12:[function(require,module,exports){
 "use strict";
 
 const game = window.game;
@@ -962,7 +962,7 @@ class GhostGus extends Gus {
 
 module.exports = GhostGus;
 
-},{"../const":3,"../const/collisionGroup":1,"../particles/burst":19,"./ghostGirderMarker":11,"./gus":14}],13:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1,"../particles/burst":21,"./ghostGirderMarker":11,"./gus":15}],13:[function(require,module,exports){
 var game = window.game;
 var Girder = require("./blocks").Girder;
 var ParticleBurst = require("../particles/burst");
@@ -1189,15 +1189,38 @@ GirderMarker.prototype.update = function() {
 
 module.exports = GirderMarker;
 
-},{"../const":3,"../const/collisionGroup":1,"../particles/burst":19,"./blocks":8}],14:[function(require,module,exports){
-var COLLISION_GROUPS = require("../const/collisionGroup");
-var EPSILON = require("../const").EPSILON;
-var TAU = require("../const").TAU;
-var ParticleBurst = require("../particles/burst");
+},{"../const":3,"../const/collisionGroup":1,"../particles/burst":21,"./blocks":8}],14:[function(require,module,exports){
+module.exports = {
+  // compose( fn1, fn2, ... )
+  // takes a series of functions as arguments and returns a function that
+  // executes the given functions in series and returns the return value of the
+  // last function.
+  compose: function() {
+    var composition = arguments;
+
+    return function composedFn() {
+      var lastReturn = arguments;
+      for (var key in composition) {
+        lastReturn = composition[key].apply(this, lastReturn);
+        if (!Array.isArray(lastReturn)) lastReturn = [lastReturn];
+      }
+      return lastReturn.length > 1 ? lastReturn : lastReturn[0];
+    };
+  }
+};
+
+},{}],15:[function(require,module,exports){
+var COLLISION_GROUPS = require("../../const/collisionGroup");
+var EPSILON = require("../../const").EPSILON;
+var TAU = require("../../const").TAU;
+var GusMath = require("./math");
+var ParticleBurst = require("../../particles/burst");
 var game = window.game;
 
 function Gus(x, y) {
   if (game === undefined) game = window.game;
+
+  this.math = new GusMath(this);
 
   this.speed = 250; // walk speed
   this.gravity = 1000; // gravity speed
@@ -1210,6 +1233,7 @@ function Gus(x, y) {
   this.idleTime = 0; // how long gus has been holding still
   this.fallTime = 0;
   this.girders = 0;
+
   this.isDead = false;
   this.isDoomed = false;
   this.facingRight = true; // is gus facing right?
@@ -1220,6 +1244,7 @@ function Gus(x, y) {
   // create a sprite object and set its anchor
   this.sprite = game.add.sprite(x, y, "Gus");
   this.sprite.name = "Gus";
+
   // attach our sprite to the physics engine
   game.physics.p2.enable(this.sprite, false);
   this.sprite.body.setRectangle(20, 32);
@@ -1228,24 +1253,16 @@ function Gus(x, y) {
 
   // create gus's rotation sensor
   this.rotationSensor = this.sprite.body.addRectangle(20, 20, 0, -6);
-  //set collision
+
+  // set collisions
   this.setCollision();
+
   this.sprite.body.onBeginContact.add(Gus.prototype.touchesWall, this);
 
   // add animations
   this.sprite.animations.add("stand", [0], 10, true);
   this.sprite.animations.add("walk", [1, 2], 7, true);
   this.sprite.animations.add("dance", [3, 4, 6, 7], 5, true);
-}
-
-function saneVec(vec) {
-  var x = Math.abs(vec[0]) < EPSILON ? 0 : vec[0];
-  var y = Math.abs(vec[1]) < EPSILON ? 0 : vec[1];
-  return p2.vec2.fromValues(x, y);
-}
-
-function dot(vec1, vec2) {
-  return vec1[0] * vec2[0] + vec1[1] * vec2[1];
 }
 
 Gus.prototype.setCollision = function() {
@@ -1264,6 +1281,8 @@ Gus.prototype.setCollision = function() {
 };
 
 Gus.prototype.respawn = function() {
+  console.log(this.sprite.name + " Respawned!");
+
   this.rotation = 0;
   this.prevRotation = 0;
   this.targetRotation = 0;
@@ -1299,16 +1318,18 @@ Gus.prototype.respawn = function() {
 };
 
 Gus.prototype.doom = function() {
-  if (!this.canRotate || this.isDoomed || this.isDead || this.rotating) return;
+  if (this.isDoomed || this.isDead || this.rotating) return;
 
   this.isDoomed = true;
+
   this.sprite.body.clearCollision();
   this.sprite.body.fixedRotation = false;
 
-  this.sprite.body.velocity.x = Math.sin(this.rotation) * 250;
-  this.sprite.body.velocity.y = Math.cos(this.rotation) * -250;
+  this.sprite.body.velocity.x = this.math.sin() * 250;
+  this.sprite.body.velocity.y = this.math.cos() * -250;
 
   this.sprite.body.angularVelocity = 30;
+
   game.dolly.unlock();
 };
 
@@ -1316,6 +1337,7 @@ Gus.prototype.kill = function() {
   this.sprite.visible = false;
   this.isDead = true;
   this.isDoomed = false;
+
   this.sprite.body.velocity.x = 0;
   this.sprite.body.velocity.y = 0;
 };
@@ -1323,8 +1345,7 @@ Gus.prototype.kill = function() {
 Gus.prototype.touchesWall = function(gus, other, sensor, shape, contact) {
   if (!this.canRotate) return;
   if (sensor !== this.rotationSensor) {
-    var isHorizontal = Math.abs(Math.cos(this.rotation)) > EPSILON;
-    if (isHorizontal && Math.abs(this.sprite.body.velocity.y) > 1)
+    if (this.math.isHorizontal() && Math.abs(this.sprite.body.velocity.y) > 1)
       this.sprite.position.x -= this.sprite.body.velocity.x;
     else if (Math.abs(this.sprite.body.velocity.x) > 1)
       this.sprite.position.y -= this.sprite.body.velocity.y;
@@ -1332,11 +1353,11 @@ Gus.prototype.touchesWall = function(gus, other, sensor, shape, contact) {
     return;
   }
 
-  var leftVec = p2.vec2.fromValues(
-    -Math.cos(this.rotation),
-    -Math.sin(this.rotation)
+  var leftVec = p2.vec2.fromValues(-this.math.cos(), -this.math.sin());
+  var d = this.math.dot(
+    this.math.svec(leftVec),
+    this.math.svec(contact[0].normalA)
   );
-  var d = dot(saneVec(leftVec), saneVec(contact[0].normalA));
   if (contact[0].bodyB === gus.data) d *= -1;
 
   if (d > 1 - EPSILON) this.rotate("left");
@@ -1351,29 +1372,24 @@ Gus.prototype.checkForRotation = function(side) {
   }
 };
 
+var dirVecMap = {
+  left: function(gus) {
+    return p2.vec2.fromValues(-gus.math.cos(), -gus.math.sin());
+  },
+  right: function(gus) {
+    return p2.vec2.fromValues(gus.math.cos(), gus.math.sin());
+  },
+  down: function(gus) {
+    return p2.vec2.fromValues(-gus.math.sin(), gus.math.cos());
+  },
+  up: function(gus) {
+    return p2.vec2.fromValues(gus.math.sin(), -gus.math.cos());
+  }
+};
+
 Gus.prototype.isTouching = function(side) {
   // get the vector to check
-  var dirVec = null;
-  if (side === "left")
-    dirVec = p2.vec2.fromValues(
-      -Math.cos(this.rotation),
-      -Math.sin(this.rotation)
-    );
-  if (side === "right")
-    dirVec = p2.vec2.fromValues(
-      Math.cos(this.rotation),
-      Math.sin(this.rotation)
-    );
-  if (side === "down")
-    dirVec = p2.vec2.fromValues(
-      -Math.sin(this.rotation),
-      Math.cos(this.rotation)
-    );
-  if (side === "up")
-    dirVec = p2.vec2.fromValues(
-      Math.sin(this.rotation),
-      -Math.cos(this.rotation)
-    );
+  var dirVec = dirVecMap[side](this);
 
   // loop throuhg all contacts
   for (
@@ -1389,7 +1405,10 @@ Gus.prototype.isTouching = function(side) {
       contact.bodyB === this.sprite.body.data
     ) {
       // if the dot of the normal is 1, the player is perpendicular to the collision
-      var d = dot(saneVec(dirVec), saneVec(contact.normalA));
+      var d = this.math.dot(
+        this.math.svec(dirVec),
+        this.math.svec(contact.normalA)
+      );
       if (contact.bodyA === this.sprite.body.data) d *= -1;
       if (d > 1 - EPSILON && contact.bodyA !== null && contact.bodyB !== null) {
         return true;
@@ -1414,6 +1433,7 @@ Gus.prototype.rotate = function(dir) {
 
   // change values
   this.targetRotation -= rot;
+
   this.rotating = true;
   this.canRotate = false;
   this.sprite.body.enabled = false;
@@ -1424,13 +1444,10 @@ Gus.prototype.finishRotation = function() {
   if (this.rotation < 0) this.rotation += TAU;
   if (this.targetRotation < 0) this.targetRotation += TAU;
   else if (this.targetRotation >= TAU) this.targetRotation %= TAU;
+
   // set gravity relative to our new axis
-  this.sprite.body.gravity.y = Math.floor(
-    Math.cos(this.rotation) * this.gravity
-  );
-  this.sprite.body.gravity.x = Math.floor(
-    Math.sin(this.rotation) * -this.gravity
-  );
+  this.sprite.body.gravity.y = Math.floor(this.math.cos() * this.gravity);
+  this.sprite.body.gravity.x = Math.floor(this.math.sin() * -this.gravity);
 
   // change rotation
   this.sprite.rotation = this.rotation;
@@ -1443,21 +1460,12 @@ Gus.prototype.finishRotation = function() {
 };
 
 Gus.prototype.applyGravity = function() {
-  if (!this.isTouching("down")) {
-    this.sprite.body.velocity.x += Math.floor(
-      Math.sin(this.rotation) * (-this.gravity * game.time.physicsElapsed)
-    );
-
-    this.sprite.body.velocity.y += Math.floor(
-      Math.cos(this.rotation) * (this.gravity * game.time.physicsElapsed)
-    );
-    this.sprite.body.velocity.x += Math.floor(
-      Math.sin(this.rotation) * (-this.gravity * game.time.physicsElapsed)
-    );
-    this.sprite.body.velocity.y += Math.floor(
-      Math.cos(this.rotation) * (this.gravity * game.time.physicsElapsed)
-    );
-  }
+  this.sprite.body.velocity.x += Math.floor(
+    this.math.sin() * (-this.gravity * game.time.physicsElapsed)
+  );
+  this.sprite.body.velocity.y += Math.floor(
+    this.math.cos() * (this.gravity * game.time.physicsElapsed)
+  );
 };
 
 Gus.prototype.walk = function(dir) {
@@ -1478,12 +1486,10 @@ Gus.prototype.walk = function(dir) {
   }
 
   // see if we're walking horizontally or vertically
-  var cosine = Math.cos(this.rotation);
-  if (Math.abs(cosine) > EPSILON) {
-    this.sprite.body.velocity.x = cosine * intendedVelocity;
+  if (this.math.isHorizontal()) {
+    this.sprite.body.velocity.x = this.math.cos() * intendedVelocity;
   } else {
-    var sine = Math.sin(this.rotation);
-    this.sprite.body.velocity.y = sine * intendedVelocity;
+    this.sprite.body.velocity.y = this.math.sin() * intendedVelocity;
   }
 
   // play animations
@@ -1493,7 +1499,6 @@ Gus.prototype.walk = function(dir) {
     this.sprite.body.clearCollision();
     this.rotationSensor.needsCollisionData = true;
   }
-  //this.checkForRotation( dir );
 };
 
 Gus.prototype.stop = function() {
@@ -1507,8 +1512,7 @@ Gus.prototype.stop = function() {
 
 Gus.prototype.update = function() {
   // clear horizontal movement
-  if (Math.abs(Math.cos(this.rotation)) > EPSILON)
-    this.sprite.body.velocity.x = 0;
+  if (this.math.isHorizontal()) this.sprite.body.velocity.x = 0;
   else this.sprite.body.velocity.y = 0;
 
   // check to see if we're rotating
@@ -1522,7 +1526,7 @@ Gus.prototype.update = function() {
     if (this.rotateTween === undefined) {
       this.rotateTween = game.add
         .tween(this.sprite)
-        .to({ rotation: this.targetRotation }, 800, Phaser.Easing.Default, true)
+        .to({ rotation: this.targetRotation }, 300, Phaser.Easing.Default, true)
         .onComplete.add(function() {
           this.rotation = this.targetRotation % TAU; // keep angle within 0-2pi
           this.finishRotation();
@@ -1560,7 +1564,104 @@ Gus.prototype.update = function() {
 
 module.exports = Gus;
 
-},{"../const":3,"../const/collisionGroup":1,"../particles/burst":19}],15:[function(require,module,exports){
+},{"../../const":3,"../../const/collisionGroup":1,"../../particles/burst":21,"./math":16}],16:[function(require,module,exports){
+var EPSILON = require("../../const").EPSILON;
+var TAU = require("../../const").TAU;
+
+var compose = require("./helpers").compose;
+
+function GusMath(gus) {
+  this.gus = gus;
+
+  // cache our sine and cosine results so we don't have to calculate them
+  // unless the rotation changes
+  this.rotcache = {
+    rotation: 0,
+    sin: 0,
+    cos: 1
+  };
+
+  this.lastDot = {
+    vec1: [0, 0],
+    vec2: [0, 0],
+    returned: 0
+  };
+}
+
+// checkCacheBefore
+// helper decorator that checks to see if the cache needs to be updated and
+// does so before running the decorated function.
+var checkCacheBefore = function(fn) {
+  return compose(
+    function() {
+      if (!this.isRotCacheValid(this.gus.rotation))
+        this.updateCache(this.gus.rotation);
+    },
+    fn
+  );
+};
+
+// GusMath.prototype.isRotCacheValid
+// returns true if the given rotation matches the rotation in the cache, else
+// returns false.
+GusMath.prototype.isRotCacheValid = function(rot) {
+  return this.rotcache.rotation === rot;
+};
+
+// GusMath.prototype.updateCache
+// updates the cache based on the given rotation values.
+GusMath.prototype.updateCache = function(rot) {
+  this.rotcache.rotation = rot;
+  this.rotcache.sin = Math.sin(rot);
+  this.rotcache.cos = Math.cos(rot);
+};
+
+// GusMath.prototype.sin
+// returns the point on the sinewave for a given rotation.
+GusMath.prototype.sin = checkCacheBefore(function() {
+  return this.rotcache.sin;
+});
+
+// GusMath.prototype.cos
+// returns the point on the cosinewave for a given rotation.
+GusMath.prototype.cos = checkCacheBefore(function() {
+  return this.rotcache.cos;
+});
+
+// GusMath.prototype.isHorizontal
+// returns true if Gus is horizontal (aligned on the x axis) at the given
+// rotation.
+GusMath.prototype.isHorizontal = checkCacheBefore(function() {
+  return Math.abs(this.rotcache.cos) > 1 - EPSILON;
+});
+
+GusMath.prototype.dot = function(vec1, vec2) {
+  if (
+    vec1[0] === this.lastDot.vec1[0] &&
+    vec1[1] === this.lastDot.vec1[1] &&
+    vec2[0] === this.lastDot.vec2[0] &&
+    vec2[1] === this.lastDot.vec2[1]
+  )
+    return this.lastDot.returned;
+
+  var result = vec1[0] * vec2[0] + vec1[1] * vec2[1];
+  this.lastDot = {
+    vec1: vec1,
+    vec2: vec2,
+    returned: result
+  };
+  return result;
+};
+
+GusMath.prototype.svec = function(vec) {
+  var x = Math.abs(vec[0]) < EPSILON ? 0 : vec[0];
+  var y = Math.abs(vec[1]) < EPSILON ? 0 : vec[1];
+  return p2.vec2.fromValues(x, y);
+};
+
+module.exports = GusMath;
+
+},{"../../const":3,"./helpers":14}],17:[function(require,module,exports){
 module.exports = {
   RedBrickBlock: require("./blocks").RedBrickBlock,
   BlackBrickBlock: require("./blocks").BlackBrickBlock,
@@ -1575,7 +1676,7 @@ module.exports = {
   GhostGus: require("./ghostGus")
 };
 
-},{"./blocks":8,"./ghostBlocks":10,"./ghostGus":12,"./girderMarker":13,"./gus":14,"./recordingGus":16,"./spike":17,"./tool":18}],16:[function(require,module,exports){
+},{"./blocks":8,"./ghostBlocks":10,"./ghostGus":12,"./girderMarker":13,"./gus":15,"./recordingGus":18,"./spike":19,"./tool":20}],18:[function(require,module,exports){
 "use strict";
 
 const _ = require("lodash");
@@ -1778,7 +1879,7 @@ class RecordingGus extends Gus {
 
 module.exports = RecordingGus;
 
-},{"../const":3,"../const/collisionGroup":1,"../particles/burst":19,"./gus":14,"lodash":35}],17:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1,"../particles/burst":21,"./gus":15,"lodash":37}],19:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
 
 function Spike(x, y) {
@@ -1825,7 +1926,7 @@ Spike.prototype.touched = function(spikes, other) {
 
 module.exports = Spike;
 
-},{"../const/collisionGroup":1}],18:[function(require,module,exports){
+},{"../const/collisionGroup":1}],20:[function(require,module,exports){
 var ParticleBurst = require("../particles/burst");
 var COLLISION_GROUPS = require("../const/collisionGroup");
 var TAU = require("../const").TAU;
@@ -1899,7 +2000,7 @@ Tool.prototype.update = function() {
 
 module.exports = Tool;
 
-},{"../const":3,"../const/collisionGroup":1,"../particles/burst":19}],19:[function(require,module,exports){
+},{"../const":3,"../const/collisionGroup":1,"../particles/burst":21}],21:[function(require,module,exports){
 var particleBursts = [];
 function ParticleBurst(x, y, particle, options) {
   options = options || {};
@@ -1955,7 +2056,7 @@ ParticleBurst.update = function() {
 
 module.exports = ParticleBurst;
 
-},{}],20:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 function ResultScreen(girdersPlaced, timeTaken, callback) {
   this.girdersPlaced = girdersPlaced;
   this.timeTaken = timeTaken;
@@ -2049,7 +2150,7 @@ ResultScreen.prototype.update = function() {
 
 module.exports = ResultScreen;
 
-},{}],21:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 var COLLISION_GROUPS = require("../const/collisionGroup");
 
 function initBootState() {
@@ -2077,7 +2178,7 @@ function initBootState() {
 }
 module.exports = initBootState;
 
-},{"../const/collisionGroup":1}],22:[function(require,module,exports){
+},{"../const/collisionGroup":1}],24:[function(require,module,exports){
 var Gus = require("../objects/gus");
 var Dolly = require("../objects/dolly");
 var GirderMarker = require("../objects/girderMarker");
@@ -2484,7 +2585,7 @@ function initGameState() {
 
 module.exports = initGameState;
 
-},{"../generator":6,"../objects":15,"../objects/dolly":9,"../objects/ghostGus":12,"../objects/girderMarker":13,"../objects/gus":14,"../objects/recordingGus":16,"../particles/burst":19,"../scenes/resultScreen":20}],23:[function(require,module,exports){
+},{"../generator":6,"../objects":17,"../objects/dolly":9,"../objects/ghostGus":12,"../objects/girderMarker":13,"../objects/gus":15,"../objects/recordingGus":18,"../particles/burst":21,"../scenes/resultScreen":22}],25:[function(require,module,exports){
 function initLoadState() {
   var state = {};
   var game = window.game;
@@ -2772,7 +2873,7 @@ function initLoadState() {
 
 module.exports = initLoadState;
 
-},{"http":51}],24:[function(require,module,exports){
+},{"http":53}],26:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -2925,9 +3026,9 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],25:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 
-},{}],26:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -3452,7 +3553,7 @@ function functionBindPolyfill(context) {
   };
 }
 
-},{}],27:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/punycode v1.4.1 by @mathias */
 ;(function(root) {
@@ -3989,7 +4090,7 @@ function functionBindPolyfill(context) {
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],28:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 (function (Buffer){
 /*!
  * The buffer module from node.js, for the browser.
@@ -5770,7 +5871,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"base64-js":24,"buffer":28,"ieee754":31}],29:[function(require,module,exports){
+},{"base64-js":26,"buffer":30,"ieee754":33}],31:[function(require,module,exports){
 module.exports = {
   "100": "Continue",
   "101": "Switching Protocols",
@@ -5836,7 +5937,7 @@ module.exports = {
   "511": "Network Authentication Required"
 }
 
-},{}],30:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -5947,7 +6048,7 @@ function objectToString(o) {
 }
 
 }).call(this,{"isBuffer":require("../../is-buffer/index.js")})
-},{"../../is-buffer/index.js":33}],31:[function(require,module,exports){
+},{"../../is-buffer/index.js":35}],33:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = (nBytes * 8) - mLen - 1
@@ -6033,7 +6134,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],32:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -6058,7 +6159,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],33:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -6081,14 +6182,14 @@ function isSlowBuffer (obj) {
   return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
-},{}],34:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 (function (global){
 /**
  * @license
@@ -23199,7 +23300,7 @@ module.exports = Array.isArray || function (arr) {
 }.call(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -23247,7 +23348,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 
 
 }).call(this,require('_process'))
-},{"_process":37}],37:[function(require,module,exports){
+},{"_process":39}],39:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -23433,7 +23534,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],38:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -23519,7 +23620,7 @@ var isArray = Array.isArray || function (xs) {
   return Object.prototype.toString.call(xs) === '[object Array]';
 };
 
-},{}],39:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -23606,13 +23707,13 @@ var objectKeys = Object.keys || function (obj) {
   return res;
 };
 
-},{}],40:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 'use strict';
 
 exports.decode = exports.parse = require('./decode');
 exports.encode = exports.stringify = require('./encode');
 
-},{"./decode":38,"./encode":39}],41:[function(require,module,exports){
+},{"./decode":40,"./encode":41}],43:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -23744,7 +23845,7 @@ Duplex.prototype._destroy = function (err, cb) {
 
   pna.nextTick(cb, err);
 };
-},{"./_stream_readable":43,"./_stream_writable":45,"core-util-is":30,"inherits":32,"process-nextick-args":36}],42:[function(require,module,exports){
+},{"./_stream_readable":45,"./_stream_writable":47,"core-util-is":32,"inherits":34,"process-nextick-args":38}],44:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -23792,7 +23893,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":44,"core-util-is":30,"inherits":32}],43:[function(require,module,exports){
+},{"./_stream_transform":46,"core-util-is":32,"inherits":34}],45:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -24814,7 +24915,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":41,"./internal/streams/BufferList":46,"./internal/streams/destroy":47,"./internal/streams/stream":48,"_process":37,"core-util-is":30,"events":26,"inherits":32,"isarray":34,"process-nextick-args":36,"safe-buffer":50,"string_decoder/":56,"util":25}],44:[function(require,module,exports){
+},{"./_stream_duplex":43,"./internal/streams/BufferList":48,"./internal/streams/destroy":49,"./internal/streams/stream":50,"_process":39,"core-util-is":32,"events":28,"inherits":34,"isarray":36,"process-nextick-args":38,"safe-buffer":52,"string_decoder/":58,"util":27}],46:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -25029,7 +25130,7 @@ function done(stream, er, data) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":41,"core-util-is":30,"inherits":32}],45:[function(require,module,exports){
+},{"./_stream_duplex":43,"core-util-is":32,"inherits":34}],47:[function(require,module,exports){
 (function (process,global,setImmediate){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -25719,7 +25820,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"./_stream_duplex":41,"./internal/streams/destroy":47,"./internal/streams/stream":48,"_process":37,"core-util-is":30,"inherits":32,"process-nextick-args":36,"safe-buffer":50,"timers":57,"util-deprecate":61}],46:[function(require,module,exports){
+},{"./_stream_duplex":43,"./internal/streams/destroy":49,"./internal/streams/stream":50,"_process":39,"core-util-is":32,"inherits":34,"process-nextick-args":38,"safe-buffer":52,"timers":59,"util-deprecate":63}],48:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -25799,7 +25900,7 @@ if (util && util.inspect && util.inspect.custom) {
     return this.constructor.name + ' ' + obj;
   };
 }
-},{"safe-buffer":50,"util":25}],47:[function(require,module,exports){
+},{"safe-buffer":52,"util":27}],49:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -25874,10 +25975,10 @@ module.exports = {
   destroy: destroy,
   undestroy: undestroy
 };
-},{"process-nextick-args":36}],48:[function(require,module,exports){
+},{"process-nextick-args":38}],50:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":26}],49:[function(require,module,exports){
+},{"events":28}],51:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -25886,7 +25987,7 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":41,"./lib/_stream_passthrough.js":42,"./lib/_stream_readable.js":43,"./lib/_stream_transform.js":44,"./lib/_stream_writable.js":45}],50:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":43,"./lib/_stream_passthrough.js":44,"./lib/_stream_readable.js":45,"./lib/_stream_transform.js":46,"./lib/_stream_writable.js":47}],52:[function(require,module,exports){
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
 var Buffer = buffer.Buffer
@@ -25950,7 +26051,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":28}],51:[function(require,module,exports){
+},{"buffer":30}],53:[function(require,module,exports){
 (function (global){
 var ClientRequest = require('./lib/request')
 var response = require('./lib/response')
@@ -26038,7 +26139,7 @@ http.METHODS = [
 	'UNSUBSCRIBE'
 ]
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./lib/request":53,"./lib/response":54,"builtin-status-codes":29,"url":59,"xtend":55}],52:[function(require,module,exports){
+},{"./lib/request":55,"./lib/response":56,"builtin-status-codes":31,"url":61,"xtend":57}],54:[function(require,module,exports){
 (function (global){
 exports.fetch = isFunction(global.fetch) && isFunction(global.ReadableStream)
 
@@ -26115,7 +26216,7 @@ function isFunction (value) {
 xhr = null // Help gc
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],53:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 (function (process,global,Buffer){
 var capability = require('./capability')
 var inherits = require('inherits')
@@ -26446,7 +26547,7 @@ var unsafeHeaders = [
 ]
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"./capability":52,"./response":54,"_process":37,"buffer":28,"inherits":32,"readable-stream":49,"to-arraybuffer":58}],54:[function(require,module,exports){
+},{"./capability":54,"./response":56,"_process":39,"buffer":30,"inherits":34,"readable-stream":51,"to-arraybuffer":60}],56:[function(require,module,exports){
 (function (process,global,Buffer){
 var capability = require('./capability')
 var inherits = require('inherits')
@@ -26674,7 +26775,7 @@ IncomingMessage.prototype._onXHRProgress = function () {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"./capability":52,"_process":37,"buffer":28,"inherits":32,"readable-stream":49}],55:[function(require,module,exports){
+},{"./capability":54,"_process":39,"buffer":30,"inherits":34,"readable-stream":51}],57:[function(require,module,exports){
 module.exports = extend
 
 var hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -26695,7 +26796,7 @@ function extend() {
     return target
 }
 
-},{}],56:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -26992,7 +27093,7 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":50}],57:[function(require,module,exports){
+},{"safe-buffer":52}],59:[function(require,module,exports){
 (function (setImmediate,clearImmediate){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -27071,7 +27172,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":37,"timers":57}],58:[function(require,module,exports){
+},{"process/browser.js":39,"timers":59}],60:[function(require,module,exports){
 var Buffer = require('buffer').Buffer
 
 module.exports = function (buf) {
@@ -27100,7 +27201,7 @@ module.exports = function (buf) {
 	}
 }
 
-},{"buffer":28}],59:[function(require,module,exports){
+},{"buffer":30}],61:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -27834,7 +27935,7 @@ Url.prototype.parseHost = function() {
   if (host) this.hostname = host;
 };
 
-},{"./util":60,"punycode":27,"querystring":40}],60:[function(require,module,exports){
+},{"./util":62,"punycode":29,"querystring":42}],62:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -27852,7 +27953,7 @@ module.exports = {
   }
 };
 
-},{}],61:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 (function (global){
 
 /**
