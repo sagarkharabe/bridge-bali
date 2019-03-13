@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const post = require("../helpers/promisifiedPost");
-
+const Level = mongoose.model("Level");
 const User = mongoose.model("User");
 
 const schema = new mongoose.Schema({
@@ -58,12 +58,15 @@ schema.post("save", (doc, next) => {
       return User.findById(doc.player);
     })
     .then(player => {
-      postData.playerName = player.name;
+      postData.data[0].playerName = player.name;
       console.dir(postData);
       return post(url, postData);
     })
     .then(res => {
       console.dir(res);
+      if (res.success)
+        console.log(chalk.green("Data successfully saved to Demography!"));
+      else console.log(chalk.red("Data failed to save to Demography :("));
       next();
     }, next);
 });

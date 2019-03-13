@@ -189,7 +189,7 @@ function initGameState() {
           girdersPlaced: generator.getStartingGirders() - gus.girders,
           timeToComplete: Math.floor((game.time.now - levelStarted) / 10) / 100
         };
-
+        console.log("Player won. Emitting playData.");
         eventEmitter.emit("submit win play data", playData);
       }
 

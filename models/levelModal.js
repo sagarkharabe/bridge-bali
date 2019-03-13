@@ -204,7 +204,7 @@ schema.post("save", (doc, next) => {
       {
         id: null,
         girdersPlaced: null,
-        playerName: null,
+        playerName: "",
         timeToComplete: null
       }
     ],
