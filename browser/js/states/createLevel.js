@@ -65,12 +65,6 @@ const startInputCapture = function() {
 
 const testTesting = function() {
   window.game.destroy();
-  console.log("%%%%%%%%%%%%%%%%%");
-  // var my_awesome_script = document.createElement("script");
-
-  // my_awesome_script.setAttribute("src", "/game/js/bundle.js");
-
-  // document.head.appendChild(my_awesome_script);
 
   (function checkGameDestroyed() {
     if (window.game.state === null) {
