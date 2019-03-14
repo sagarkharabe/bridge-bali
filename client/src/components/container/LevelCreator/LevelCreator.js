@@ -1,12 +1,26 @@
 import React, { Component } from "react";
 import "./LevelCreator.css";
 import Tool from "./Tool/Tool";
+import LevelCreatorView from "../LevelCreatorView/LevelCreatorView";
+import GameView from "../game-view/GameView";
 export default class LevelCreator extends Component {
-  state = {
-    level_title: "",
-    girder_count: 10,
-    sky_color: "#4428BC"
-  };
+  constructor() {
+    super();
+    this.eventEmitter = window.eventEmitter;
+    this.state = {
+      level_title: "",
+      girder_count: 10,
+      sky_color: "#4428BC",
+      activeToolImg: "game/assets/images/brick_red.png",
+      testing: false,
+      sentId: false,
+      levelId: null,
+      nextMapUse: null,
+      unparsedLevelArr: null,
+      parsedLevelArr: []
+    };
+  }
+
   toolArr = {
     Eraser: {
       img: "game/assets/images/eraser.png",
@@ -39,6 +53,21 @@ export default class LevelCreator extends Component {
   };
   onChange = e => {
     this.setState({ [e.target.name]: e.target.value });
+  };
+
+  toolChange = tool => {
+    this.setState({
+      activeToolImg: tool.img
+    });
+    console.log("##from change tools", tool);
+    this.eventEmitter.emit("change active tool", tool.tile);
+  };
+  stopInputCapture = () => {
+    this.eventEmitter.emit("stop input capture");
+  };
+
+  startInputCapture = () => {
+    this.eventEmitter.emit("start input capture");
   };
   render() {
     return (
@@ -87,9 +116,9 @@ export default class LevelCreator extends Component {
           <nav>
             <ul id="tool-bar">
               {Object.keys(this.toolArr).map(tool => {
-                console.log(this.toolArr[tool]);
                 return (
                   <Tool
+                    onClick={tool => this.toolChange(tool)}
                     key={this.toolArr[tool].tile}
                     tool={this.toolArr[tool]}
                   />
@@ -98,6 +127,15 @@ export default class LevelCreator extends Component {
             </ul>
           </nav>
         </header>
+        {this.state.testing ? (
+          <GameView />
+        ) : (
+          <LevelCreatorView
+            onMouseEnter={this.startInputCapture}
+            onMouseLeave={this.stopInputCapture}
+            activeToolImg={this.state.activeToolImg}
+          />
+        )}
       </div>
     );
   }

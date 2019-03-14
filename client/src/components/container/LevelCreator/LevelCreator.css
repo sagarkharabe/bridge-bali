@@ -1,12 +1,53 @@
-#level-creator-container {
-  box-sizing: border-box;
-  border: 4px solid black;
-  border-top: 2px solid black;
-  border-bottom: 2px solid black;
+#tool-bar-container {
   display: flex;
+  justify-content: center;
+}
+#toolbar li {
+  margin: auto 5px;
+}
+#tool-bar-container a {
+  padding-left: 16px;
+  width: 64px;
+}
+#create-level-form {
+  width: 800px;
+  margin: auto;
+}
+#create-level-form.level-title {
+  float: left;
+  text-align: center;
+  width: 65%;
+}
+#create-level-form.level-title.level-title-input {
+  width: 100%;
+}
 
-  width: 800px + (4px * 2);
-  height: 600px + 4px;
-  margin-left: auto;
-  margin-right: auto;
+#create-level-form.girder-count {
+  text-align: right;
+}
+
+#create-level-form.girder-count.girder-count-input {
+  width: 64px;
+}
+
+#create-level-form.sky-color {
+  text-align: right;
+}
+
+#create-level-form.sky-color.sky-color-input {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+input {
+  color: black;
+  margin: 5px;
+  padding: 10px;
+}
+
+#editor-controls {
+  width: 800px;
+  margin: auto;
+  text-align: center;
 }
