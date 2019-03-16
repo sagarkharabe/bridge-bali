@@ -24,6 +24,24 @@ export default class LevelCreator extends Component {
   }
   componentDidUpdate() {
     const eventEmitter = window.eventEmitter;
+    var { unparsedLevelArr, parsedLevelArr } = this.state;
+    eventEmitter.only("send tile map", async mapArr => {
+      if (this.state.nextMapUse === "log") {
+        console.log("recieved.");
+        console.dir(mapArr);
+      } else if (this.state.nextMapUse === "switchToGame") {
+        console.log("ready to switch");
+
+        await this.setState({
+          parsedLevelArr: mapArr[0],
+          unparsedLevelArr: mapArr[1],
+          testing: !this.state.testing
+        });
+      }
+    });
+  }
+  componentWillUpdate() {
+    const eventEmitter = window.eventEmitter;
     var {
       unparsedLevelArr,
       parsedLevelArr,
@@ -32,27 +50,13 @@ export default class LevelCreator extends Component {
       nextMapUse,
       testing
     } = this.state;
-    eventEmitter.only("send tile map", mapArr => {
-      console.log(
-        "handling send tile map event ",
-        nextMapUse,
-        this.state.nextMapUse
-      );
-      console.log("mapArr ", mapArr);
-      if (this.state.nextMapUse === "log") {
-        console.log("recieved.");
-        console.dir(mapArr);
-      } else if (this.state.nextMapUse === "switchToGame") {
-        console.log("ready to switch");
-        console.log(mapArr);
-        this.setState((prevState, props) => {
-          return {
-            testing: !prevState.testing,
-            parsedLevelArr: mapArr[0],
-            unparsedLevelArr: mapArr[1]
-          };
-        });
-      }
+    eventEmitter.only("I need both the maps!", function() {
+      console.log(this.state);
+      window.eventEmitter.emit("found maps!", [
+        "levelArr",
+        unparsedLevelArr,
+        parsedLevelArr
+      ]);
     });
   }
   componentDidMount() {
@@ -65,14 +69,14 @@ export default class LevelCreator extends Component {
       nextMapUse,
       testing
     } = this.state;
-    eventEmitter.only("I need both the maps!", function() {
-      eventEmitter.emit("found maps!", [
+    eventEmitter.once("I need both the maps!", function() {
+      console.log(this.state);
+      window.eventEmitter.emit("found maps!", [
         "levelArr",
         unparsedLevelArr,
         parsedLevelArr
       ]);
     });
-
     eventEmitter.only("what level to play", data => {
       console.log("##$$%% what level - ", data);
       if (this.state.parsedLevelArr) {
@@ -117,7 +121,7 @@ export default class LevelCreator extends Component {
     if (!this.state.testing) {
       this.eventEmitter.emit("request tile map", "");
     } else {
-      this.setState({
+      await this.setState({
         testing: !this.state.testing,
         beatenLevel: null,
         beaten: false
