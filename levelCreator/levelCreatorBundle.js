@@ -434,15 +434,15 @@ function initCreateState() {
       eventEmitter.emit("send screenshot", screenshot);
     });
 
-    eventEmitter.only("stop input capture", function() {
-      game.input.enabled = false;
-      game.input.reset();
-    });
+    // eventEmitter.only("stop input capture", function() {
+    //   game.input.enabled = false;
+    //   game.input.reset();
+    // });
 
-    eventEmitter.only("start input capture", function() {
-      game.input.enabled = true;
-      game.input.reset();
-    });
+    // eventEmitter.only("start input capture", function() {
+    //   game.input.enabled = true;
+    //   game.input.reset();
+    // });
   };
 
   state.update = function() {

@@ -10,7 +10,6 @@ export default function GameView() {
 
       <div id="game-container" className="game-window" />
       <Helmet>
-        <script type="text/javascript" src="/browser/js/browserbundle.js" />
         <script src="/game/js/bundle.js" />
       </Helmet>
     </div>

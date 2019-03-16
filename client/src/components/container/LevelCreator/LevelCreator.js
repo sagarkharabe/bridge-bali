@@ -32,6 +32,28 @@ export default class LevelCreator extends Component {
       nextMapUse,
       testing
     } = this.state;
+    eventEmitter.only("send tile map", mapArr => {
+      console.log(
+        "handling send tile map event ",
+        nextMapUse,
+        this.state.nextMapUse
+      );
+      console.log("mapArr ", mapArr);
+      if (this.state.nextMapUse === "log") {
+        console.log("recieved.");
+        console.dir(mapArr);
+      } else if (this.state.nextMapUse === "switchToGame") {
+        console.log("ready to switch");
+        console.log(mapArr);
+        this.setState((prevState, props) => {
+          return {
+            testing: !prevState.testing,
+            parsedLevelArr: mapArr[0],
+            unparsedLevelArr: mapArr[1]
+          };
+        });
+      }
+    });
   }
   componentDidMount() {
     const eventEmitter = window.eventEmitter;
@@ -43,15 +65,23 @@ export default class LevelCreator extends Component {
       nextMapUse,
       testing
     } = this.state;
+    eventEmitter.only("I need both the maps!", function() {
+      eventEmitter.emit("found maps!", [
+        "levelArr",
+        unparsedLevelArr,
+        parsedLevelArr
+      ]);
+    });
+
     eventEmitter.only("what level to play", data => {
-      console.log(data);
+      console.log("##$$%% what level - ", data);
       if (this.state.parsedLevelArr) {
-        eventEmitter.emit("play this level", [
+        window.eventEmitter.emit("play this level", [
           "levelArr",
           {
-            levelArr: parsedLevelArr,
-            skyColor: skyColor,
-            girdersAllowed: girdersAllowed
+            levelArr: this.state.parsedLevelArr,
+            skyColor: this.state.skyColor,
+            girdersAllowed: this.state.girdersAllowed
           }
         ]);
         console.log("found a parsed level arr");
@@ -59,84 +89,12 @@ export default class LevelCreator extends Component {
         console.log(this.state.parsedLevelArr);
       }
     });
-
-    eventEmitter.only("send tile map", mapArr => {
-      console.log(
-        "handling send tile map event ",
-        nextMapUse,
-        this.state.nextMapUse
-      );
-      if (this.state.nextMapUse === "log") {
-        console.log("recieved.");
-        console.dir(mapArr);
-      } else if (nextMapUse === "switchToGame") {
-        console.log("ready to switch");
-        parsedLevelArr = mapArr[0];
-        console.log(parsedLevelArr);
-        console.log("look above");
-        unparsedLevelArr = mapArr[1];
-        this.setState((prevState, props) => {
-          return { testing: !prevState.testing };
-        });
-      }
-    });
-    eventEmitter.only("I need both the maps!", function() {
-      console.log("$%$%$%", unparsedLevelArr, parsedLevelArr);
-      eventEmitter.emit("found maps!", [
-        "levelArr",
-        unparsedLevelArr,
-        parsedLevelArr
-      ]);
-    });
   }
-  toolArr = {
-    Eraser: {
-      img: "game/assets/images/eraser.png",
-      tile: "Eraser"
-    },
-    Gus: {
-      img: "game/assets/images/gus-static.png",
-      tile: "Gus"
-    },
-    "Red Brick": {
-      img: "game/assets/images/brick_red.png",
-      tile: "RedBrickBlock"
-    },
-    "Black Brick": {
-      img: "game/assets/images/brick_black.png",
-      tile: "BlackBrickBlock"
-    },
-    "Break Brick": {
-      img: "game/assets/images/brick_break.png",
-      tile: "BreakBrickBlock"
-    },
-    Spike: {
-      img: "game/assets/images/spike.png",
-      tile: "Spike"
-    },
-    Tool: {
-      img: "game/assets/images/tool.png",
-      tile: "Tool"
-    }
-  };
+
   onChange = e => {
     this.setState({ [e.target.name]: e.target.value });
   };
 
-  toolChange = tool => {
-    this.setState({
-      activeToolImg: tool.img
-    });
-    console.log("##from change tools", tool);
-    this.eventEmitter.emit("change active tool", tool.tile);
-  };
-  stopInputCapture = () => {
-    this.eventEmitter.emit("stop input capture");
-  };
-
-  startInputCapture = () => {
-    this.eventEmitter.emit("start input capture");
-  };
   requestParsedTileMap = () => {
     this.setState({
       nextMapUse: "log"
@@ -145,12 +103,18 @@ export default class LevelCreator extends Component {
     console.log("nextmapuse", this.state.nextMapUse);
     this.eventEmitter.emit("request tile map", "");
   };
-  testTesting() {
-    this.setState({
-      activeToolImg: this.toolArr["Red Brick"].img,
-      nextMapUse: "switchToGame"
-    });
-    if (this.state.testing) {
+  testTesting = async () => {
+    await this.setState(
+      {
+        activeToolImg: this.toolArr["Red Brick"].img,
+        nextMapUse: "switchToGame"
+      },
+      () => {
+        console.log("state update in testing func", this.state);
+      }
+    );
+
+    if (!this.state.testing) {
       this.eventEmitter.emit("request tile map", "");
     } else {
       this.setState({
@@ -169,7 +133,7 @@ export default class LevelCreator extends Component {
         setTimeout(checkGameDestroyed, 100);
       }
     })();
-  }
+  };
   render() {
     return (
       <div>
@@ -269,4 +233,48 @@ export default class LevelCreator extends Component {
       </div>
     );
   }
+  toolChange = tool => {
+    this.setState({
+      activeToolImg: tool.img
+    });
+    console.log("##from change tools", tool);
+    this.eventEmitter.emit("change active tool", tool.tile);
+  };
+  stopInputCapture = () => {
+    this.eventEmitter.emit("stop input capture");
+  };
+
+  startInputCapture = () => {
+    this.eventEmitter.emit("start input capture");
+  };
+  toolArr = {
+    Eraser: {
+      img: "game/assets/images/eraser.png",
+      tile: "Eraser"
+    },
+    Gus: {
+      img: "game/assets/images/gus-static.png",
+      tile: "Gus"
+    },
+    "Red Brick": {
+      img: "game/assets/images/brick_red.png",
+      tile: "RedBrickBlock"
+    },
+    "Black Brick": {
+      img: "game/assets/images/brick_black.png",
+      tile: "BlackBrickBlock"
+    },
+    "Break Brick": {
+      img: "game/assets/images/brick_break.png",
+      tile: "BreakBrickBlock"
+    },
+    Spike: {
+      img: "game/assets/images/spike.png",
+      tile: "Spike"
+    },
+    Tool: {
+      img: "game/assets/images/tool.png",
+      tile: "Tool"
+    }
+  };
 }

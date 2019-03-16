@@ -277,7 +277,6 @@ function initLoadState() {
       }
     });
     eventEmitter.emit("what level to play", "log me");
-    //game.state.start("game");
   };
 
   return state;

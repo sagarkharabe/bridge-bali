@@ -1,0 +1,24 @@
+#home.left-column {
+  float: left;
+  width: 300px;
+  margin: 5px;
+}
+#home.game-view {
+  float: right;
+}
+
+#gus {
+  float: left;
+  width: 128px;
+}
+
+#whois {
+  background-image: url("/game/assets/images/gus-static.png");
+  background-repeat: no-repeat;
+  background-position: bottom center;
+
+  background-size: 128px;
+}
+#whois.text-block {
+  width: 40%;
+}
