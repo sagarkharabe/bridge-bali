@@ -8,9 +8,9 @@ export default class Tool extends Component {
     return (
       <React.Fragment>
         <li style={{ height: "32px" }}>
-          <a onClick={() => this.props.onClick(this.props.tool)}>
+          <button onClick={() => this.props.onClick(this.props.tool)}>
             <img src={this.props.tool.img} alt="" />
-          </a>
+          </button>
         </li>
       </React.Fragment>
     );

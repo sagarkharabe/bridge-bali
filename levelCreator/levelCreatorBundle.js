@@ -213,8 +213,8 @@ function startGame(phaser) {
 const COLORS = require("../../game/js/const/colors");
 const NUM_TO_TILES = require("../../game/js/const/tilemap");
 
-var Dolly = require("../../game/js/objects/dolly");
 var Cursors = require("../controls/cursors");
+var Dolly = require("../../game/js/objects/dolly");
 var gusSpawn, rotateCounterKey, routateClockwiseKey, selector;
 var wasdCursors, arrowCursors;
 var lastRotTime = 0;
@@ -348,6 +348,7 @@ function initCreateState() {
     eventEmitter.emit("need sky color");
 
     this.drawGrid();
+    game.freeLookKey = game.input.keyboard.addKey(Phaser.KeyCode.SHIFT);
 
     // Set Keyboard input
     wasdCursors = new Cursors(
@@ -369,6 +370,9 @@ function initCreateState() {
     game.dolly.targetPos = new Phaser.Point(0, 0);
 
     eventEmitter.only("change active tool", tool => {
+      console.log(
+        "Got a event to change active tool in level creator component"
+      );
       game.activeTool = tool;
     });
 

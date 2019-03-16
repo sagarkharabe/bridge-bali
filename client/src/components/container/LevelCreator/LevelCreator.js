@@ -8,19 +8,87 @@ export default class LevelCreator extends Component {
     super();
     this.eventEmitter = window.eventEmitter;
     this.state = {
-      level_title: "",
-      girder_count: 10,
-      sky_color: "#4428BC",
+      levelTitle: "",
+      girdersAllowed: 10,
+      skyColor: "#4428BC",
       activeToolImg: "game/assets/images/brick_red.png",
       testing: false,
       sentId: false,
       levelId: null,
       nextMapUse: null,
       unparsedLevelArr: null,
-      parsedLevelArr: []
+      parsedLevelArr: [],
+      readyToSave: false
     };
+    this.eventEmitter = window.eventEmitter;
   }
+  componentDidUpdate() {
+    const eventEmitter = window.eventEmitter;
+    var {
+      unparsedLevelArr,
+      parsedLevelArr,
+      skyColor,
+      girdersAllowed,
+      nextMapUse,
+      testing
+    } = this.state;
+  }
+  componentDidMount() {
+    const eventEmitter = window.eventEmitter;
+    var {
+      unparsedLevelArr,
+      parsedLevelArr,
+      skyColor,
+      girdersAllowed,
+      nextMapUse,
+      testing
+    } = this.state;
+    eventEmitter.only("what level to play", data => {
+      console.log(data);
+      if (this.state.parsedLevelArr) {
+        eventEmitter.emit("play this level", [
+          "levelArr",
+          {
+            levelArr: parsedLevelArr,
+            skyColor: skyColor,
+            girdersAllowed: girdersAllowed
+          }
+        ]);
+        console.log("found a parsed level arr");
+      } else {
+        console.log(this.state.parsedLevelArr);
+      }
+    });
 
+    eventEmitter.only("send tile map", mapArr => {
+      console.log(
+        "handling send tile map event ",
+        nextMapUse,
+        this.state.nextMapUse
+      );
+      if (this.state.nextMapUse === "log") {
+        console.log("recieved.");
+        console.dir(mapArr);
+      } else if (nextMapUse === "switchToGame") {
+        console.log("ready to switch");
+        parsedLevelArr = mapArr[0];
+        console.log(parsedLevelArr);
+        console.log("look above");
+        unparsedLevelArr = mapArr[1];
+        this.setState((prevState, props) => {
+          return { testing: !prevState.testing };
+        });
+      }
+    });
+    eventEmitter.only("I need both the maps!", function() {
+      console.log("$%$%$%", unparsedLevelArr, parsedLevelArr);
+      eventEmitter.emit("found maps!", [
+        "levelArr",
+        unparsedLevelArr,
+        parsedLevelArr
+      ]);
+    });
+  }
   toolArr = {
     Eraser: {
       img: "game/assets/images/eraser.png",
@@ -69,6 +137,39 @@ export default class LevelCreator extends Component {
   startInputCapture = () => {
     this.eventEmitter.emit("start input capture");
   };
+  requestParsedTileMap = () => {
+    this.setState({
+      nextMapUse: "log"
+    });
+    console.log("requesting tile map...");
+    console.log("nextmapuse", this.state.nextMapUse);
+    this.eventEmitter.emit("request tile map", "");
+  };
+  testTesting() {
+    this.setState({
+      activeToolImg: this.toolArr["Red Brick"].img,
+      nextMapUse: "switchToGame"
+    });
+    if (this.state.testing) {
+      this.eventEmitter.emit("request tile map", "");
+    } else {
+      this.setState({
+        testing: !this.state.testing,
+        beatenLevel: null,
+        beaten: false
+      });
+    }
+
+    window.game.destroy();
+
+    (function checkGameDestroyed() {
+      if (window.game.isBooted === false) {
+        window.game = null;
+      } else {
+        setTimeout(checkGameDestroyed, 100);
+      }
+    })();
+  }
   render() {
     return (
       <div>
@@ -81,7 +182,7 @@ export default class LevelCreator extends Component {
               id="level-title"
               type="text"
               className="level-title-input"
-              name="level_title"
+              name="levelTitle"
               onChange={this.onChange}
             />
           </div>
@@ -93,8 +194,8 @@ export default class LevelCreator extends Component {
               type="number"
               id="girder-count"
               className="girder-count-input"
-              name="girder_count"
-              value={this.state.girder_count}
+              name="girdersAllowed"
+              value={this.state.girdersAllowed}
               onChange={this.onChange}
             />
           </div>
@@ -106,8 +207,8 @@ export default class LevelCreator extends Component {
               type="color"
               id="color"
               className="sky-color-input"
-              name="sky_color"
-              value={this.state.sky_color}
+              name="skyColor"
+              value={this.state.skyColor}
               onChange={this.onChange}
             />
           </div>
@@ -136,6 +237,35 @@ export default class LevelCreator extends Component {
             activeToolImg={this.state.activeToolImg}
           />
         )}
+
+        <div id="editor-controls">
+          {!this.state.testing ? (
+            <button className="btn" onClick={this.testTesting}>
+              Test Level
+            </button>
+          ) : (
+            <button className="btn" onClick={this.testTesting}>
+              Edit Level
+            </button>
+          )}
+
+          {this.state.readyToSave ? (
+            <button
+              className="btn btn-create"
+              ng-click="submitBeatenLevel(beatenLevel, levelTitle, girdersAllowed, skyColor, false)"
+            >
+              Save Draft
+            </button>
+          ) : null}
+          {this.state.readyToSave ? (
+            <button
+              className="btn btn-create"
+              onClick="submitBeatenLevel(beatenLevel, levelTitle, girdersAllowed, skyColor)"
+            >
+              Submit Level
+            </button>
+          ) : null}
+        </div>
       </div>
     );
   }

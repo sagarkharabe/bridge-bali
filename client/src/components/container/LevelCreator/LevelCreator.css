@@ -9,6 +9,10 @@
   padding-left: 16px;
   width: 64px;
 }
+#tool-bar-container button {
+  padding-left: 16px;
+  width: 64px;
+}
 #create-level-form {
   width: 800px;
   margin: auto;
