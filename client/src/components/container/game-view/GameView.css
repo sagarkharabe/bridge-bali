@@ -7,11 +7,11 @@
 
   box-sizing: border-box;
   border: 4px solid black;
-  border-top: (4px / 2) solid black;
-  border-bottom: (4px / 2) solid black;
+  border-top: 2px solid black;
+  border-bottom: 2px solid black;
   display: flex;
 
-  width: 800px + 8px;
-  height: 600px + 4px;
+  width: 808px;
+  height: 604px;
   margin: auto;
 }

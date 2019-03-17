@@ -18,7 +18,8 @@ export default class LevelCreator extends Component {
       nextMapUse: null,
       unparsedLevelArr: null,
       parsedLevelArr: [],
-      readyToSave: false
+      readyToSave: false,
+      beaten: false
     };
     this.eventEmitter = window.eventEmitter;
   }
@@ -58,6 +59,10 @@ export default class LevelCreator extends Component {
         parsedLevelArr
       ]);
     });
+    eventEmitter.only("need sky color", function() {
+      console.log("Got a event req for 'need skycolor' , sending it ");
+      eventEmitter.emit("here's sky color", skyColor);
+    });
   }
   componentDidMount() {
     const eventEmitter = window.eventEmitter;
@@ -96,7 +101,17 @@ export default class LevelCreator extends Component {
   }
 
   onChange = e => {
-    this.setState({ [e.target.name]: e.target.value });
+    e.persist();
+    if (e.target.name === "skyColor") {
+      this.setState({ [e.target.name]: e.target.value }, () =>
+        console.log("skyColor change to ", e.target.value, this.state.skyColor)
+      );
+      console.log("Sending sky color to the game module");
+      this.eventEmitter.emit("here's sky color", this.state.skyColor);
+    } else
+      this.setState({ [e.target.name]: e.target.value }, () =>
+        console.log("State changed ", this.state)
+      );
   };
 
   requestParsedTileMap = () => {
@@ -225,7 +240,7 @@ export default class LevelCreator extends Component {
               Save Draft
             </button>
           ) : null}
-          {this.state.readyToSave ? (
+          {this.state.readyToSave && this.state.beaten ? (
             <button
               className="btn btn-create"
               onClick="submitBeatenLevel(beatenLevel, levelTitle, girdersAllowed, skyColor)"
@@ -254,7 +269,7 @@ export default class LevelCreator extends Component {
   toolArr = {
     Eraser: {
       img: "game/assets/images/eraser.png",
-      tile: "Eraser"
+      tile: null
     },
     Gus: {
       img: "game/assets/images/gus-static.png",

@@ -7,9 +7,9 @@ export default class Tool extends Component {
   render() {
     return (
       <React.Fragment>
-        <li style={{ height: "32px" }}>
+        <li>
           <button onClick={() => this.props.onClick(this.props.tool)}>
-            <img src={this.props.tool.img} alt="" />
+            <img style={{ height: "32px" }} src={this.props.tool.img} alt="" />
           </button>
         </li>
       </React.Fragment>

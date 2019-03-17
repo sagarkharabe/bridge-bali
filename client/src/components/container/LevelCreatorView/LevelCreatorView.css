@@ -5,8 +5,8 @@
   border-bottom: 2px solid black;
   display: flex;
 
-  width: 800px + (4px * 2);
-  height: 600px + 4px;
+  width: 808px;
+  height: 604px;
   margin-left: auto;
   margin-right: auto;
 }

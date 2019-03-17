@@ -39,11 +39,11 @@ function initLoadState() {
     game.physics.p2.setBoundsToWorld();
     var gus = game.add.sprite(-16, -16, "Gus");
     gus.animations.add("dance", [3, 4, 6, 7], 5, true);
-    var loadText = game.add.text(0, 32, "Loading assets...", {
+    var loadText = game.add.text(0, 0, "Loading assets...", {
       font: '12pt "Arial", sans-serif',
       fill: "white"
     });
-    loadText.anchor = { x: 0.5, y: 0 };
+    loadText.anchor = middle;
 
     // start game state
     game.level = {
@@ -201,7 +201,6 @@ function initLoadState() {
       ]
     };
     loadText.text = "Waiting for level info...";
-    console.log("##", loadText.text);
 
     eventEmitter.on("play this level", function(data) {
       console.log("##", data);

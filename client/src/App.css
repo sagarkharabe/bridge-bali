@@ -11,8 +11,7 @@ a {
   color: black;
   cursor: pointer;
 }
-a:hover,
-a:visited {
+a:hover {
   color: black;
   text-decoration: none;
 }
@@ -32,7 +31,7 @@ h3 {
 .row {
   margin: auto;
 }
-disabled {
+a disabled {
   cursor: default;
 }
 .btn {
@@ -40,7 +39,8 @@ disabled {
   display: inline-block;
   padding: 10px 20px;
   border-radius: 0;
-  border: (4px / 2) solid black;
+  border: 2px solid black;
+  cursor: pointer;
   color: white;
   font-weight: bold;
   font-size: 110%;
@@ -89,7 +89,7 @@ nav ul {
 }
 nav ul li {
   display: inline-block;
-  border: (4px/ 2) solid black;
+  border: 2px solid black;
   border-collapse: collapse;
   margin: 5px;
 }
@@ -113,7 +113,7 @@ nav ul li button {
   background-color: #e1a51d;
   display: inline-block;
   padding: 10px 40px;
-
+  cursor: pointer;
   font-size: 18px;
   font-weight: 800;
   letter-spacing: 1px;
