@@ -27,7 +27,8 @@ router.get("/drafts/", mustBeLoggedIn, function(req, res, next) {
   })(req, res, next);
 });
 // user can create level
-router.post("/", mustBeLoggedIn, createDoc("Level", "creator"));
+// router.post("/",mustBeLoggedIn, createDoc("Level", "creator"));
+router.post("/", createDoc("Level"));
 
 function onlyOwnersCanOpenDrafts(req) {
   console.log(req.user ? req.user._id : "null");

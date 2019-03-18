@@ -8,8 +8,7 @@
     "client": "cd client && npm start",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "watch": "watchify game/js/main.js -o game/js/bundle.js",
-    "watchlevel": "watchify levelCreator/main.js -o levelCreator/levelCreatorBundle.js",
-    "watchbrowser": "watchify browser/js/app.js -o browser/js/browserbundle.js"
+    "watchlevel": "watchify levelCreator/main.js -o levelCreator/levelCreatorBundle.js"
   },
   "repository": {
     "type": "git",

@@ -1,0 +1,33 @@
+#level-header {
+  margin: auto;
+  width: 800px;
+  text-align: center;
+}
+h1 {
+  margin-top: 0;
+  font-family: "Press Start 2P", cursive;
+  text-shadow: 4px 4px 0px black;
+}
+
+#level-metadata {
+  margin: 10px auto;
+  width: 800px;
+}
+
+#level-metadata.metadata {
+  margin-bottom: 1em;
+}
+
+#level-metadata.metadata p {
+  display: inline;
+  padding-right: 1em;
+}
+
+#level-metadata.metadata.label p {
+  font-weight: bold;
+}
+
+.controls#fork#starring {
+  float: left;
+  margin-right: 5px;
+}

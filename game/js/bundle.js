@@ -2792,7 +2792,6 @@ function initLoadState() {
       ]
     };
     loadText.text = "Waiting for level info...";
-    console.log("##", loadText.text);
 
     eventEmitter.on("play this level", function(data) {
       console.log("##", data);
@@ -2805,7 +2804,9 @@ function initLoadState() {
           objects: data[1].levelArr
         };
 
-        state.gotoStart();
+        setTimeout(() => {
+          state.gotoStart();
+        }, 1500);
       } else if (data[0] === "levelId") {
         if (data[1] === undefined) return danceInstead(loadText, gus);
 

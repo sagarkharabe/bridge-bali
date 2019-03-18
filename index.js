@@ -11,7 +11,7 @@ const { toggleTesting } = require("./hbshelpers/createLevel");
 const favicon = require("serve-favicon");
 app.use(require("prerender-node"));
 //require("./config/app-variables")(app);
-
+const allowedHost = "http://localhost:3000";
 MONGOURI = "mongodb://sagar:sagar5544@ds259820.mlab.com:59820/new-mario-db";
 mongoose.Promise = global.Promise;
 mongoose
@@ -24,6 +24,15 @@ mongoose
   .catch(err => {
     console.log(chalk.red("Mlab connection error -- "), err);
   });
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", allowedHost);
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
 
 app.engine(
   "handlebars",

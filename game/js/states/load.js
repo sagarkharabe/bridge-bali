@@ -39,11 +39,11 @@ function initLoadState() {
     game.physics.p2.setBoundsToWorld();
     var gus = game.add.sprite(-16, -16, "Gus");
     gus.animations.add("dance", [3, 4, 6, 7], 5, true);
-    var loadText = game.add.text(0, 0, "Loading assets...", {
+    var loadText = game.add.text(0, 32, "Loading assets...", {
       font: '12pt "Arial", sans-serif',
       fill: "white"
     });
-    loadText.anchor = middle;
+    loadText.anchor = { x: 0.5, y: 0 };
 
     // start game state
     game.level = {
@@ -213,7 +213,9 @@ function initLoadState() {
           objects: data[1].levelArr
         };
 
-        state.gotoStart();
+        setTimeout(() => {
+          state.gotoStart();
+        }, 1500);
       } else if (data[0] === "levelId") {
         if (data[1] === undefined) return danceInstead(loadText, gus);
 
