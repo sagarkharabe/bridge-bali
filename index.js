@@ -3,16 +3,17 @@ const mongoose = require("mongoose");
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
+const passport = require("passport");
 const chalk = require("chalk");
-const exphbs = require("express-handlebars");
+const session = require("express-session");
+const cookieParser = require("cookie-parser");
 require("./models");
 const app = express();
-const { toggleTesting } = require("./hbshelpers/createLevel");
 const favicon = require("serve-favicon");
 app.use(require("prerender-node"));
 //require("./config/app-variables")(app);
 const allowedHost = "http://localhost:3000";
-MONGOURI = "mongodb://sagar:sagar5544@ds259820.mlab.com:59820/new-mario-db";
+MONGOURI = process.env.MONGOURI;
 mongoose.Promise = global.Promise;
 mongoose
   .connect(MONGOURI, {
@@ -34,21 +35,20 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.engine(
-  "handlebars",
-  exphbs({
-    helpers: {
-      toggleTesting
-    },
-    defaultLayout: "main"
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(
+  session({
+    secret: "secret",
+    resave: false,
+    saveUninitialized: false
   })
 );
 
-app.set("view engine", "handlebars");
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(passport.initialize());
+app.use(passport.session());
+require("./config/passport");
 app.use("/browser", express.static(path.join(__dirname, "browser")));
 app.use(
   "/browser/stylesheets",
@@ -60,25 +60,10 @@ app.use("/levelCreator", express.static(path.join(__dirname, "levelCreator")));
 app.use(express.static(path.join(__dirname, "node_modules")));
 //app.use(favicon(app.getValue('faviconPath')));
 
-app.get("/", (req, res) => {
-  res.render("home");
-});
-app.get("/createLevel", function(req, res) {
-  res.render("levelCreator/levelCreator", {
-    toolArr: toolArr
-  });
-});
-app.get("/testLevel", function(req, res) {
-  res.render("levelCreator/levelTester", {
-    toolArr: toolArr,
-    testing: false
-  });
-});
-
 app.use("/api/users", require("./routes/users"));
 app.use("/api/statistics", require("./routes/statistics"));
 app.use("/api/levels", require("./routes/levels"));
-
+app.use("/auth", require("./routes/auth"));
 const port = 5000;
 app.listen(port, () => {
   //console.log(process.env.MONGOURI);

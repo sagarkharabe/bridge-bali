@@ -1,7 +1,12 @@
 import React, { Component } from "react";
 import GameView from "../game-view/GameView";
 import "./Home.css";
+import uuid from "uuid";
+import queryString from "query-string";
 export default class Home extends Component {
+  constructor() {
+    super();
+  }
   tipText = [
     [
       "Use the LEFT and RIGHT arrow keys to walk left and right. ",
@@ -37,6 +42,13 @@ export default class Home extends Component {
       "Collect all the tools in this level to finish the tutorial. "
     ]
   ];
+  componentWillMount() {
+    var query = queryString.parse(this.props.location.search);
+    if (query.token) {
+      window.localStorage.setItem("jwt", query.token);
+      this.props.history.push("/");
+    }
+  }
 
   render() {
     return (
@@ -52,7 +64,7 @@ export default class Home extends Component {
             <h2>Tips & Tricks</h2>
             <ul>
               {this.tipText.map(tip => {
-                return <li>{tip}</li>;
+                return <li key={uuid()}>{tip}</li>;
               })}
             </ul>
 

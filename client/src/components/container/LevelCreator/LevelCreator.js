@@ -94,6 +94,10 @@ export default class LevelCreator extends Component {
           });
         });
     });
+    this.eventEmitter.only("send screenshot", screenshot => {
+      console.log("screenshot");
+      console.log(screenshot);
+    });
     this.eventEmitter.only("game ended", async data => {
       console.log("game ended data - ", data);
       await this.setState(
@@ -109,16 +113,9 @@ export default class LevelCreator extends Component {
       );
     });
   }
-  componentDidUpdate() {
-    const eventEmitter = window.eventEmitter;
-    var { unparsedLevelArr, parsedLevelArr } = this.state;
-  }
-  componentWillUpdate() {}
-  componentDidMount() {
-    const eventEmitter = window.eventEmitter;
-    var { unparsedLevelArr, parsedLevelArr } = this.state;
-  }
-
+  getScreenshot = () => {
+    this.eventEmitter.emit("request screenshot");
+  };
   submitLevel = (objArr, title, girderCount, skyColor, isPublished, id) => {
     console.log("id", id, "is published", isPublished);
     try {

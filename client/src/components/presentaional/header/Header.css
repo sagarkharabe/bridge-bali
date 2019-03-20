@@ -71,3 +71,12 @@ nav ul li a {
 nav ul li a:hover {
   background-color: lighten(#e1a51d, 10%);
 }
+
+a {
+  -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
+}
+.svgIcon {
+  display: inline-flex;
+  align-self: center;
+}
