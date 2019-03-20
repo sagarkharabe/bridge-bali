@@ -6,6 +6,7 @@ import Header from "./components/presentaional/header/Header";
 import LevelCreator from "./components/container/LevelCreator/LevelCreator";
 import LevelDetails from "./components/presentaional/LevelDetails/LevelDetails";
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+
 const EventEmitter = require("events");
 const eventEmitter = new EventEmitter();
 eventEmitter.only = function(event, callback) {
@@ -22,14 +23,15 @@ class App extends Component {
     return (
       <div className="App">
         <Header />
-        {/* <Router>
+        <Router>
           <Route exact path="/" component={Home} />
           <Route exact path="/level/create/:levelId" component={LevelCreator} />
 
           <Route exact path="/level/:levelId" component={GameView} />
-        </Router> */}
+        </Router>
         {/* <LevelCreator /> */}
-        <LevelDetails />
+
+        {/* <LevelDetails /> */}
 
         {/* <GameView /> */}
         {/* <Home /> */}

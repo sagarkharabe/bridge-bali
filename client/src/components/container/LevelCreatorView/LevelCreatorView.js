@@ -23,7 +23,7 @@ export default function LevelCreatorView(props) {
         /> */}
         <script
           type="text/javascript"
-          src="levelCreator/levelCreatorBundle.js"
+          src="/levelCreator/levelCreatorBundle.js"
         />
       </Helmet>
     </div>

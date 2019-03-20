@@ -6,18 +6,18 @@ function initLoadState() {
 
   state.preload = function() {
     console.log("Loading assets...");
-    game.load.image("Clock", "game/assets/images/clock.png");
-    game.load.image("BrickBlack", "game/assets/images/brick_black.png");
-    game.load.image("BrickBreak", "game/assets/images/brick_break.png");
-    game.load.image("BrickRed", "game/assets/images/brick_red.png");
-    game.load.image("GhostGirder", "game/assets/images/girder.png");
-    game.load.image("Girder", "game/assets/images/girder.png");
-    game.load.image("Tool", "game/assets/images/tool.png");
-    game.load.image("Spike", "game/assets/images/spike.png");
-    game.load.image("GusHead", "game/assets/images/part_gushead.png");
-    game.load.image("Debris", "game/assets/images/part_redblock.png");
-    game.load.image("Select", "game/assets/images/selectedBlockOutline.png");
-    game.load.spritesheet("Gus", "game/assets/images/gus.png", 32, 32);
+    game.load.image("Clock", "/game/assets/images/clock.png");
+    game.load.image("BrickBlack", "/game/assets/images/brick_black.png");
+    game.load.image("BrickBreak", "/game/assets/images/brick_break.png");
+    game.load.image("BrickRed", "/game/assets/images/brick_red.png");
+    game.load.image("GhostGirder", "/game/assets/images/girder.png");
+    game.load.image("Girder", "/game/assets/images/girder.png");
+    game.load.image("Tool", "/game/assets/images/tool.png");
+    game.load.image("Spike", "/game/assets/images/spike.png");
+    game.load.image("GusHead", "/game/assets/images/part_gushead.png");
+    game.load.image("Debris", "/game/assets/images/part_redblock.png");
+    game.load.image("Select", "/game/assets/images/selectedBlockOutline.png");
+    game.load.spritesheet("Gus", "/game/assets/images/gus.png", 32, 32);
 
     console.log("Done loading");
   };

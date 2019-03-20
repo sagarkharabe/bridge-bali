@@ -13,7 +13,7 @@ export default class LevelCreator extends Component {
       levelTitle: "",
       girdersAllowed: 10,
       skyColor: "#4428BC",
-      activeToolImg: "game/assets/images/brick_red.png",
+      activeToolImg: "/game/assets/images/brick_red.png",
       testing: false,
       sentId: false,
       levelId: null,
@@ -26,11 +26,7 @@ export default class LevelCreator extends Component {
       draftSaveObj: null
     };
     this.eventEmitter = window.eventEmitter;
-  }
-  componentDidUpdate() {
-    const eventEmitter = window.eventEmitter;
-    var { unparsedLevelArr, parsedLevelArr } = this.state;
-    eventEmitter.only("send tile map", async mapArr => {
+    this.eventEmitter.only("send tile map", async mapArr => {
       if (this.state.nextMapUse === "log") {
         console.log("recieved.");
         console.dir(mapArr);
@@ -43,94 +39,18 @@ export default class LevelCreator extends Component {
         });
       }
     });
-    eventEmitter.only("game ended", async data => {
-      console.log("game ended data - ", data);
-      console.log("THISTHISWTHISHTIS", this.setState);
-      await this.setState(
-        {
-          beaten: true,
-          beatenLevel: parsedLevelArr
-        },
-        () => {
-          console.log(
-            "game ended event has been caught by FE and state has been changed"
-          );
-        }
-      );
-    });
-  }
-  componentWillUpdate() {
-    const eventEmitter = window.eventEmitter;
-    var {
-      unparsedLevelArr,
-      parsedLevelArr,
-      skyColor,
-      girdersAllowed,
-      nextMapUse,
-      testing
-    } = this.state;
-    eventEmitter.only("I need both the maps!", () => {
+    this.eventEmitter.only("I need both the maps!", () => {
       console.log(this.state);
-      window.eventEmitter.emit("found maps!", [
+      this.eventEmitter.emit("found maps!", [
         "levelArr",
-        unparsedLevelArr,
-        parsedLevelArr
+        this.state.unparsedLevelArr,
+        this.state.parsedLevelArr
       ]);
     });
-    eventEmitter.once("map for draft save", data => {
-      console.log("Recieve data for draft save", data);
-      this.submitLevel(
-        data,
-        this.state.draftSaveObj.levelTitle,
-        this.state.draftSaveObj.girdersAllowed,
-        this.state.draftSaveObj.skyColor,
-        this.state.draftSaveObj.shouldPublish,
-        this.state.draftSaveObj.levelId
-      )
-        .then(async data => {
-          console.log("recieved data after saving draft", data);
-          await this.setState({
-            error: false,
-            success: true,
-            readyToSave: true
-          });
-        })
-        .catch(async err => {
-          console.error(err);
-          await this.setState({
-            error: true,
-            success: false,
-            readyToSave: true
-          });
-        });
-    });
-    eventEmitter.only("need sky color", () => {
-      console.log("Got a event req for 'need skycolor' , sending it ");
-      eventEmitter.emit("here's sky color", skyColor);
-    });
-  }
-  componentDidMount() {
-    const eventEmitter = window.eventEmitter;
-    var {
-      unparsedLevelArr,
-      parsedLevelArr,
-      skyColor,
-      girdersAllowed,
-      nextMapUse,
-      testing
-    } = this.state;
-    eventEmitter.once("I need both the maps!", () => {
-      console.log(this.state);
-      window.eventEmitter.emit("found maps!", [
-        "levelArr",
-        unparsedLevelArr,
-        parsedLevelArr
-      ]);
-    });
-    eventEmitter.only("what level to play", data => {
+    this.eventEmitter.only("what level to play", data => {
       console.log("##$$%% what level - ", data);
       if (this.state.parsedLevelArr) {
-        window.eventEmitter.emit("play this level", [
+        this.eventEmitter.emit("play this level", [
           "levelArr",
           {
             levelArr: this.state.parsedLevelArr,
@@ -140,10 +60,14 @@ export default class LevelCreator extends Component {
         ]);
         console.log("found a parsed level arr");
       } else {
-        console.log(this.state.parsedLevelArr);
+        console.log("No parsed level in state ", this.state.parsedLevelArr);
       }
     });
-    eventEmitter.once("map for draft save", data => {
+    this.eventEmitter.only("need sky color", () => {
+      console.log("Got a event req for 'need skycolor' , sending it ");
+      this.eventEmitter.emit("here's sky color", this.state.skyColor);
+    });
+    this.eventEmitter.only("map for draft save", data => {
       console.log("Recieve data for draft save", data);
       this.submitLevel(
         data,
@@ -170,6 +94,29 @@ export default class LevelCreator extends Component {
           });
         });
     });
+    this.eventEmitter.only("game ended", async data => {
+      console.log("game ended data - ", data);
+      await this.setState(
+        {
+          beaten: true,
+          beatenLevel: this.state.parsedLevelArr
+        },
+        () => {
+          console.log(
+            "game ended event has been caught by FE and state has been changed"
+          );
+        }
+      );
+    });
+  }
+  componentDidUpdate() {
+    const eventEmitter = window.eventEmitter;
+    var { unparsedLevelArr, parsedLevelArr } = this.state;
+  }
+  componentWillUpdate() {}
+  componentDidMount() {
+    const eventEmitter = window.eventEmitter;
+    var { unparsedLevelArr, parsedLevelArr } = this.state;
   }
 
   submitLevel = (objArr, title, girderCount, skyColor, isPublished, id) => {
@@ -470,31 +417,31 @@ export default class LevelCreator extends Component {
   };
   toolArr = {
     Eraser: {
-      img: "game/assets/images/eraser.png",
+      img: "/game/assets/images/eraser.png",
       tile: null
     },
     Gus: {
-      img: "game/assets/images/gus-static.png",
+      img: "/game/assets/images/gus-static.png",
       tile: "Gus"
     },
     "Red Brick": {
-      img: "game/assets/images/brick_red.png",
+      img: "/game/assets/images/brick_red.png",
       tile: "RedBrickBlock"
     },
     "Black Brick": {
-      img: "game/assets/images/brick_black.png",
+      img: "/game/assets/images/brick_black.png",
       tile: "BlackBrickBlock"
     },
     "Break Brick": {
-      img: "game/assets/images/brick_break.png",
+      img: "/game/assets/images/brick_break.png",
       tile: "BreakBrickBlock"
     },
     Spike: {
-      img: "game/assets/images/spike.png",
+      img: "/game/assets/images/spike.png",
       tile: "Spike"
     },
     Tool: {
-      img: "game/assets/images/tool.png",
+      img: "/game/assets/images/tool.png",
       tile: "Tool"
     }
   };
