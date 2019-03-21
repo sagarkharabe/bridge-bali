@@ -9,10 +9,8 @@ router.get(
   "/google/callback",
   passport.authenticate("google", { failureRedirect: "/", session: false }),
   (req, res) => {
-    var token = req.user.token;
-    res.redirect("http://localhost:3000?token=" + token);
+    res.redirect("/");
     console.log(req.user);
-    console.log(token);
   }
 );
 router.get("/logout", (req, res) => {
@@ -21,6 +19,7 @@ router.get("/logout", (req, res) => {
 });
 router.get("/verify", (req, res) => {
   if (req.user) {
+    console.log("auth");
     console.log(req.user);
   } else console.log("not auth");
 });
