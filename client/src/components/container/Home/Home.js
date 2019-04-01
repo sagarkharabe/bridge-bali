@@ -6,42 +6,12 @@ import queryString from "query-string";
 export default class Home extends Component {
   constructor() {
     super();
+    this.eventEmitter = window.eventEmitter;
   }
-  tipText = [
-    [
-      "Use the LEFT and RIGHT arrow keys to walk left and right. ",
-      "Gus can't jump, but he can walk into walls in order to rotate the world. ",
-      "Black bricks are too slippery to rotate on. ",
-      "Collect all the tools in this level to continue. ",
-      "Look back at these tips on every tutorial level!"
-    ],
-    [
-      "Press SPACE to place girders. ",
-      "You can use girders to build bridges over gaps. ",
-      "Gus can walk into girders to rotate the world. ",
-      "You can't place girders on black bricks. ",
-      "Girders are limited. Check your girder count in the top left. ",
-      "You can hold down SPACE while placing girders to keep building a bridge in front of Gus. ",
-      "Collect all the tools in this level to continue. "
-    ],
-    [
-      "Cracked blocks will collapse shortly after you step on them. ",
-      "You can stand on and rotate onto cracked blocks until they break. ",
-      "Collect all the tools in this level to continue. "
-    ],
-    [
-      "Spikes are dangerous. Don't touch them! ",
-      "If Gus touches a wall while falling, he'll rotate towards it. Try walking off a ledge and quickly changing direction. ",
-      "Hold shift and use the arrow keys to look around. ",
-      "Collect all the tools in this level to continue. "
-    ],
-    [
-      "You're almost done with the tutorial! Try solving this puzzle to test your skills. ",
-      "If you get stuck, you can press R to restart. ",
-      "Remember that you can use SHIFT to look around! ",
-      "Collect all the tools in this level to finish the tutorial. "
-    ]
-  ];
+  playRandom = () => {
+    alert("playing random");
+  };
+
   componentWillMount() {
     var query = queryString.parse(this.props.location.search);
     if (query.token) {
@@ -61,16 +31,16 @@ export default class Home extends Component {
               to learn how to play. Use the tips here to help you. Good luck!
             </p>
 
-            <h2>Tips & Tricks</h2>
-            <ul>
+            {/* <h2>Tips & Tricks</h2> */}
+            {/* <ul>
               {this.tipText.map(tip => {
                 return <li key={uuid()}>{tip}</li>;
               })}
-            </ul>
+            </ul> */}
 
             <h2>Jump Right In</h2>
             <div className="text-center">
-              <a className="btn" ng-click="playRandom()">
+              <a className="btn" onClick={this.playRandom}>
                 Play a Random Level
               </a>
               <br />
@@ -127,4 +97,39 @@ export default class Home extends Component {
       </section>
     );
   }
+  tipText = [
+    [
+      "Use the LEFT and RIGHT arrow keys to walk left and right. ",
+      "Gus can't jump, but he can walk into walls in order to rotate the world. ",
+      "Black bricks are too slippery to rotate on. ",
+      "Collect all the tools in this level to continue. ",
+      "Look back at these tips on every tutorial level!"
+    ],
+    [
+      "Press SPACE to place girders. ",
+      "You can use girders to build bridges over gaps. ",
+      "Gus can walk into girders to rotate the world. ",
+      "You can't place girders on black bricks. ",
+      "Girders are limited. Check your girder count in the top left. ",
+      "You can hold down SPACE while placing girders to keep building a bridge in front of Gus. ",
+      "Collect all the tools in this level to continue. "
+    ],
+    [
+      "Cracked blocks will collapse shortly after you step on them. ",
+      "You can stand on and rotate onto cracked blocks until they break. ",
+      "Collect all the tools in this level to continue. "
+    ],
+    [
+      "Spikes are dangerous. Don't touch them! ",
+      "If Gus touches a wall while falling, he'll rotate towards it. Try walking off a ledge and quickly changing direction. ",
+      "Hold shift and use the arrow keys to look around. ",
+      "Collect all the tools in this level to continue. "
+    ],
+    [
+      "You're almost done with the tutorial! Try solving this puzzle to test your skills. ",
+      "If you get stuck, you can press R to restart. ",
+      "Remember that you can use SHIFT to look around! ",
+      "Collect all the tools in this level to finish the tutorial. "
+    ]
+  ];
 }

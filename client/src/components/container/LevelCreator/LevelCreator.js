@@ -25,7 +25,6 @@ export default class LevelCreator extends Component {
       error: false,
       draftSaveObj: null
     };
-    this.eventEmitter = window.eventEmitter;
     this.eventEmitter.only("send tile map", async mapArr => {
       if (this.state.nextMapUse === "log") {
         console.log("recieved.");
@@ -274,7 +273,11 @@ export default class LevelCreator extends Component {
           </nav>
         </header>
         {this.state.testing ? (
-          <GameView />
+          <GameView
+            levelArr={this.state.parsedLevelArr}
+            skyColor={this.state.skyColor}
+            girdersAllowed={this.state.girdersAllowed}
+          />
         ) : (
           <LevelCreatorView
             onMouseEnter={this.startInputCapture}
