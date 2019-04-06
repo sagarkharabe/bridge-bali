@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import "./Header.css";
 class Header extends Component {
   componentDidMount() {
-    console.log(this.props.auth);
+    console.log(this.props);
   }
   renderContent() {
     switch (this.props.auth) {
