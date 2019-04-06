@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Promise = require("bluebird");
 var schema = new mongoose.Schema({
+  googleID: String,
   name: {
     type: String,
     required: true

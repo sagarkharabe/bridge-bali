@@ -40,7 +40,7 @@ export default class Header extends Component {
             {this.state.user ? <p>Welcome, </p> : null}
 
             {this.state.user ? (
-              <a href="/users/logout">Logout</a>
+              <a href="/auth/logout">Logout</a>
             ) : (
               <a href="http://localhost:5000/auth/google" className="btn">
                 <div>

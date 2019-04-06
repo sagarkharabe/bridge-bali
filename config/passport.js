@@ -1,14 +1,14 @@
 const passport = require("passport");
 const mongoose = require("mongoose");
 const User = mongoose.model("User");
-const GoogleStrategy = require("passport-google-oauth").OAuth2Strategy;
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.googleClientId,
       clientSecret: process.env.googleClientSecret,
-      callbackURL: "http://localhost:5000/auth/google/callback",
+      callbackURL: "/auth/google/callback",
       proxy: true
     },
     (accessToken, refreshToken, profile, done) => {
@@ -20,6 +20,7 @@ passport.use(
           console.log("User email exists");
         } else
           new User({
+            googleID: profile.id,
             email: profile.emails[0].value,
             name: profile.displayName
           })
@@ -31,8 +32,8 @@ passport.use(
 );
 
 passport.serializeUser(function(user, done) {
-  done(null, user);
+  done(null, user.id);
 });
-passport.deserializeUser(function(user, done) {
-  done(null, user);
+passport.deserializeUser(function(id, done) {
+  User.findById(id).then(user => done(null, user));
 });

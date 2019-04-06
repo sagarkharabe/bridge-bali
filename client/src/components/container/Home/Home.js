@@ -12,13 +12,7 @@ export default class Home extends Component {
     alert("playing random");
   };
 
-  componentWillMount() {
-    var query = queryString.parse(this.props.location.search);
-    if (query.token) {
-      window.localStorage.setItem("jwt", query.token);
-      this.props.history.push("/");
-    }
-  }
+  componentWillMount() {}
 
   render() {
     return (
