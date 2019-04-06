@@ -6,6 +6,7 @@ const path = require("path");
 const passport = require("passport");
 const chalk = require("chalk");
 const session = require("express-session");
+const cookieSession = require("cookie-session");
 const cookieParser = require("cookie-parser");
 require("./models");
 const app = express();
@@ -27,14 +28,21 @@ mongoose
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+// app.use(
+//   session({
+//     secret: "secret",
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       maxAge: 30 * 24 * 60 * 60 * 1000
+//     }
+//   })
+// );
+
 app.use(
-  session({
-    secret: "secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 30 * 24 * 60 * 60 * 1000
-    }
+  cookieSession({
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+    keys: ["asdfasdfa"]
   })
 );
 

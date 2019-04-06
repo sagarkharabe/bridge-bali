@@ -1,11 +1,13 @@
 import React, { Component } from "react";
 import "./App.css";
+import { connect } from "react-redux";
+import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
+import * as actions from "./actions";
 import GameView from "./components/container/game-view/GameView";
 import Home from "./components/container/Home/Home";
 import Header from "./components/presentaional/header/Header";
 import LevelCreator from "./components/container/LevelCreator/LevelCreator";
 import LevelDetails from "./components/presentaional/LevelDetails/LevelDetails";
-import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 
 const EventEmitter = require("events");
 const eventEmitter = new EventEmitter();
@@ -19,6 +21,9 @@ eventEmitter.on("loaded", () => {
 window.eventEmitter = eventEmitter;
 
 class App extends Component {
+  componentDidMount() {
+    this.props.fetchUser();
+  }
   render() {
     return (
       <div className="App">
@@ -46,4 +51,7 @@ class App extends Component {
   }
 }
 
-export default App;
+export default connect(
+  null,
+  actions
+)(App);

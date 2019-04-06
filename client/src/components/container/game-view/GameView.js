@@ -49,8 +49,3 @@ export default class GameView extends Component {
     );
   }
 }
-GameView.propTypes = {
-  levelArr: PropTypes.array.isRequired,
-  skyColor: PropTypes.string.isRequired,
-  girdersAllowed: PropTypes.number.isRequired
-};
