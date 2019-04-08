@@ -6,11 +6,22 @@ const path = require("path");
 const passport = require("passport");
 const chalk = require("chalk");
 const session = require("express-session");
+const cors = require("cors");
 const cookieSession = require("cookie-session");
 const cookieParser = require("cookie-parser");
 require("./models");
 const app = express();
+
 require("./config/passport");
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
 
 const MONGOURI = process.env.MONGOURI;
 mongoose.Promise = global.Promise;

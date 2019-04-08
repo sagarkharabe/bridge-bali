@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import "./App.css";
 import { connect } from "react-redux";
 import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
-import * as actions from "./actions";
+import { fetchUser } from "./actions/authAction";
 import GameView from "./components/container/game-view/GameView";
 import Home from "./components/container/Home/Home";
 import Header from "./components/presentaional/header/Header";
@@ -54,5 +54,5 @@ class App extends Component {
 
 export default connect(
   null,
-  actions
+  { fetchUser }
 )(App);
