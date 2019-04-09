@@ -38,7 +38,7 @@ class App extends Component {
               component={LevelCreator}
             />
 
-            <Route exact path="/level/:levelId" component={GameView} />
+            <Route exact path="/level/:levelId" component={LevelDetails} />
           </Switch>
         </Router>
         {/* <LevelCreator /> */}

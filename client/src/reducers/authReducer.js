@@ -1,4 +1,10 @@
-import { FETCH_USER, LOGIN_SUCCESS, AUTH_ERROR } from "../actions/types";
+import {
+  FETCH_USER,
+  LOGIN_SUCCESS,
+  AUTH_ERROR,
+  LOGOUT_SUCCESS,
+  LOGIN_FAIL
+} from "../actions/types";
 
 const initialState = {
   isAuthenticated: null,
@@ -18,7 +24,10 @@ export default function(state = initialState, action) {
         ...action.payload,
         isAuthenticated: true
       };
+
     case AUTH_ERROR:
+    case LOGOUT_SUCCESS:
+    case LOGIN_FAIL:
       return {
         ...state,
         user: null,
