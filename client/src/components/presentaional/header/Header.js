@@ -5,6 +5,7 @@ import Login from "../Login/Login";
 import PropTypes from "prop-types";
 
 class Header extends Component {
+  
   static propTypes = {
     auth: PropTypes.object.isRequired
   };
