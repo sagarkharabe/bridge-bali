@@ -2,12 +2,17 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import "./Header.css";
 import Login from "../Login/Login";
+import PropTypes from "prop-types";
+
 class Header extends Component {
+  static propTypes = {
+    auth: PropTypes.object.isRequired
+  };
   componentDidMount() {
     console.log(this.props);
   }
   renderContent() {
-    switch (this.props.auth) {
+    switch (this.props.auth.isAuthenticated) {
       case null:
         return;
       case false:
@@ -60,4 +65,7 @@ class Header extends Component {
 const mapStateToProps = ({ auth }) => {
   return { auth };
 };
-export default connect(mapStateToProps)(Header);
+export default connect(
+  mapStateToProps,
+  null
+)(Header);

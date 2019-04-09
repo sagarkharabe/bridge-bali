@@ -1,16 +1,12 @@
 import axios from "axios";
-import { FETCH_USER, LOGIN_SUCCESS } from "./types";
+import { FETCH_USER, LOGIN_SUCCESS, AUTH_ERROR } from "./types";
 
 export const fetchUser = () => async dispatch => {
-  const res = await axios.get("/auth/verify");
-  dispatch({ type: FETCH_USER, payload: res.data });
-};
-
-export const login = () => async dispatch => {
   try {
-    const res = await axios.get("/auth/google");
-    console.log(res.data);
+    const res = await axios.get("/auth/verify");
+    dispatch({ type: FETCH_USER, payload: res.data });
   } catch (err) {
-    console.log("err at login action ", err);
+    console.log("err at fetch user action ", err);
+    dispatch({ type: AUTH_ERROR });
   }
 };
