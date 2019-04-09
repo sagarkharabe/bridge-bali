@@ -8,10 +8,11 @@ passport.use(
     {
       clientID: process.env.googleClientId,
       clientSecret: process.env.googleClientSecret,
-      callbackURL: "/auth/google/callback",
+      callbackURL: "http://localhost:5000/auth/google/callback",
       proxy: true
     },
     (accessToken, refreshToken, profile, done) => {
+      console.log("passporting user");
       User.findOne({
         email: profile.emails[0].value
       }).then(user => {
