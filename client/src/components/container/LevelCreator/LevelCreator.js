@@ -182,11 +182,9 @@ export default class LevelCreator extends Component {
             success: true,
             readyToSave: true
           });
-          // if(shouldPublish){
-          //   <Redirect to={{
-          //     pathname: '/'
-          //   }}></Redirect>
-          // }
+          if (shouldPublish) {
+            return <Redirect to="/level/1" />;
+          }
         })
         .catch(async err => {
           console.error(err);

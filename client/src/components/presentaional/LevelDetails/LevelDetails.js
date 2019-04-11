@@ -7,16 +7,10 @@ class LevelDetails extends Component {
   constructor(props) {
     super(props);
     console.log(this.props);
-    this.levelId = "5caf0ead869e53747c8fbeed"; //this.props.match.params.levelId
+    this.levelId = this.props.match.params.levelId; //"5caf0ead869e53747c8fbeed";
     Axios.get("/api/levels/" + this.levelId).then(res =>
       console.log("Recieved level data from backend ", res.data)
     );
-
-    this.state = {
-      LevelArr: null,
-      skyColor: null,
-      girdersAllowed: null
-    };
     this.eventEmitter = window.eventEmitter;
     this.eventEmitter.only("what level to play", data => {
       var whatToPlay = ["notFound"];
