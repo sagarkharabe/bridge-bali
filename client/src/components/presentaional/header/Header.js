@@ -5,7 +5,6 @@ import Login from "../Login/Login";
 import PropTypes from "prop-types";
 
 class Header extends Component {
-  
   static propTypes = {
     auth: PropTypes.object.isRequired
   };
@@ -21,7 +20,8 @@ class Header extends Component {
       default:
         return (
           <React.Fragment>
-            <p>Welcome, </p> <a href="/auth/logout">Logout</a>
+            <p>Welcome, {this.props.auth.user.name}</p>{" "}
+            <a href="/auth/logout">Logout</a>
           </React.Fragment>
         );
     }

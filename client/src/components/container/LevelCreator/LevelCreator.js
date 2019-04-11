@@ -176,7 +176,7 @@ export default class LevelCreator extends Component {
         this.state.levelId
       )
         .then(async data => {
-          console.log(data);
+          console.log("Got doc after saving to db ", data);
           await this.setState({
             error: false,
             success: true,
@@ -348,10 +348,10 @@ export default class LevelCreator extends Component {
       </div>
     );
   }
-  onChange = e => {
+  onChange = async e => {
     e.persist();
     if (e.target.name === "skyColor") {
-      this.setState({ [e.target.name]: e.target.value }, () =>
+      await this.setState({ [e.target.name]: e.target.value }, () =>
         console.log("skyColor change to ", e.target.value, this.state.skyColor)
       );
       console.log("Sending sky color to the game module");

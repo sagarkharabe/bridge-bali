@@ -1,17 +1,39 @@
 import "./LevelDetails.css";
 import GameView from "../../container/game-view/GameView";
 import React, { Component } from "react";
+import Axios from "axios";
+import { connect } from "react-redux";
+class LevelDetails extends Component {
+  constructor(props) {
+    super(props);
+    console.log(this.props);
+    this.levelId = "5caf0ead869e53747c8fbeed"; //this.props.match.params.levelId
+    Axios.get("/api/levels/" + this.levelId).then(res =>
+      console.log("Recieved level data from backend ", res.data)
+    );
 
-export default class LevelDetails extends Component {
-  constructor() {
-    super();
-    this.state = {};
+    this.state = {
+      LevelArr: null,
+      skyColor: null,
+      girdersAllowed: null
+    };
+    this.eventEmitter = window.eventEmitter;
+    this.eventEmitter.only("what level to play", data => {
+      var whatToPlay = ["notFound"];
+      if (this.levelId) whatToPlay = ["levelId", this.levelId];
+      this.eventEmitter.emit("play this level", whatToPlay);
+    });
+    this.eventEmitter.only("submit win play data", playData => {
+      if (!this.props.auth.isAuthenticated)
+        return console.log(
+          "Player is not Logged in. Stats will not be saved.",
+          playData
+        );
+      playData.level = this.levelId;
+      // return Axios.post().then(data => console.log("Stats Saved ",data))
+    });
   }
-  componentDidMount() {
-    const eventEmitter = window.eventEmitter;
-
-    setTimeout(() => eventEmitter.emit("play this level", "Default"), 1500);
-  }
+  componentDidMount() {}
   render() {
     return (
       <React.Fragment>
@@ -71,3 +93,11 @@ export default class LevelDetails extends Component {
     );
   }
 }
+
+const mapStateToProps = ({ auth }) => {
+  return { auth };
+};
+export default connect(
+  mapStateToProps,
+  null
+)(LevelDetails);
