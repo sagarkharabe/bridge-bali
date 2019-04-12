@@ -2,8 +2,8 @@
 
 var path = require("path");
 var fs = require("fs");
-var Canvas = require("canvas");
-var Image = Canvas.Image;
+var Canvas = require("canvas").Canvas;
+var Image = require("canvas").Image;
 
 var spriteBasePath = path.join(__dirname, "../game/assets/images/");
 var spriteNames = {

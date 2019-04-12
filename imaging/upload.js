@@ -1,13 +1,11 @@
-import chalk from "chalk";
-import Promise from "bluebird";
-import s3 from "s3";
-
-import SECRETS from "../../secrets";
+const chalk = require("chalk");
+const Promise = require("bluebird");
+const s3 = require("s3");
 
 const client = s3.createClient({
   s3Options: {
-    accessKeyId: SECRETS.S3.accessKeyId,
-    secretAccessKey: SECRETS.S3.secretAccessKey
+    accessKeyId: process.env.s3AccessKeyId,
+    secretAccessKey: process.env.s3SecretAccessKey
   }
 });
 
@@ -15,7 +13,7 @@ function uploadMapThumb(imagePath, levelId) {
   const params = {
     localFile: imagePath,
     s3Params: {
-      Bucket: "girder-gus",
+      Bucket: "bridge-bali",
       Key: levelId + ".png"
     }
   };
@@ -27,6 +25,14 @@ function uploadMapThumb(imagePath, levelId) {
       console.error("unable to upload:", JSON.stringify(err));
       console.error("unable to upload:", err.stack);
       reject();
+    });
+    uploader.on("progress", function() {
+      console.log(
+        "progress",
+        uploader.progressMd5Amount,
+        uploader.progressAmount,
+        uploader.progressTotal
+      );
     });
     uploader.on("end", function() {
       console.log(chalk.green("Canvas data uploaded to S3."));

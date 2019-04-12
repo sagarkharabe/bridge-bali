@@ -5,10 +5,10 @@ const User = mongoose.model("User");
 const path = require("path");
 const Promise = require("bluebird");
 const convert = require("../imaging/convert");
-// const mapToCanvas = require("../imaging/mapToCanvas");
-// const uploadMapThumb = require("../imaging/upload");
-// const removeLocalMapThumb = require("../imaging/delete");
-//const deleteServerThumb = require('../../imaging/deleteServerThumb');
+const mapToCanvas = require("../imaging/mapToCanvas");
+const uploadMapThumb = require("../imaging/upload");
+const removeLocalMapThumb = require("../imaging/delete");
+const deleteServerThumb = require("../imaging/deleteServerThumb");
 const post = require("../helpers/promisifiedPost"); // only has post and put
 // part of level schema
 const map = {
@@ -91,7 +91,7 @@ schema.post("save", function(doc, next) {
   }
 
   // now let's start making beautiful pictures
-  var outPath = path.join(__dirname, "../../../public/") + doc._id + ".png";
+  var outPath = path.join(__dirname, "../public/") + doc._id + ".png";
   mapToCanvas(doc.map, gusDef.x, gusDef.y, 250, 150, 0.5)
     .then(function(canvas) {
       var pngStream = convert.canvasToPNG(canvas);
@@ -277,7 +277,9 @@ schema.pre("update", function(next) {
 });
 
 schema.virtual("screenshot").get(function() {
-  return "https://s3.amazonaws.com/girder-gus/" + this._id + ".png";
+  return (
+    "https://s3.ap-south-1.amazonaws.com/bridge-bali-test/" + this._id + ".png"
+  );
 });
 
 schema.virtual("user").get(function() {

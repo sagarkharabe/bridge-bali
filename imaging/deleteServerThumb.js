@@ -1,13 +1,11 @@
-import chalk from "chalk";
-import Promise from "bluebird";
-import s3 from "s3";
-
-var env = require("../env");
+const chalk = require("chalk");
+const Promise = require("bluebird");
+const s3 = require("s3");
 
 const client = s3.createClient({
   s3Options: {
-    accessKeyId: env.S3.ACCESS_KEY_ID,
-    secretAccessKey: env.S3.SECRET_ACCESS_KEY
+    accessKeyId: process.env.s3AccessKeyId,
+    secretAccessKey: process.env.s3SecretAccessKey
   }
 });
 

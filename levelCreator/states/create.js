@@ -130,7 +130,11 @@ function initCreateState() {
     game.dolly.targetPos = new Phaser.Point(0, 0);
 
     game.stage.setBackgroundColor(COLORS.DEFAULT_SKY);
-    eventEmitter.only("here's sky color", function(color) {
+    eventEmitter.only("here's sky color", color => {
+      console.log(
+        "Got new sky color in creator Module, so changing it ",
+        color
+      );
       game.stage.setBackgroundColor(color);
       state.drawGrid();
     });
