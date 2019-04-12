@@ -196,35 +196,35 @@ schema.post("remove", function(doc) {
  * DEMOGRAPHY INTEGRATION LOGIC
  */
 // tell demography about newly-published levels
-schema.post("save", (doc, next) => {
-  if (!doc.published || doc.datasetId) return next();
+// schema.post("save", (doc, next) => {
+//   if (!doc.published || doc.datasetId) return next();
 
-  const data = {
-    data: [
-      {
-        id: null,
-        girdersPlaced: null,
-        playerName: "",
-        timeToComplete: null
-      }
-    ],
-    id: doc._id,
-    isPublic: true,
-    title: doc.title,
-    token: env.DEMOGRAPHY.ACCESS_KEY
-  };
+//   const data = {
+//     data: [
+//       {
+//         id: null,
+//         girdersPlaced: null,
+//         playerName: "",
+//         timeToComplete: null
+//       }
+//     ],
+//     id: doc._id,
+//     isPublic: true,
+//     title: doc.title,
+//     token: env.DEMOGRAPHY.ACCESS_KEY
+//   };
 
-  post(env.DEMOGRAPHY.API_URL, data)
-    .then(res => {
-      console.log("Saved to demography!");
-      doc.datasetId = res.datasetId;
-      return doc.save();
-    })
-    .then(() => {
-      console.log("Updated with demography id");
-      next();
-    }, next);
-});
+//   post(env.DEMOGRAPHY.API_URL, data)
+//     .then(res => {
+//       console.log("Saved to demography!");
+//       doc.datasetId = res.datasetId;
+//       return doc.save();
+//     })
+//     .then(() => {
+//       console.log("Updated with demography id");
+//       next();
+//     }, next);
+// });
 /*
  * MISCELLENOUS
  */
@@ -277,9 +277,7 @@ schema.pre("update", function(next) {
 });
 
 schema.virtual("screenshot").get(function() {
-  return (
-    "https://s3.ap-south-1.amazonaws.com/bridge-bali-test/" + this._id + ".png"
-  );
+  return "https://s3.amazonaws.com/bridge-bali-test/" + this._id + ".png";
 });
 
 schema.virtual("user").get(function() {

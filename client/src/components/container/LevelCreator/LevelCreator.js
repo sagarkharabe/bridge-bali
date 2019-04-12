@@ -130,9 +130,7 @@ export default class LevelCreator extends Component {
       };
       level = JSON.parse(JSON.stringify(level));
       if (!id || isPublished)
-        return axios
-          .post("http://localhost:5000/api/levels", level)
-          .then(res => res.data);
+        return axios.post("/api/levels", level).then(res => res.data);
       else return axios.put("/api/levels/" + id, level).then(res => res.data);
     } catch (e) {
       console.error(e);
@@ -182,9 +180,9 @@ export default class LevelCreator extends Component {
             success: true,
             readyToSave: true
           });
-          if (shouldPublish) {
-            return <Redirect to="/level/1" />;
-          }
+          // if (shouldPublish) {
+          //   return <Redirect to="/level/1" />;
+          // }
         })
         .catch(async err => {
           console.error(err);
@@ -272,9 +270,9 @@ export default class LevelCreator extends Component {
         </header>
         {this.state.testing ? (
           <GameView
-            levelArr={this.state.parsedLevelArr}
-            skyColor={this.state.skyColor}
-            girdersAllowed={this.state.girdersAllowed}
+            onMouseEnter={this.startInputCapture}
+            onMouseLeave={this.stopInputCapture}
+            activeToolImg={this.state.activeToolImg}
           />
         ) : (
           <LevelCreatorView
@@ -295,7 +293,7 @@ export default class LevelCreator extends Component {
         <br />
         {this.state.success ? (
           <div>
-            <p class="text-success">Level was successfully saved!</p>
+            <p className="text-success">Level was successfully saved!</p>
           </div>
         ) : null}
         <br />

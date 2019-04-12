@@ -34,7 +34,7 @@ class App extends Component {
             <Route exact path="/" component={Home} />
             <Route
               exact
-              path="/level/create/:levelId"
+              path="/createlevel/:levelId"
               component={LevelCreator}
             />
 

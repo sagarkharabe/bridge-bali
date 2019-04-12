@@ -1,6 +1,12 @@
 const chalk = require("chalk");
 const Promise = require("bluebird");
 const s3 = require("s3");
+// const S3FS = require("s3fs");
+// const fsImpl = new S3FS("bridge-bali-test", {
+//   accessKeyId: "AKIA3FV3OEFRZHUD4S7U",
+//   secretAccessKey: "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",
+//   signatureVersion: "v4"
+// });
 
 const client = s3.createClient({
   s3Options: {
@@ -13,10 +19,19 @@ function uploadMapThumb(imagePath, levelId) {
   const params = {
     localFile: imagePath,
     s3Params: {
-      Bucket: "bridge-bali",
+      Bucket: "bridge-bali-test",
       Key: levelId + ".png"
     }
   };
+
+  // fsImpl.writeFile("message.txt", "Hello Node").then(
+  //   function() {
+  //     console.log("It's saved!");
+  //   },
+  //   function(reason) {
+  //     throw reason;
+  //   }
+  // );
 
   const uploader = client.uploadFile(params);
 

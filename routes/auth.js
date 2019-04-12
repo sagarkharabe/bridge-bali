@@ -17,6 +17,7 @@ router.get("/logout", (req, res) => {
 });
 router.get("/verify", mustBeLoggedIn, (req, res) => {
   //res.send(req.session);
+  console.log("verifying user req.user ", req.user);
   res.send(req.user);
 });
 

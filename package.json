@@ -47,6 +47,7 @@
     "pixi": "^0.3.1",
     "prerender-node": "^3.2.1",
     "s3": "^4.4.0",
+    "s3fs": "^2.5.0",
     "serve-favicon": "^2.5.0",
     "watchify": "^3.11.1"
   }

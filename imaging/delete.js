@@ -11,7 +11,7 @@ function deleteLocalMapThumb(path) {
         resolve();
       }
     });
-    console.log(chalk.blue("CHeck Public asap"));
+
     resolve();
   });
 }
