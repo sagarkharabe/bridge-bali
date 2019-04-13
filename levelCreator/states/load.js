@@ -37,12 +37,12 @@ function initLoadState() {
           else setTimeout(gotoStart, 100);
         })();
       } else if (maps[0] === "levelId") {
-        console.log("got a levelId", maps[1]);
-        //loadText.text = "Downloading level...";
+        console.log("got a levelId", maps[1].levelId);
+        // loadText.text = "Downloading level...";
 
         var levelData = "";
         var progress = 0;
-        var id = maps[1];
+        var id = maps[1].levelId;
 
         // construct our HTTP request
         var req = http.request(

@@ -8,7 +8,8 @@ import {
 
 const initialState = {
   isAuthenticated: null,
-  user: null
+  user: null,
+  isLoaded: false
 };
 export default function(state = initialState, action) {
   switch (action.type) {
@@ -16,7 +17,8 @@ export default function(state = initialState, action) {
       return {
         ...state,
         isAuthenticated: true,
-        user: action.payload
+        user: action.payload.data,
+        isLoaded: action.payload.isLoaded
       };
     case LOGIN_SUCCESS:
       return {

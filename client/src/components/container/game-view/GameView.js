@@ -4,9 +4,12 @@ import "./GameView.css";
 import PropTypes from "prop-types";
 
 export default class GameView extends Component {
-  componentDidMount() {
-    console.log(this.props);
+  constructor(props) {
+    super(props);
+    this.eventEmitter = window.eventEmitter;
+    this.eventEmitter.emit("start input capture");
   }
+  componentDidMount() {}
   render() {
     return (
       <div className="game-view">

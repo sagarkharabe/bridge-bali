@@ -3,12 +3,12 @@ import "./App.css";
 import { connect } from "react-redux";
 import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 import { fetchUser } from "./actions/authAction";
-import GameView from "./components/container/game-view/GameView";
+
 import Home from "./components/container/Home/Home";
 import Header from "./components/presentaional/header/Header";
 import LevelCreator from "./components/container/LevelCreator/LevelCreator";
 import LevelDetails from "./components/presentaional/LevelDetails/LevelDetails";
-
+import Builder from "./components/presentaional/Builder/Builder";
 const EventEmitter = require("events");
 const eventEmitter = new EventEmitter();
 eventEmitter.only = function(event, callback) {
@@ -23,36 +23,39 @@ window.eventEmitter = eventEmitter;
 class App extends Component {
   componentDidMount() {
     this.props.fetchUser();
+    console.log("Fetch user called in App");
   }
   render() {
+    // Protected Component
+
     return (
       <div className="App">
         <Router>
           <Header />
-
           <Switch>
             <Route exact path="/" component={Home} />
-            <Route
-              exact
-              path="/createlevel/:levelId"
-              component={LevelCreator}
-            />
-
-            <Route exact path="/level/:levelId" component={LevelDetails} />
+            {this.props.auth.isLoaded && (
+              <React.Fragment>
+                <Route exact path="/builder" component={Builder} />
+                <Route
+                  exact
+                  path="/createlevel/:levelId"
+                  component={LevelCreator}
+                />
+                <Route exact path="/level/:levelId" component={LevelDetails} />
+              </React.Fragment>
+            )}
           </Switch>
+          }
         </Router>
-        {/* <LevelCreator /> */}
-
-        {/* <LevelDetails /> */}
-
-        {/* <GameView /> */}
-        {/* <Home /> */}
       </div>
     );
   }
 }
-
+const mapStateToProps = ({ auth }) => ({
+  auth
+});
 export default connect(
-  null,
+  mapStateToProps,
   { fetchUser }
 )(App);

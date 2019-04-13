@@ -341,7 +341,11 @@ function initCreateState() {
     game.dolly.targetPos = new Phaser.Point(0, 0);
 
     game.stage.setBackgroundColor(COLORS.DEFAULT_SKY);
-    eventEmitter.only("here's sky color", function(color) {
+    eventEmitter.only("here's sky color", color => {
+      console.log(
+        "Got new sky color in creator Module, so changing it ",
+        color
+      );
       game.stage.setBackgroundColor(color);
       state.drawGrid();
     });
@@ -651,12 +655,12 @@ function initLoadState() {
           else setTimeout(gotoStart, 100);
         })();
       } else if (maps[0] === "levelId") {
-        console.log("got a levelId", maps[1]);
-        //loadText.text = "Downloading level...";
+        console.log("got a levelId", maps[1].levelId);
+        // loadText.text = "Downloading level...";
 
         var levelData = "";
         var progress = 0;
-        var id = maps[1];
+        var id = maps[1].levelId;
 
         // construct our HTTP request
         var req = http.request(

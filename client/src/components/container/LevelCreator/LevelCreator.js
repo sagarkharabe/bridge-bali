@@ -6,9 +6,13 @@ import GameView from "../game-view/GameView";
 import { Redirect } from "react-router-dom";
 import axios from "axios";
 export default class LevelCreator extends Component {
-  constructor() {
-    super();
+  componentDidMount() {}
+  constructor(props) {
+    super(props);
     this.eventEmitter = window.eventEmitter;
+    this.type = this.props.match.params.levelId;
+    console.log("TYPE -- ", this.type);
+
     this.state = {
       levelTitle: "",
       girdersAllowed: 10,
@@ -16,7 +20,7 @@ export default class LevelCreator extends Component {
       activeToolImg: "/game/assets/images/brick_red.png",
       testing: false,
       sentId: false,
-      levelId: null,
+      levelId: this.props.match.params,
       nextMapUse: null,
       unparsedLevelArr: null,
       parsedLevelArr: [],
@@ -25,6 +29,7 @@ export default class LevelCreator extends Component {
       error: false,
       draftSaveObj: null
     };
+
     this.eventEmitter.only("send tile map", async mapArr => {
       if (this.state.nextMapUse === "log") {
         console.log("recieved.");
@@ -39,13 +44,28 @@ export default class LevelCreator extends Component {
       }
     });
     this.eventEmitter.only("I need both the maps!", () => {
-      console.log(this.state);
-      this.eventEmitter.emit("found maps!", [
-        "levelArr",
-        this.state.unparsedLevelArr,
-        this.state.parsedLevelArr
-      ]);
+      if (!this.state.levelId || this.state.sentId) {
+        this.eventEmitter.emit("found maps!", [
+          "levelArr",
+          this.state.unparsedLevelArr,
+          this.state.parsedLevelArr
+        ]);
+      } else {
+        this.setState(() => ({
+          sentId: true
+        }));
+
+        this.eventEmitter.emit("found maps!", ["levelId", this.state.levelId]);
+      }
     });
+    // this.eventEmitter.only("I need both the maps!", () => {
+    //   console.log(this.state);
+    //   this.eventEmitter.emit("found maps!", [
+    //     "levelArr",
+    //     this.state.unparsedLevelArr,
+    //     this.state.parsedLevelArr
+    //   ]);
+    // });
     this.eventEmitter.only("what level to play", data => {
       console.log("##$$%% what level - ", data);
       if (this.state.parsedLevelArr) {
@@ -116,6 +136,7 @@ export default class LevelCreator extends Component {
     this.eventEmitter.emit("request screenshot");
   };
   submitLevel = (objArr, title, girderCount, skyColor, isPublished, id) => {
+    id = id.levelId;
     console.log("id", id, "is published", isPublished);
     try {
       var map = {

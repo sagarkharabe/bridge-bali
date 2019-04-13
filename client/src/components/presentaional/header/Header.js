@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import "./Header.css";
 import Login from "../Login/Login";
 import PropTypes from "prop-types";
-
+import { Link } from "react-router-dom";
 class Header extends Component {
   static propTypes = {
     auth: PropTypes.object.isRequired
@@ -21,7 +21,7 @@ class Header extends Component {
         return (
           <React.Fragment>
             <p>Welcome, {this.props.auth.user.name}</p>{" "}
-            <a href="/auth/logout">Logout</a>
+            <Link href="/auth/logout">Logout</Link>
           </React.Fragment>
         );
     }
@@ -31,27 +31,27 @@ class Header extends Component {
     return (
       <React.Fragment>
         <header>
-          <a href="/" id="company-title">
+          <Link to="/" id="company-title">
             <img src="/game/assets/images/gus-static.png" id="logo" alt="" />
-          </a>
+          </Link>
           <div>
-            <a href="/" id="company-title">
+            <Link to="/" id="company-title">
               Bridge Bali
-            </a>
+            </Link>
 
             <nav>
               <ul>
                 <li>
-                  <a href="/">Levels</a>
+                  <Link to="/levels">Levels</Link>
                 </li>
                 <li>
-                  <a href="/">Top Creators</a>
+                  <Link to="/">Top Creators</Link>
                 </li>
                 <li>
-                  <a href="/">Stuff</a>
+                  <Link to="/stuff">Stuff</Link>
                 </li>
                 <li>
-                  <a href="/">Builder</a>
+                  <Link to="/builder">Builder</Link>
                 </li>
               </ul>
             </nav>
