@@ -20,7 +20,10 @@ export default class LevelCreator extends Component {
       activeToolImg: "/game/assets/images/brick_red.png",
       testing: false,
       sentId: false,
-      levelId: this.props.match.params,
+      levelId:
+        this.props.match.params.levelId === "null"
+          ? null
+          : this.props.match.params.levelId,
       nextMapUse: null,
       unparsedLevelArr: null,
       parsedLevelArr: [],
@@ -44,6 +47,8 @@ export default class LevelCreator extends Component {
       }
     });
     this.eventEmitter.only("I need both the maps!", () => {
+      console.log(this.props.match.params);
+      console.log("levelId ", this.state.levelId, !this.state.levelId);
       if (!this.state.levelId || this.state.sentId) {
         this.eventEmitter.emit("found maps!", [
           "levelArr",
@@ -54,18 +59,11 @@ export default class LevelCreator extends Component {
         this.setState(() => ({
           sentId: true
         }));
-
+        console.log(typeof this.state.levelId);
         this.eventEmitter.emit("found maps!", ["levelId", this.state.levelId]);
       }
     });
-    // this.eventEmitter.only("I need both the maps!", () => {
-    //   console.log(this.state);
-    //   this.eventEmitter.emit("found maps!", [
-    //     "levelArr",
-    //     this.state.unparsedLevelArr,
-    //     this.state.parsedLevelArr
-    //   ]);
-    // });
+
     this.eventEmitter.only("what level to play", data => {
       console.log("##$$%% what level - ", data);
       if (this.state.parsedLevelArr) {

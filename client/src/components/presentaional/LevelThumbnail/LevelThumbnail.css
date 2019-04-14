@@ -1,0 +1,22 @@
+.star-count {
+  background: #68d834;
+  border-radius: 5px;
+  float: right;
+  padding: 5px;
+  margin-right: 10px;
+}
+.level-box {
+  margin: 1em;
+  text-align: left;
+  width: 250px;
+  float: left;
+}
+a {
+  color: white;
+}
+a:hover {
+  text-decoration: underline;
+}
+.levels {
+  text-align: center;
+}

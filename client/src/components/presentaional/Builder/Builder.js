@@ -2,24 +2,26 @@ import React from "react";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { fetchUser } from "../../../actions/authAction";
+import { fetchDrafts } from "../../../actions/userLevelAction";
+import LevelThumbnail from "../LevelThumbnail/LevelThumbnail";
 class Builder extends React.Component {
   constructor(props) {
     super(props);
-    console.log(this.props.auth);
+    console.log(this.props);
   }
   static propTypes = {
     auth: PropTypes.object.isRequired
   };
-
-  goToCreate = () => {
-    console.log("GO TO Create func");
-  };
+  componentDidMount() {
+    this.props.fetchDrafts();
+  }
+  goToCreate = () => {};
   render() {
     return (
       <React.Fragment>
         <div>
-          Welcome, {this.props.auth.user.name}. You've created
-          {this.props.auth.user.createdLevels.length}levels so far.
+          Welcome, {this.props.auth.user.name + " "}. You've created
+          {this.props.auth.user.createdLevels.length + " "}levels so far.
         </div>
 
         <header>
@@ -27,7 +29,7 @@ class Builder extends React.Component {
             <nav>
               <ul>
                 <li>
-                  <a onClick={this.goToCreate}>Create new level</a>
+                  <a href="/createlevel/null">Create new level</a>
                 </li>
               </ul>
             </nav>
@@ -36,26 +38,33 @@ class Builder extends React.Component {
 
         <div className="draft-list">
           <h2>Your Drafts</h2>
-          <div className="row" ng-repeat="draftRow in drafts">
-            {/* <level-thumbnail ng-repeat="draft in draftRow" level="draft" edit="true" show-creator="true"></level-thumbnail> */}
+          <div className="row">
+            {this.props.userLevels.drafts.map(draft => (
+              <LevelThumbnail
+                key={draft._id}
+                level={draft}
+                edit={true}
+                show-creator={true}
+              />
+            ))}
           </div>
         </div>
 
-        <div ng-show="user.createdLevels.length">
+        {/* <div ng-show="user.createdLevels.length">
           <nav>
             <ul>
               <li>Edit level</li>
             </ul>
           </nav>
-        </div>
+        </div> */}
       </React.Fragment>
     );
   }
 }
-const mapStateToProps = ({ auth }) => {
-  return { auth };
+const mapStateToProps = ({ auth, userLevels }) => {
+  return { auth, userLevels };
 };
 export default connect(
   mapStateToProps,
-  { fetchUser }
+  { fetchUser, fetchDrafts }
 )(Builder);

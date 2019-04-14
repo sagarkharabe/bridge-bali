@@ -21,7 +21,7 @@ class Header extends Component {
         return (
           <React.Fragment>
             <p>Welcome, {this.props.auth.user.name}</p>{" "}
-            <Link href="/auth/logout">Logout</Link>
+            <Link to="/auth/logout">Logout</Link>
           </React.Fragment>
         );
     }
