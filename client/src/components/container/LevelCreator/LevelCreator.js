@@ -131,7 +131,7 @@ export default class LevelCreator extends Component {
     this.eventEmitter.emit("request screenshot");
   };
   submitLevel = (objArr, title, girderCount, skyColor, isPublished, id) => {
-    id = id.levelId;
+    if (id !== null) id = id.levelId;
     console.log("id", id, "is published", isPublished);
     try {
       var map = {

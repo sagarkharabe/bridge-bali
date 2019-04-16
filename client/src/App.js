@@ -38,21 +38,22 @@ class App extends Component {
       <div className="App">
         <Router>
           <Header />
-          <Switch>
-            <Route exact path="/" component={Home} />
-            {this.props.auth.isLoaded && (
-              <React.Fragment>
+
+          <Route exact path="/" component={Home} />
+          {this.props.auth.isLoaded && (
+            <React.Fragment>
+              <Switch>
                 <PrivateRoute exact path="/builder" component={Builder} />
                 {/* <Route exact path="/builder" component={Builder} /> */}
-                <Route
-                  exact
-                  path="/createlevel/:levelId"
-                  component={LevelCreator}
-                />
-                <Route exact path="/level/:levelId" component={LevelDetails} />
-              </React.Fragment>
-            )}
-          </Switch>
+              </Switch>
+              <Route
+                exact
+                path="/createlevel/:levelId"
+                component={LevelCreator}
+              />
+              <Route exact path="/level/:levelId" component={LevelDetails} />
+            </React.Fragment>
+          )}
         </Router>
       </div>
     );

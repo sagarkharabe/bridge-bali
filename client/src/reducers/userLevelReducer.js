@@ -2,7 +2,7 @@ import { FETCH_DRAFTS, FETCH_PUBLISHED_LEVELS } from "../actions/types";
 
 const initialState = {
   drafts: [],
-  publishedLevels: null
+  publishedLevels: []
 };
 
 export default function(state = initialState, action) {

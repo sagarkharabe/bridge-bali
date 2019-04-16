@@ -50,6 +50,21 @@ class Builder extends React.Component {
             ))}
           </div>
         </div>
+        <br />
+        <br />
+        {/* <div className="saved-list">
+          <h2>Your Drafts</h2>
+          <div className="row">
+            {this.props.userLevels.pubslishedLevels.map(level => (
+              <LevelThumbnail
+                key={level._id}
+                level={level}
+                edit={true}
+                show-creator={true}
+              />
+            ))}
+          </div>
+        </div> */}
       </React.Fragment>
     );
   }

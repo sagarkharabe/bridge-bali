@@ -42,13 +42,13 @@ class Header extends Component {
             <nav>
               <ul>
                 <li>
-                  <Link to="/levels">Levels</Link>
+                  <a href="/levels">Levels</a>
                 </li>
                 <li>
-                  <Link to="/">Top Creators</Link>
+                  <a href="/">Top Creators</a>
                 </li>
                 <li>
-                  <Link to="/stuff">Stuff</Link>
+                  <a href="/stuff">Stuff</a>
                 </li>
                 <li>
                   <a href="/builder">Builder</a>
