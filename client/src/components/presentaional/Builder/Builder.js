@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { fetchUser } from "../../../actions/authAction";
 import { fetchDrafts } from "../../../actions/userLevelAction";
 import LevelThumbnail from "../LevelThumbnail/LevelThumbnail";
+import { Link } from "react-router-dom";
 class Builder extends React.Component {
   constructor(props) {
     super(props);
@@ -29,7 +30,7 @@ class Builder extends React.Component {
             <nav>
               <ul>
                 <li>
-                  <a href="/createlevel/null">Create new level</a>
+                  <Link to="/createlevel/null">Create new level</Link>
                 </li>
               </ul>
             </nav>

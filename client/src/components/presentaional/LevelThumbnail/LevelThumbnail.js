@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import "./LevelThumbnail.css";
+import { Link } from "react-router-dom";
 export default class LevelThumbnail extends Component {
   deleteLevel = () => {
     console.log("Delete Level Clicked");
@@ -8,7 +9,7 @@ export default class LevelThumbnail extends Component {
     return (
       <div className="level-box">
         <div className="">
-          <a href={"/createlevel/" + this.props.level._id}>
+          <Link to={"/createlevel/" + this.props.level._id}>
             <img
               src={
                 "https://s3.amazonaws.com/bridge-bali-test/" +
@@ -17,7 +18,7 @@ export default class LevelThumbnail extends Component {
               }
               alt=""
             />
-          </a>
+          </Link>
           <div>
             {!this.props.edit ? (
               <h5 className="star-count">

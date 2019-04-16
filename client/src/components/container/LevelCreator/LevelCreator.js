@@ -47,8 +47,6 @@ export default class LevelCreator extends Component {
       }
     });
     this.eventEmitter.only("I need both the maps!", () => {
-      console.log(this.props.match.params);
-      console.log("levelId ", this.state.levelId, !this.state.levelId);
       if (!this.state.levelId || this.state.sentId) {
         this.eventEmitter.emit("found maps!", [
           "levelArr",
@@ -59,7 +57,6 @@ export default class LevelCreator extends Component {
         this.setState(() => ({
           sentId: true
         }));
-        console.log(typeof this.state.levelId);
         this.eventEmitter.emit("found maps!", ["levelId", this.state.levelId]);
       }
     });
