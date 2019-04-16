@@ -44,7 +44,7 @@ export default class Home extends Component {
               </a>
             </div>
           </div>
-          <GameView />
+          {/* <GameView /> */}
         </div>
 
         <div id="featured" className="row">

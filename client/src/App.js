@@ -3,7 +3,7 @@ import "./App.css";
 import { connect } from "react-redux";
 import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 import { fetchUser } from "./actions/authAction";
-
+import PrivateRoute from "./auth/PrivateRoute";
 import Home from "./components/container/Home/Home";
 import Header from "./components/presentaional/header/Header";
 import LevelCreator from "./components/container/LevelCreator/LevelCreator";
@@ -24,7 +24,13 @@ class App extends Component {
   componentDidMount() {
     this.props.fetchUser();
     console.log("Fetch user called in App");
+    this.eventEmitter = window.eventEmitter;
+    if (window.game) {
+      console.log("Cleaning up old game...");
+      window.game.destroy();
+    }
   }
+
   render() {
     // Protected Component
 
@@ -36,7 +42,8 @@ class App extends Component {
             <Route exact path="/" component={Home} />
             {this.props.auth.isLoaded && (
               <React.Fragment>
-                <Route exact path="/builder" component={Builder} />
+                <PrivateRoute exact path="/builder" component={Builder} />
+                {/* <Route exact path="/builder" component={Builder} /> */}
                 <Route
                   exact
                   path="/createlevel/:levelId"
@@ -46,7 +53,6 @@ class App extends Component {
               </React.Fragment>
             )}
           </Switch>
-          }
         </Router>
       </div>
     );

@@ -30,7 +30,7 @@ class Builder extends React.Component {
             <nav>
               <ul>
                 <li>
-                  <Link to="/createlevel/null">Create new level</Link>
+                  <a href="/createlevel/null">Create new level</a>
                 </li>
               </ul>
             </nav>
@@ -50,14 +50,6 @@ class Builder extends React.Component {
             ))}
           </div>
         </div>
-
-        {/* <div ng-show="user.createdLevels.length">
-          <nav>
-            <ul>
-              <li>Edit level</li>
-            </ul>
-          </nav>
-        </div> */}
       </React.Fragment>
     );
   }

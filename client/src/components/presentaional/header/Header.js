@@ -21,7 +21,7 @@ class Header extends Component {
         return (
           <React.Fragment>
             <p>Welcome, {this.props.auth.user.name}</p>{" "}
-            <Link to="/auth/logout">Logout</Link>
+            <a href="/auth/logout">Logout</a>
           </React.Fragment>
         );
     }
@@ -51,7 +51,7 @@ class Header extends Component {
                   <Link to="/stuff">Stuff</Link>
                 </li>
                 <li>
-                  <Link to="/builder">Builder</Link>
+                  <a href="/builder">Builder</a>
                 </li>
               </ul>
             </nav>
