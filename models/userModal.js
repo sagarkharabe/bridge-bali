@@ -77,6 +77,7 @@ schema.methods.setStars = function() {
     usersLevels
   ) {
     that.totalStars = usersLevels.reduce(function(prev, level) {
+      console.log("prev ", prev, " level ", level);
       return prev + level.starCount;
     }, 0);
     return that.save();

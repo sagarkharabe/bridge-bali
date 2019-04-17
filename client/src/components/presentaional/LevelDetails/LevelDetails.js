@@ -3,18 +3,29 @@ import GameView from "../../container/game-view/GameView";
 import React, { Component } from "react";
 import Axios from "axios";
 import { connect } from "react-redux";
+import PropTypes from "prop-types";
+import { fetchLevelById } from "../../../actions/levelAction";
+import { levelLiker } from "../../../actions/socialAction";
 class LevelDetails extends Component {
   constructor(props) {
     super(props);
-    console.log(this.props);
-    this.levelId = this.props.match.params.levelId; //"5caf0ead869e53747c8fbeed";
-    Axios.get("/api/levels/" + this.levelId).then(res =>
-      console.log("Recieved level data from backend ", res.data)
-    );
+    this.state = {
+      level: {
+        levelId: this.props.match.params.levelId,
+        dateCreated: null,
+        starCount: null,
+        title: null,
+        creator: null
+      },
+      liked: false,
+      pending: false
+    };
+
     this.eventEmitter = window.eventEmitter;
     this.eventEmitter.only("what level to play", data => {
       var whatToPlay = ["notFound"];
-      if (this.levelId) whatToPlay = ["levelId", this.levelId];
+      if (this.state.level.levelId)
+        whatToPlay = ["levelId", this.state.level.levelId];
       this.eventEmitter.emit("play this level", whatToPlay);
     });
     this.eventEmitter.only("submit win play data", playData => {
@@ -23,19 +34,86 @@ class LevelDetails extends Component {
           "Player is not Logged in. Stats will not be saved.",
           playData
         );
-      playData.level = this.levelId;
+      console.log("User logged IN  saving playdata ", playData);
+      playData.level = this.state.level.levelId;
       // return Axios.post().then(data => console.log("Stats Saved ",data))
     });
   }
-  componentDidMount() {}
+
+  async componentDidMount() {
+    await this.props.fetchLevelById(this.state.level.levelId);
+    await this.setState({
+      ...this.state,
+      level: {
+        levelId: this.props.level.levelId,
+        dateCreated: this.props.level.dateCreated,
+        starCount: this.props.level.starCount,
+        title: this.props.level.title,
+        creator: this.props.level.creator
+      },
+      liked: this.checkLikedLevel()
+    });
+    console.log("this. state ", this.state);
+  }
+  checkLikedLevel = () => {
+    if (this.props.auth.user) {
+      console.log(
+        "liked",
+        this.props.auth.user.likedLevels.indexOf(this.props.level.levelId)
+      );
+      return (
+        this.props.auth.user.likedLevels.indexOf(this.props.level.levelId) !==
+        -1
+      );
+    } else return false;
+  };
+  serverStarToggle = action => {
+    this.props.levelLiker(this.state.level.levelId, action);
+  };
+  starLevel = () => {
+    this.setState(
+      {
+        level: {
+          ...this.state.level,
+          starCount: this.state.level.starCount + 1,
+          creator: {
+            ...this.state.level.creator,
+            totalStars: this.state.level.creator.totalStars + 1
+          }
+        },
+        liked: true
+      },
+      () => console.log("this state star level ", this.state)
+    );
+    this.serverStarToggle("likeLevel");
+  };
+
+  unstarLevel = () => {
+    this.setState(
+      {
+        level: {
+          ...this.state.level,
+          starCount: this.state.level.starCount - 1,
+          creator: {
+            ...this.state.level.creator,
+            totalStars: this.state.level.creator.totalStars - 1
+          }
+        },
+        liked: false
+      },
+      () => console.log("this state unstar level ", this.state)
+    );
+    this.serverStarToggle("unlikeLevel");
+  };
   render() {
+    const { user } = this.props.auth;
+    const { creator } = this.props.level;
+    const { liked, pending } = this.state;
     return (
       <React.Fragment>
         <div id="level-header">
           <h1>Level Title</h1>
           {/* <div share-square="true" share-links="Facebook" share-title="Article Title" id='fblink'></div> */}
-
-          {/* <reload-warning></reload-warning> */}
         </div>
         <GameView />
 
@@ -49,36 +127,42 @@ class LevelDetails extends Component {
               <span className="label">Date Created:</span> 5 march
             </p>
           </div>
-          <div
-            className="controls"
-            id="starring"
-            ng-if="user!==null&&user._id!==creator._id"
-          >
-            <a
-              className="btn btn-star-hollow"
-              href="#"
-              ng-show="!liked && !pending"
-              ng-click="starLevel()"
-            >
-              <span className="glyphicon glyphicon-star-empty" /> STAR
-            </a>
-            <a className="btn btn-disabled" ng-show="!liked && pending">
-              <span className="glyphicon glyphicon-time" /> STAR
-            </a>
-            <a
-              className="btn btn-star"
-              href="#"
-              ng-show="liked && !pending"
-              ng-click="unstarLevel()"
-            >
-              <span className="glyphicon glyphicon-star" /> STARRED
-            </a>
-            <a className="btn btn-disabled" ng-show="liked && pending">
-              <span className="glyphicon glyphicon-time" /> STARRED
-            </a>
-          </div>
+          {this.props.level.levelLoaded &&
+          user !== null &&
+          user._id !== creator._id ? (
+            <div className="controls" id="starring">
+              {!liked && !pending ? (
+                <a
+                  className="btn btn-star-hollow"
+                  href="#"
+                  onClick={this.starLevel}
+                >
+                  <span className="glyphicon glyphicon-star-empty" /> STAR
+                </a>
+              ) : null}
+              {!liked && pending ? (
+                <a className="btn btn-disabled">
+                  <span className="glyphicon glyphicon-time" /> STAR
+                </a>
+              ) : null}
+              {liked && !pending ? (
+                <a className="btn btn-star" href="#" onClick={this.unstarLevel}>
+                  <span className="glyphicon glyphicon-star" /> STARRED
+                </a>
+              ) : null}
+              {liked && pending ? (
+                <a className="btn btn-disabled">
+                  <span className="glyphicon glyphicon-time" /> STARRED
+                </a>
+              ) : null}
+            </div>
+          ) : null}
+
           <div className="controls" id="fork">
-            <a className="btn btn-create" ng-click="edit()">
+            <a
+              className="btn btn-create"
+              href={"/createlevel/" + this.state.level.levelId}
+            >
               Fork Level
             </a>
           </div>
@@ -87,11 +171,14 @@ class LevelDetails extends Component {
     );
   }
 }
-
-const mapStateToProps = ({ auth }) => {
-  return { auth };
+LevelDetails.propTypes = {
+  auth: PropTypes.object.isRequired
+};
+const mapStateToProps = ({ auth, level }) => {
+  return { auth, level };
 };
 export default connect(
   mapStateToProps,
-  null
+  { fetchLevelById, levelLiker }
 )(LevelDetails);
+// /level/5cb59fea888a281ab9e7ff35

@@ -10,8 +10,6 @@ export default class LevelCreator extends Component {
   constructor(props) {
     super(props);
     this.eventEmitter = window.eventEmitter;
-    this.type = this.props.match.params.levelId;
-    console.log("TYPE -- ", this.type);
 
     this.state = {
       levelTitle: "",
