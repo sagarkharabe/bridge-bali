@@ -1,10 +1,10 @@
 const mustBeLoggedIn = function(req, res, next) {
-  if (req.user) next();
+  if (req.isAuthenticated()) return next();
   else res.status(401).end();
 };
 
 const mustBeAdmin = function(req, res, next) {
-  if (req.user && req.user.isAdmin) next();
+  if (req.isAuthenticated && req.user.isAdmin) return next();
   else res.status(401).end();
 };
 

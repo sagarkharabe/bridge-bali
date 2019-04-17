@@ -9,6 +9,7 @@ import Header from "./components/presentaional/header/Header";
 import LevelCreator from "./components/container/LevelCreator/LevelCreator";
 import LevelDetails from "./components/presentaional/LevelDetails/LevelDetails";
 import Builder from "./components/presentaional/Builder/Builder";
+import Profile from "./components/presentaional/Profile/Profile";
 const EventEmitter = require("events");
 const eventEmitter = new EventEmitter();
 eventEmitter.only = function(event, callback) {
@@ -46,6 +47,7 @@ class App extends Component {
                 <PrivateRoute exact path="/builder" component={Builder} />
                 {/* <Route exact path="/builder" component={Builder} /> */}
               </Switch>
+              <Route exact path="/profile" component={Profile} />
               <Route
                 exact
                 path="/createlevel/:levelId"

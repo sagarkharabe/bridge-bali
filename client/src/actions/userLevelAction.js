@@ -8,6 +8,9 @@ export const fetchDrafts = () => async dispatch => {
   } catch (err) {
     console.log("Err at fetching drafts action ", err);
   }
+  // try {
+  //   const res = await axios.get("/api/levels/")
+  // }
 };
 
 // export const fetchPublishedLevels = () => async dispatch => {

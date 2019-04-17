@@ -4,14 +4,15 @@ import PropTypes from "prop-types";
 import { fetchUser } from "../../../actions/authAction";
 import { fetchDrafts } from "../../../actions/userLevelAction";
 import LevelThumbnail from "../LevelThumbnail/LevelThumbnail";
-import { Link } from "react-router-dom";
+
 class Builder extends React.Component {
   constructor(props) {
     super(props);
     console.log(this.props);
   }
   static propTypes = {
-    auth: PropTypes.object.isRequired
+    auth: PropTypes.object.isRequired,
+    fetchDrafts: PropTypes.func.isRequired
   };
   componentDidMount() {
     this.props.fetchDrafts();
@@ -52,19 +53,6 @@ class Builder extends React.Component {
         </div>
         <br />
         <br />
-        {/* <div className="saved-list">
-          <h2>Your Drafts</h2>
-          <div className="row">
-            {this.props.userLevels.pubslishedLevels.map(level => (
-              <LevelThumbnail
-                key={level._id}
-                level={level}
-                edit={true}
-                show-creator={true}
-              />
-            ))}
-          </div>
-        </div> */}
       </React.Fragment>
     );
   }

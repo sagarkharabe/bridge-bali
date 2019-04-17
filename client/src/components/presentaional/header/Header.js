@@ -20,8 +20,20 @@ class Header extends Component {
       default:
         return (
           <React.Fragment>
-            <p>Welcome, {this.props.auth.user.name}</p>{" "}
-            <a href="/auth/logout">Logout</a>
+            <nav>
+              <ul>
+                <li>
+                  <a href="/profile">Profile</a>
+                </li>
+                {/* <li>
+                  <p>Welcome, {this.props.auth.user.name}</p>{" "}
+                </li> */}
+
+                <li>
+                  <a href="/auth/logout">Logout</a>
+                </li>
+              </ul>
+            </nav>
           </React.Fragment>
         );
     }
@@ -47,9 +59,7 @@ class Header extends Component {
                 <li>
                   <a href="/">Top Creators</a>
                 </li>
-                <li>
-                  <a href="/stuff">Stuff</a>
-                </li>
+
                 <li>
                   <a href="/builder">Builder</a>
                 </li>

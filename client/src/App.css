@@ -31,7 +31,7 @@ h3 {
 .row {
   margin: auto;
 }
-a disabled {
+a.disabled {
   cursor: default;
 }
 .btn {
@@ -124,4 +124,31 @@ nav ul li a:hover {
 }
 nav ul li button:hover {
   background-color: lighten(#e1a51d, 10%);
+}
+nav .pagination {
+  margin: 0 2% !important;
+}
+
+nav .pagination li {
+  border: 0 !important;
+  background-color: rgba(0, 0, 0, 0) !important;
+  text-align: center !important;
+}
+nav .pagination a {
+  border: 0 !important;
+  background-color: rgba(0, 0, 0, 0) !important;
+  text-align: center !important;
+  color: white;
+}
+nav .pagination a:hover {
+  color: #6bd834;
+}
+nav .pagination a h3 {
+  margin-top: 0;
+}
+nav .pagination li.active a {
+  color: #e1a51d;
+}
+nav .pagination li.active a:hover {
+  color: #e1a51d;
 }
