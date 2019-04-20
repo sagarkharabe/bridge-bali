@@ -54,7 +54,7 @@ class Profile extends Component {
     await this.props.fetchProfileLevels("created", 1);
     await this.props.fetchProfileLevels("drafts", 1);
     await this.props.fetchProfileLevels("liked", 1);
-    const { profile } = this.props.profile;
+    const { profile } = this.props;
 
     await this.setState({
       createdLevelsRows: this.makeRows(profile.createdLevels.levels),
@@ -141,8 +141,8 @@ class Profile extends Component {
                 : null}
             </div>
           </div>
-          <nav class="text-center">
-            <ul class="pagination">
+          <nav className="text-center">
+            <ul className="pagination">
               {this.state.currentPage.createdLevels !== 1 ? (
                 <li>
                   <a
@@ -208,6 +208,7 @@ class Profile extends Component {
             </ul>
           </nav>
         </div>
+        <br /> <br />
         <div className="profile-level-list" id="draft-levels">
           <h4 id="created-levels">Drafts You're Working On</h4>
           <div className="levels-list">
@@ -226,8 +227,8 @@ class Profile extends Component {
                 : null}
             </div>
           </div>
-          <nav class="text-center">
-            <ul class="pagination">
+          <nav className="text-center">
+            <ul className="pagination">
               {this.state.currentPage.draftLevels !== 1 ? (
                 <li>
                   <a
@@ -291,6 +292,7 @@ class Profile extends Component {
             </ul>
           </nav>
         </div>
+        <br /> <br />
         <div className="profile-level-list" id="liked-levels">
           <h4 id="created-levels">Levels You've Starred..</h4>
           <div className="levels-list">
@@ -309,8 +311,8 @@ class Profile extends Component {
                 : null}
             </div>
           </div>
-          <nav class="text-center">
-            <ul class="pagination">
+          <nav className="text-center">
+            <ul className="pagination">
               {this.state.currentPage.likedLevels !== 1 ? (
                 <li>
                   <a

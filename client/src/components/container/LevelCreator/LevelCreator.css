@@ -17,28 +17,28 @@
   width: 800px;
   margin: auto;
 }
-#create-level-form.level-title {
+#create-level-form .level-title {
   float: left;
   text-align: center;
   width: 65%;
 }
-#create-level-form.level-title.level-title-input {
+#create-level-form .level-title.level-title-input {
   width: 100%;
 }
 
-#create-level-form.girder-count {
+#create-level-form .girder-count {
   text-align: right;
 }
 
-#create-level-form.girder-count.girder-count-input {
+#create-level-form .girder-count .girder-count-input {
   width: 64px;
 }
 
-#create-level-form.sky-color {
+#create-level-form .sky-color {
   text-align: right;
 }
 
-#create-level-form.sky-color.sky-color-input {
+#create-level-form .sky-color .sky-color-input {
   width: 32px;
   height: 32px;
   padding: 0;

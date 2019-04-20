@@ -6,6 +6,7 @@ import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { fetchLevelById } from "../../../actions/levelAction";
 import { levelLiker } from "../../../actions/socialAction";
+import UserMiniCard from "../../container/UserMiniCard/UserMiniCard";
 class LevelDetails extends Component {
   constructor(props) {
     super(props);
@@ -112,13 +113,14 @@ class LevelDetails extends Component {
     return (
       <React.Fragment>
         <div id="level-header">
-          <h1>Level Title</h1>
+          <h1>{this.props.level.title}</h1>
           {/* <div share-square="true" share-links="Facebook" share-title="Article Title" id='fblink'></div> */}
         </div>
         <GameView />
-
+        {creator !== null ? (
+          <UserMiniCard user={user} creator={creator} />
+        ) : null}
         <div id="level-metadata">
-          {/* <user-minicard className="pull-right" user="user" creator="creator"></user-minicard> */}
           <div className="metadata">
             <p>
               <span className="label">Total Stars:</span> 5
@@ -137,22 +139,26 @@ class LevelDetails extends Component {
                   href="#"
                   onClick={this.starLevel}
                 >
-                  <span className="glyphicon glyphicon-star-empty" /> STAR
+                  <span className="glyphicon glyphicon-star-empty" /> &#9733;
+                  STAR
                 </a>
               ) : null}
               {!liked && pending ? (
                 <a className="btn btn-disabled">
-                  <span className="glyphicon glyphicon-time" /> STAR
+                  <span className="glyphicon glyphicon-time" />
+                  &#9733; STAR
                 </a>
               ) : null}
               {liked && !pending ? (
                 <a className="btn btn-star" href="#" onClick={this.unstarLevel}>
-                  <span className="glyphicon glyphicon-star" /> STARRED
+                  <span className="glyphicon glyphicon-star" />
+                  &#9733; STARRED
                 </a>
               ) : null}
               {liked && pending ? (
                 <a className="btn btn-disabled">
-                  <span className="glyphicon glyphicon-time" /> STARRED
+                  <span className="glyphicon glyphicon-time" />
+                  &#9733; STARRED
                 </a>
               ) : null}
             </div>
@@ -163,7 +169,7 @@ class LevelDetails extends Component {
               className="btn btn-create"
               href={"/createlevel/" + this.state.level.levelId}
             >
-              Fork Level
+              New From Level
             </a>
           </div>
         </div>

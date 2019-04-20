@@ -3,6 +3,7 @@ import { FETCH_OWN_PROFILE, FETCH_PROFILE_LEVELS } from "./types";
 export const fetchOwnProfile = () => async dispatch => {
   try {
     const res = await axios.get("/api/users/profile");
+    console.log("fetch Oen pro", res.data);
     dispatch({ type: FETCH_OWN_PROFILE, payload: res.data });
   } catch (err) {
     console.log("Errrorr ata fetchingOwnProfile -- ", err);

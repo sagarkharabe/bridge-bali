@@ -10,6 +10,7 @@ import LevelCreator from "./components/container/LevelCreator/LevelCreator";
 import LevelDetails from "./components/presentaional/LevelDetails/LevelDetails";
 import Builder from "./components/presentaional/Builder/Builder";
 import Profile from "./components/presentaional/Profile/Profile";
+import TopCreators from "./components/presentaional/TopCreators/TopCreator";
 const EventEmitter = require("events");
 const eventEmitter = new EventEmitter();
 eventEmitter.only = function(event, callback) {
@@ -54,6 +55,7 @@ class App extends Component {
                 component={LevelCreator}
               />
               <Route exact path="/level/:levelId" component={LevelDetails} />
+              <Route exact path="/topcreators" component={TopCreators} />
             </React.Fragment>
           )}
         </Router>

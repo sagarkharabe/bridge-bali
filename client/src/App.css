@@ -152,3 +152,9 @@ nav .pagination li.active a {
 nav .pagination li.active a:hover {
   color: #e1a51d;
 }
+.pull-left {
+  float: left;
+}
+.pull-right {
+  float: right;
+}

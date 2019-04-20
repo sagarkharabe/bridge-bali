@@ -1,0 +1,34 @@
+.minicard {
+  width: 300px;
+  margin: 5px;
+  padding: 5px;
+}
+
+.minicard h3 {
+  font-weight: bold;
+  margin-top: 0;
+}
+
+.minicard .profile-pic {
+  float: left;
+  width: 64px;
+  height: 64px;
+  padding: 0 5px;
+}
+
+.minicard .star-count {
+  background: #68d834;
+  border-radius: 5px;
+  float: right;
+  padding: 5px;
+  margin-right: 10px;
+}
+
+.minicard .more-by {
+  text-align: center;
+}
+
+.minicard .more-by a {
+  color: #fff;
+  text-decoration: underline;
+}

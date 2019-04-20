@@ -57,7 +57,7 @@ class Header extends Component {
                   <a href="/levels">Levels</a>
                 </li>
                 <li>
-                  <a href="/">Top Creators</a>
+                  <a href="/topcreators">Top Creators</a>
                 </li>
 
                 <li>

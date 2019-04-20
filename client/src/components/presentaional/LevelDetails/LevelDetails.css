@@ -14,20 +14,21 @@ h1 {
   width: 800px;
 }
 
-#level-metadata.metadata {
+#level-metadata .metadata {
   margin-bottom: 1em;
 }
 
-#level-metadata.metadata p {
+#level-metadata .metadata p {
   display: inline;
   padding-right: 1em;
 }
 
-#level-metadata.metadata.label p {
+#level-metadata .metadata .label p {
   font-weight: bold;
 }
 
-.controls#fork#starring {
+.controls#fork {
   float: left;
-  margin-right: 5px;
+  margin: 5px;
+  background: #68d834;
 }

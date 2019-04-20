@@ -1,0 +1,45 @@
+.leaderboard {
+  float: left;
+  display: block;
+  margin: 1em;
+  text-align: left;
+  width: 300px;
+  margin-left: 3%;
+  margin-right: 3%;
+}
+.leaderboard a {
+  color: white;
+}
+.leaderboard a:hover {
+  text-decoration: underline;
+}
+.leaderboard h2 {
+  text-align: center;
+}
+.leaderboard .star-count {
+  background: #e1a51d;
+  border-radius: 5px;
+  float: right;
+  padding: 5px;
+  margin-right: 10px;
+}
+
+.leaderboard .follower-count {
+  background: blue;
+  border-radius: 5px;
+  float: right;
+  padding: 5px;
+  margin-right: 10px;
+}
+.leaderboard .level-count {
+  background: #6bd834;
+  border-radius: 5px;
+  float: right;
+  padding: 5px;
+  margin-right: 10px;
+}
+.leaderboards::after {
+  content: "";
+  display: table;
+  clear: both;
+}
