@@ -39,7 +39,7 @@
     "express-handlebars": "^3.0.2",
     "express-session": "^1.15.6",
     "lodash": "^4.17.11",
-    "mongoose": "^5.4.16",
+    "mongoose": "^5.7.5",
     "passport": "^0.4.0",
     "passport-google-oauth20": "^2.0.0",
     "phaser": "^2.5.0",
